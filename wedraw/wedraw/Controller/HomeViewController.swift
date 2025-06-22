@@ -49,7 +49,9 @@ class HomeViewController: UIViewController {
     private func createCardView(with title: String, with image: String) -> UIView {
         let card = UIView()
         card.layer.cornerRadius = 20
-        card.layer.borderColor = UIColor(red: 0.77, green: 0.72, blue: 0.99, alpha: 1).cgColor // light purple
+
+//        card.layer.borderColor = UIColor(red: 0.77, green: 0.72, blue: 0.99, alpha: 1).cgColor // light purple
+        card.layer.borderColor = UIColor(named: "Inkredible-LightPurple")?.cgColor
         card.layer.borderWidth = 1.5
         card.backgroundColor = .white
         card.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +63,9 @@ class HomeViewController: UIViewController {
 //        label.font = .systemFont(ofSize: 13, weight: .medium)
         label.font = UIFont.preferredFont(forTextStyle: .caption2)
         label.textColor = .white
-        label.backgroundColor = UIColor(red: 0.56, green: 0.52, blue: 0.88, alpha: 1) // deep purple
+
+//        label.backgroundColor = UIColor(red: 0.56, green: 0.52, blue: 0.88, alpha: 1) // deep purple
+        label.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         label.textAlignment = .center
         label.layer.cornerRadius = 12
         label.clipsToBounds = true
@@ -99,7 +103,9 @@ class HomeViewController: UIViewController {
         let infoVC = LoomishDetailViewController()
         infoVC.modalPresentationStyle = .formSheet
         if let sheet = infoVC.sheetPresentationController {
-            sheet.detents = [.large()]
+
+//            sheet.detents = [.large()]
+            sheet.detents = [.medium()]
         }
         present(infoVC, animated: true, completion: nil)
     }

@@ -21,10 +21,11 @@ class ObjectListView: UIView {
     var learnMoreButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Learn More", for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.black, for: .normal)
 //        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .caption2)
-        button.backgroundColor = UIColor.systemGreen
+//        button.backgroundColor = UIColor.systemGreen
+        button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -46,9 +47,17 @@ class ObjectListView: UIView {
     
     lazy var bannerCard: UIView = {
         let card = UIView()
-        card.backgroundColor = UIColor(red: 0.88, green: 0.89, blue: 1, alpha: 1) // Light purple
+//        card.backgroundColor = UIColor(red: 0.88, green: 0.89, blue: 1, alpha: 1) // Light purple
+        card.backgroundColor = UIColor(named: "Inkredible-LightPurple")
         card.layer.cornerRadius = 16
         card.translatesAutoresizingMaskIntoConstraints = false
+        
+        
+        // Circle view
+        let circleView = UIView()
+        circleView.backgroundColor = .lightGray
+        circleView.layer.cornerRadius = 75
+        circleView.translatesAutoresizingMaskIntoConstraints = false
         
         let image = UIImageView()
         image.image = UIImage(named: "HeadHome") // must match Assets name
@@ -58,7 +67,9 @@ class ObjectListView: UIView {
         let title = UILabel()
         title.text = "The Loomis Method: Building Head Structures"
         title.font = UIFont.preferredFont(forTextStyle: .callout)
-        title.textColor = UIColor(red: 0.2, green: 0.2, blue: 0.5, alpha: 1)
+
+//        title.textColor = UIColor(red: 0.2, green: 0.2, blue: 0.5, alpha: 1)
+        title.textColor = UIColor(named: "Inkredible-DarkText")
         title.numberOfLines = 0
         title.translatesAutoresizingMaskIntoConstraints = false
         
@@ -119,10 +130,27 @@ class ObjectListView: UIView {
 
     let sectionLabel: UILabel = {
         let label = UILabel()
-        label.text = "List of Model with Loomis Method"
-        label.font = UIFont.boldSystemFont(ofSize: 18)
-        label.textColor = .darkGray
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.textAlignment = .left
+
+        let boldText = "Start Draw"
+        let regularText = ", Select Your Heads Model !"
+        
+        
+        let boldAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont(descriptor: UIFont.preferredFont(forTextStyle: .title3).fontDescriptor.withSymbolicTraits(.traitBold) ?? UIFontDescriptor(), size: 0),
+            .foregroundColor: UIColor.label
+        ]
+        let regularAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.preferredFont(forTextStyle: .title3),
+            .foregroundColor: UIColor.label
+        ]
+
+        let attributedText = NSMutableAttributedString(string: boldText, attributes: boldAttributes)
+        attributedText.append(NSAttributedString(string: regularText, attributes: regularAttributes))
+
+        label.attributedText = attributedText
         return label
         
     }()
