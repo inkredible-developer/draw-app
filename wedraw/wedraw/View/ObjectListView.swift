@@ -67,6 +67,7 @@ class ObjectListView: UIView {
         let title = UILabel()
         title.text = "The Loomis Method: Building Head Structures"
         title.font = UIFont.preferredFont(forTextStyle: .callout)
+
 //        title.textColor = UIColor(red: 0.2, green: 0.2, blue: 0.5, alpha: 1)
         title.textColor = UIColor(named: "Inkredible-DarkText")
         title.numberOfLines = 0
