@@ -21,6 +21,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
 //        let mainVC = MainViewController()
         let mainVC = SelectDrawingViewController()
+//        let mainVC = HomeViewController()
+//        let mainVC = DrawingStepsViewController()
+
         let nav = UINavigationController(rootViewController: mainVC)
         window?.rootViewController = nav
         window?.makeKeyAndVisible()
@@ -53,7 +56,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
-
 }
 
