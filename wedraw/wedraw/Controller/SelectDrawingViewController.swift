@@ -1,0 +1,63 @@
+//
+//  SelectDrawingViewController.swift
+//  wedraw
+//
+//  Created by Ali An Nuur on 22/06/25.
+//
+
+import UIKit
+
+final class SelectDrawingViewController: UIViewController {
+    var router: MainFlowRouter?
+    
+  private lazy var carousel = ModeCarouselView()
+  private lazy var selectButton = CustomButton(title: "Select", backgroundColor: UIColor(named: "Inkredible-Green") ?? .systemGreen, titleColor: UIColor(named: "Inkredible-DarkText") ?? .systemGreen)
+
+  override func loadView() {
+    view = UIView()
+    view.backgroundColor = .white
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    title = "Select Drawing Mode"
+    setupSubviews()
+    carousel.delegate = self
+    selectButton.delegate = self
+  }
+
+  private func setupSubviews() {
+    [carousel, selectButton].forEach {
+      view.addSubview($0)
+      $0.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    NSLayoutConstraint.activate([
+      carousel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+      carousel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      carousel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+      carousel.bottomAnchor.constraint(equalTo: selectButton.topAnchor),
+      selectButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+      selectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+      selectButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+      selectButton.heightAnchor.constraint(equalToConstant: 52)
+    ])
+  }
+}
+
+extension SelectDrawingViewController: ModeCarouselViewDelegate {
+  func carousel(_ carousel: ModeCarouselView, didSelectItemAt index: Int) {
+    print("Selected mode:", DrawingMode.allCases[index].title)
+  }
+}
+
+extension SelectDrawingViewController : CustomButtonDelegate {
+    func customButtonDidTap(_ button: CustomButton) {
+        let mode = DrawingMode.allCases[carousel.selectedIndex]
+        router?.presentDirectly(.tutorialSheetViewController(mode), animated: true)
+    }
+}
+
+#Preview {
+    SelectDrawingViewController()
+}
