@@ -9,15 +9,17 @@ import UIKit
 
 class SegmentedCardView: UIView {
     
+    private var allDraws: DrawData?
+    private var finishedDraws: [Draw] = []
+    
     private let segmentedControl = UISegmentedControl(items: ["Finished Draw", "Unfinished Draw"])
     private let scrollView = UIScrollView()
     private let cardStackView = UIStackView()
     
-    // Example data (segment 0 has data, segment 1 is empty)
-    private let data: [[String]] = [
-        ["Sketch 1", "Sketch 2", "Sketch 3", "Sketch 4"],
-        [] // Empty data to show empty state
-    ]
+    func configure(with allDraws: DrawData) {
+        self.allDraws = allDraws
+        loadCards(forSegment: segmentedControl.selectedSegmentIndex)
+    }
     
     // Dynamic label for empty state
     private let emptyStateLabel: UILabel = {
@@ -117,24 +119,25 @@ class SegmentedCardView: UIView {
     private func loadCards(forSegment index: Int) {
         cardStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        let items = data[index]
+        let items = index == 0 ? allDraws?.fineshedDraws : allDraws?.unfineshedDraws
         let segmentTitle = segmentedControl.titleForSegment(at: index) ?? "Draw"
         let capitalized = segmentTitle.prefix(1).capitalized + segmentTitle.dropFirst()
         emptyStateLabel.text = "Your \(capitalized) is Empty"
         
-        if items.isEmpty {
+        guard let items = items, !items.isEmpty else {
             scrollView.isHidden = true
             emptyStateView.isHidden = false
-        } else {
-            scrollView.isHidden = false
-            emptyStateView.isHidden = true
-            
-            for _ in items {
-                let icon = UIImage(named: "icon_head")      // Add your top-left icon image to Assets
-                let sketch = UIImage(named: "Sketch") // Add your main sketch image to Assets
-                let card = makeCard(icon: icon, sketch: sketch)
-                cardStackView.addArrangedSubview(card)
-            }
+            return
+        }
+        
+        scrollView.isHidden = false
+        emptyStateView.isHidden = true
+        
+        for draw in items {
+            let icon = UIImage(named: "icon_head")
+            let sketch = UIImage(named: "Sketch")
+            let card = makeCard(icon: icon, sketch: sketch)
+            cardStackView.addArrangedSubview(card)
         }
     }
     

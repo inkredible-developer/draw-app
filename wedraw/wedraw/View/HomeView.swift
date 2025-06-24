@@ -9,16 +9,29 @@ import UIKit
 
 class HomeView: UIView {
     
+    private var data: DrawData?
+    private var finishedDraw: [Draw] = []
+    private var unfinsihedDraw: [Draw] = []
+    
     
     weak var controller: HomeViewController?
     let threeDObjectView = ObjectListView()
     var recentDrawView = MyDrawView()
     let segmentedCardView = SegmentedCardView()
     
-    
-    override init(frame: CGRect) {
+//    func configure(with data: DrawData) {
+//        self.unfinsihedDraw = data.unfineshedDraws
+//        self.finishedDraw = data.fineshedDraws
+//        print("self.unfinsihedDraw",self.unfinsihedDraw)
+//        print("self.finishedDraw",self.finishedDraw)
+////        updateUI()
+//    }
+    init(frame: CGRect, with data: DrawData?) {
+        self.data = data
         super.init(frame: frame)
         setupLayout()
+        
+        segmentedCardView.configure(with: self.data!)
     }
 
     required init?(coder: NSCoder) {

@@ -7,6 +7,11 @@
 
 import UIKit
 
+
+struct DrawData {
+    let unfineshedDraws: [Draw]
+    let fineshedDraws: [Draw]
+}
 class HomeViewController: UIViewController {
     var router: MainFlowRouter?
     let drawService = DrawService()
@@ -14,12 +19,15 @@ class HomeViewController: UIViewController {
     var fineshedDraws: [Draw] = []
     var allDraws: [Draw] = []
     
+    
     private var homeView: HomeView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadDraw()
-        homeView = HomeView(frame: .zero)
+        
+        let allDrawData = DrawData(unfineshedDraws: unfineshedDraws, fineshedDraws: fineshedDraws)
+        homeView = HomeView(frame: .zero, with: allDrawData)
         self.view = homeView
         
         setupContent()
