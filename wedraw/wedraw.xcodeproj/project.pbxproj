@@ -180,6 +180,7 @@
 				DEVELOPMENT_TEAM = 5CRHA47J3Q;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos so that can show tracing image properly";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -206,6 +207,7 @@
 				DEVELOPMENT_TEAM = 5CRHA47J3Q;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos so that can show tracing image properly";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

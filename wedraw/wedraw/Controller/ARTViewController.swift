@@ -13,20 +13,15 @@ class ARTracingViewController: UIViewController {
 
     var arView: ARSCNView!
 
-    var tracingImage: UIImage!
-
+    var router: MainFlowRouter?
+    private var anchorImage: UIImage?
+    private var tracingImage: UIImage
+    
     var referenceImagePhysicalWidth: CGFloat = 0.1
-
     private let tracingPlaneWidth: CGFloat = 0.20
-    
     private var originalPlaneSize: CGSize?
-
-    private var statusViewController: StatusViewController!
-    private var blurView: UIVisualEffectView!
-
-    var anchorImage: UIImage!
-    private var referenceImage: ARReferenceImage?
     
+    private var referenceImage: ARReferenceImage?
     private var hasRelocatedToWorld = false
 
     private var tracingNode: SCNNode?
@@ -38,23 +33,35 @@ class ARTracingViewController: UIViewController {
     private var isAnchorVisible = false
     private var lastKnownImageAnchorTransform: simd_float4x4?
     private var hasPlacedInitialTracingNode = false
-    private var anchorDetectionTimeout: Timer?
-
+    
     private let updateQueue = DispatchQueue(label: "com.example.artracing.serialSceneKitQueue")
     private var isRestartAvailable = true
-
+    
+    // Anchor popup view
+    private var anchorPopupView: AnchorPopupView?
+    
+    init(anchorImage: UIImage?, tracingImage: UIImage) {
+        self.anchorImage = anchorImage
+        self.tracingImage = tracingImage
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupARView()
-        setupStatusViewController()
-        setupBlurView()
+        setupAnchorPopupView()
         setupGestures()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        router?.navigationController?.setNavigationBarHidden(true, animated: animated)
         resetTracking()
     }
 
@@ -77,7 +84,6 @@ class ARTracingViewController: UIViewController {
         arView.autoenablesDefaultLighting = true
         arView.automaticallyUpdatesLighting = true
         arView.preferredFramesPerSecond = 60
-
         arView.antialiasingMode = .multisampling4X
         arView.contentScaleFactor = UIScreen.main.scale
 
@@ -90,39 +96,26 @@ class ARTracingViewController: UIViewController {
             arView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-
-    private func setupStatusViewController() {
-        statusViewController = StatusViewController(nibName: nil, bundle: nil)
-
-        addChild(statusViewController)
-        view.addSubview(statusViewController.view)
-        statusViewController.didMove(toParent: self)
-
-        statusViewController.view.translatesAutoresizingMaskIntoConstraints = false
+    
+    private func setupAnchorPopupView() {
+        let popup = AnchorPopupView(
+            title: "Mencari Anchor",
+            message: "Arahkan kamera ke anchor yang telah ditentukan",
+            backgroundColor: UIColor(white: 0, alpha: 0.6)
+        )
+        
+        view.addSubview(popup)
+        popup.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
-            statusViewController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            statusViewController.view.leftAnchor.constraint(equalTo: view.leftAnchor),
-            statusViewController.view.rightAnchor.constraint(equalTo: view.rightAnchor),
+            popup.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            popup.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            popup.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8),
+            popup.heightAnchor.constraint(lessThanOrEqualToConstant: 120)
         ])
-
-        statusViewController.restartExperienceHandler = { [unowned self] in
-            self.restartExperience()
-        }
-    }
-
-    private func setupBlurView() {
-        blurView = UIVisualEffectView(effect: UIBlurEffect(style: .light))
-        blurView.isHidden = true
-        blurView.alpha = 0
-        view.addSubview(blurView)
-
-        blurView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            blurView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            blurView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            blurView.topAnchor.constraint(equalTo: view.topAnchor),
-            blurView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        
+        popup.isHidden = true // Initially hidden
+        anchorPopupView = popup
     }
 
     private func setupGestures() {
@@ -133,18 +126,14 @@ class ARTracingViewController: UIViewController {
         let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(didPinch(_:)))
         arView.addGestureRecognizer(pinchGesture)
 
-       
         let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(didRotate(_:)))
         arView.addGestureRecognizer(rotationGesture)
     }
 
-
     private func resetTracking() {
-        statusViewController.showMessage("Mencari anchor image...")
-
-     
-        anchorDetectionTimeout?.invalidate()
-
+        // Show the popup when starting tracking
+        anchorPopupView?.isHidden = false
+        
         isAnchorVisible = false
         lastKnownImageAnchorTransform = nil
         relativeTransform = nil
@@ -157,7 +146,6 @@ class ARTracingViewController: UIViewController {
         imageAnchorNode = nil
 
         guard let referenceImage = createReferenceImage() else {
-            statusViewController.showMessage("Error: Tidak dapat membuat reference image")
             return
         }
 
@@ -174,12 +162,10 @@ class ARTracingViewController: UIViewController {
         }
 
         arView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
-
     }
 
-    
     private func createReferenceImage() -> ARReferenceImage? {
-        guard let cgImage = anchorImage.cgImage else { return nil }
+        guard let cgImage = anchorImage?.cgImage else { return nil }
         let referenceImage = ARReferenceImage(
             cgImage,
             orientation: .up,
@@ -192,7 +178,7 @@ class ARTracingViewController: UIViewController {
     // MARK: - Tracing Node Management
 
     private func createTracingNode() -> SCNNode {
-        let image = tracingImage!
+        let image = tracingImage
         let width: CGFloat = 0.25
         let aspectRatio = image.size.height / image.size.width
         let height = width * aspectRatio
@@ -208,9 +194,6 @@ class ARTracingViewController: UIViewController {
         node.opacity = 0.8
         return node
     }
-
-
-
 
     private func createTracingNode(for imageAnchor: ARImageAnchor? = nil) -> SCNNode {
         let imageSize = tracingImage.size
@@ -244,11 +227,9 @@ class ARTracingViewController: UIViewController {
         return node
     }
 
-
     private func prepareImages() {
-
-        guard let anchorImage = anchorImage, let tracingImage = tracingImage else {
-            print("Error: Missing images")
+        guard let anchorImage = anchorImage else {
+            print("Error: Missing anchor image")
             return
         }
 
@@ -274,16 +255,14 @@ class ARTracingViewController: UIViewController {
 
     private func placeTracingNodeInWorldSpace() {
         guard tracingNode == nil, worldAnchorNode == nil else { return }
-
-        statusViewController.showMessage("Menggunakan gambar tanpa anchor", autoHide: true)
-
+        
         let newTracingNode = createTracingNode()
          
-           if let plane = newTracingNode.geometry as? SCNPlane {
-               originalPlaneSize = CGSize(width: plane.width, height: plane.height)
-           }
+        if let plane = newTracingNode.geometry as? SCNPlane {
+            originalPlaneSize = CGSize(width: plane.width, height: plane.height)
+        }
 
-           let worldNode = SCNNode()
+        let worldNode = SCNNode()
 
         if let currentFrame = arView.session.currentFrame {
             let cameraTransform = currentFrame.camera.transform
@@ -331,10 +310,6 @@ class ARTracingViewController: UIViewController {
             tracingNode = newTracingNode
             worldAnchorNode = worldNode
             hasPlacedInitialTracingNode = true
-
-            if hasPlacedOnPlane {
-                statusViewController.showMessage("Gambar diletakkan pada permukaan", autoHide: true)
-            }
         }
     }
 
@@ -343,10 +318,8 @@ class ARTracingViewController: UIViewController {
 
         relativeTransform = imageAnchorNode.convertTransform(tracingNode.transform, from: tracingNode.parent)
     }
-
    
     private func moveTracingNodeToWorldSpace() {
-    
         guard let tracingNode = tracingNode,
               worldAnchorNode == nil,
               !hasRelocatedToWorld else { return }
@@ -364,8 +337,11 @@ class ARTracingViewController: UIViewController {
 
         self.worldAnchorNode = worldNode
         self.hasRelocatedToWorld = true
-
-        statusViewController.showMessage("Anchor hilang - gambar tetap stabil", autoHide: true)
+        
+        // Show popup when anchor is lost
+        DispatchQueue.main.async {
+            self.anchorPopupView?.isHidden = false
+        }
     }
 
     private func moveTracingNodeToImageAnchor() {
@@ -385,14 +361,18 @@ class ARTracingViewController: UIViewController {
 
         if let plane = tracingNode.geometry as? SCNPlane,
               let original = originalPlaneSize {
-               plane.width  = original.width
-               plane.height = original.height
-           }
+            plane.width  = original.width
+            plane.height = original.height
+        }
 
-           worldNode.removeFromParentNode()
-           worldAnchorNode = nil
-           hasRelocatedToWorld = false
-           statusViewController.showMessage("Anchor terdeteksi kembali!", autoHide: true)
+        worldNode.removeFromParentNode()
+        worldAnchorNode = nil
+        hasRelocatedToWorld = false
+        
+        // Hide popup when anchor is found
+        DispatchQueue.main.async {
+            self.anchorPopupView?.isHidden = true
+        }
     }
 
     // MARK: - Gesture Actions
@@ -412,7 +392,6 @@ class ARTracingViewController: UIViewController {
             let dy = Float(translation.y) * speed
 
             if self.worldAnchorNode != nil {
-                
                 let currentPosition = tracingNode.worldPosition
                 tracingNode.worldPosition = SCNVector3(
                     currentPosition.x + dx,
@@ -420,17 +399,12 @@ class ARTracingViewController: UIViewController {
                     currentPosition.z + dy
                 )
             } else if self.imageAnchorNode != nil {
-
                 tracingNode.position.x += dx
                 tracingNode.position.z += dy
                 self.updateRelativeTransform()
             }
         }
     }
-
-
-
-
 
     @objc func didPinch(_ gesture: UIPinchGestureRecognizer) {
         guard let tracingNode = tracingNode,
@@ -456,16 +430,12 @@ class ARTracingViewController: UIViewController {
         gesture.rotation = 0
 
         if worldAnchorNode != nil {
-         
             tracingNode.eulerAngles.z -= rotation
         } else if imageAnchorNode != nil {
-        
             tracingNode.eulerAngles.y -= rotation
-
             self.updateRelativeTransform()
         }
     }
-
 
     // MARK: - Experience Actions
 
@@ -476,8 +446,6 @@ class ARTracingViewController: UIViewController {
     func restartExperience() {
         guard isRestartAvailable else { return }
         isRestartAvailable = false
-
-        statusViewController.cancelAllScheduledMessages()
 
         relativeTransform = nil
         tracingNode?.removeFromParentNode()
@@ -504,16 +472,12 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
               imageAnchor.referenceImage.name == "AnchorImage" else { return }
 
         DispatchQueue.main.async {
-            self.statusViewController.showMessage("Anchor terdeteksi!")
+            // Hide popup when anchor is detected
+            self.anchorPopupView?.isHidden = true
             self.hasPlacedInitialTracingNode = true
-
-            self.anchorDetectionTimeout?.invalidate()
         }
-
        
         imageAnchorNode = node
-
-      
         isAnchorVisible = true
         lastKnownImageAnchorTransform = imageAnchor.transform
 
@@ -522,16 +486,15 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
                 self.moveTracingNodeToImageAnchor()
             }
         } else if tracingNode == nil {
-          
             let newTracingNode = createTracingNode(for: imageAnchor)
             node.addChildNode(newTracingNode)
-                tracingNode = newTracingNode
+            tracingNode = newTracingNode
 
-                if let plane = newTracingNode.geometry as? SCNPlane {
-                    originalPlaneSize = CGSize(width: plane.width, height: plane.height)
-                }
+            if let plane = newTracingNode.geometry as? SCNPlane {
+                originalPlaneSize = CGSize(width: plane.width, height: plane.height)
+            }
 
-                updateRelativeTransform()
+            updateRelativeTransform()
         }
     }
 
@@ -545,6 +508,11 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
             if !isAnchorVisible {
                 isAnchorVisible = true
                 lastKnownImageAnchorTransform = imageAnchor.transform
+                
+                // Hide popup when anchor becomes visible
+                DispatchQueue.main.async {
+                    self.anchorPopupView?.isHidden = true
+                }
 
                 if let _ = worldAnchorNode {
                     DispatchQueue.main.async {
@@ -556,7 +524,10 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
             }
         } else if isAnchorVisible {
             isAnchorVisible = false
+            
+            // Show popup when anchor becomes invisible
             DispatchQueue.main.async {
+                self.anchorPopupView?.isHidden = false
                 SCNTransaction.begin()
                 SCNTransaction.animationDuration = 0
                 self.moveTracingNodeToWorldSpace()
@@ -566,7 +537,6 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
     }
 
     func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
-       
         if let imageAnchor = anchor as? ARImageAnchor,
            imageAnchor.referenceImage.name == "AnchorImage",
            isAnchorVisible,
@@ -574,22 +544,17 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
 
             isAnchorVisible = false
             imageAnchorNode = nil
-
+            
+            // Show popup when anchor is removed
             DispatchQueue.main.async {
+                self.anchorPopupView?.isHidden = false
                 self.moveTracingNodeToWorldSpace()
             }
         }
     }
 
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
-        statusViewController.showTrackingQualityInfo(for: camera.trackingState, autoHide: true)
-
-        switch camera.trackingState {
-        case .notAvailable, .limited:
-            statusViewController.escalateFeedback(for: camera.trackingState, inSeconds: 3.0)
-        case .normal:
-            statusViewController.cancelScheduledMessage(for: .trackingStateEscalation)
-        }
+        // Just update the tracking state without showing any messages
     }
     
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
@@ -605,7 +570,6 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
             }
         }
     }
-
     
     private func placeTracingNodeAtLastKnownTransform() {
         guard let last = lastKnownImageAnchorTransform,
@@ -623,23 +587,20 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
 
         self.worldAnchorNode = worldNode
         self.hasRelocatedToWorld = true
+        
+        // Show popup when using last known transform
+        DispatchQueue.main.async {
+            self.anchorPopupView?.isHidden = false
+        }
     }
 
     func session(_ session: ARSession, didFailWithError error: Error) {
         guard error is ARError else { return }
 
-        let errorWithInfo = error as NSError
-        let messages = [
-            errorWithInfo.localizedDescription,
-            errorWithInfo.localizedFailureReason,
-            errorWithInfo.localizedRecoverySuggestion
-        ]
-
-        let errorMessage = messages.compactMap({ $0 }).joined(separator: "\n")
-
+        // Show popup for AR session failures
         DispatchQueue.main.async {
-            self.statusViewController.showMessage("AR Session Failed: \(errorMessage)", autoHide: false)
-
+            self.anchorPopupView?.isHidden = false
+            
             if self.tracingNode == nil && !self.hasPlacedInitialTracingNode {
                 self.placeTracingNodeInWorldSpace()
             }
@@ -647,22 +608,32 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
     }
 
     func sessionWasInterrupted(_ session: ARSession) {
-        blurView.isHidden = false
-        statusViewController.showMessage("Session Interrupted", autoHide: false)
+        // Show popup when session is interrupted
+        DispatchQueue.main.async {
+            self.anchorPopupView?.isHidden = false
+        }
     }
 
     func sessionInterruptionEnded(_ session: ARSession) {
-        blurView.isHidden = true
-        statusViewController.showMessage("Session Resumed", autoHide: true)
+        // Keep popup visible if anchor is not visible
+        if !isAnchorVisible {
+            DispatchQueue.main.async {
+                self.anchorPopupView?.isHidden = false
+            }
+            
+            if !hasPlacedInitialTracingNode && tracingNode == nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                    guard let self = self,
+                          !self.hasPlacedInitialTracingNode,
+                          self.tracingNode == nil else { return }
 
-        if !isAnchorVisible && tracingNode == nil && !hasPlacedInitialTracingNode {
-           
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-                guard let self = self,
-                      !self.hasPlacedInitialTracingNode,
-                      self.tracingNode == nil else { return }
-
-                self.placeTracingNodeInWorldSpace()
+                    self.placeTracingNodeInWorldSpace()
+                }
+            }
+        } else {
+            // Hide popup if anchor is visible
+            DispatchQueue.main.async {
+                self.anchorPopupView?.isHidden = true
             }
         }
     }
@@ -675,218 +646,15 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
 // MARK: - UIGestureRecognizerDelegate
 
 extension ARTracingViewController: UIGestureRecognizerDelegate {
-
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        
         return true
-    }
-}
-
-class StatusViewController: UIViewController {
-
-    // MARK: - Properties
-
-    var restartExperienceHandler: () -> Void = {}
-
-    private let messagePanel = UIVisualEffectView(effect: UIBlurEffect(style: .light))
-    private let messageLabel = UILabel()
-    private let restartButton = UIButton(type: .system)
-
-  
-    private var messageHideTimer: Timer?
-
-    // MARK: - Message Types
-
-    enum MessageType {
-        case trackingStateEscalation
-        case contentPlacement
-
-        static let all: [MessageType] = [.trackingStateEscalation, .contentPlacement]
-    }
-
-    private var timers: [MessageType: Timer] = [:]
-
-    // MARK: - Lifecycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupMessagePanel()
-    }
-
-    // MARK: - Setup
-
-    private func setupMessagePanel() {
-      
-        messagePanel.layer.cornerRadius = 8
-        messagePanel.clipsToBounds = true
-        messagePanel.isHidden = true
-        view.addSubview(messagePanel)
-
-        messageLabel.numberOfLines = 0
-        messageLabel.textAlignment = .center
-        messageLabel.font = UIFont.preferredFont(forTextStyle: .body)
-
-        let stackView = UIStackView(arrangedSubviews: [messageLabel, restartButton])
-        stackView.axis = .vertical
-        stackView.spacing = 8
-        stackView.alignment = .center
-        stackView.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
-        stackView.isLayoutMarginsRelativeArrangement = true
-
-        restartButton.setTitle("Reset", for: .normal)
-        restartButton.addTarget(self, action: #selector(restartExperience), for: .touchUpInside)
-        restartButton.isHidden = true
-
-        messagePanel.contentView.addSubview(stackView)
-
-        messagePanel.translatesAutoresizingMaskIntoConstraints = false
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            messagePanel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            messagePanel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            messagePanel.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.9),
-
-            stackView.leadingAnchor.constraint(equalTo: messagePanel.contentView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: messagePanel.contentView.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: messagePanel.contentView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: messagePanel.contentView.bottomAnchor)
-        ])
-    }
-
-    // MARK: - Messages
-
-    func showMessage(_ text: String, autoHide: Bool = true) {
-        messageHideTimer?.invalidate()
-
-        messageLabel.text = text
-
-        let needsRestart = text.lowercased().contains("try resetting")
-        restartButton.isHidden = !needsRestart
-
-        messagePanel.isHidden = false
-        messagePanel.alpha = 1
-
-        if autoHide {
-            let displayDuration: TimeInterval = needsRestart ? 10.0 : 4.0
-            messageHideTimer = Timer.scheduledTimer(withTimeInterval: displayDuration, repeats: false, block: { [weak self] _ in
-                self?.setMessageHidden(true, animated: true)
-            })
-        }
-    }
-
-    func scheduleMessage(_ text: String, inSeconds seconds: TimeInterval, messageType: MessageType) {
-        cancelScheduledMessage(for: messageType)
-
-        let timer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false, block: { [weak self] timer in
-            self?.showMessage(text)
-            timer.invalidate()
-        })
-
-        timers[messageType] = timer
-    }
-
-    func cancelScheduledMessage(for messageType: MessageType) {
-        timers[messageType]?.invalidate()
-        timers[messageType] = nil
-    }
-
-    func cancelAllScheduledMessages() {
-        for messageType in MessageType.all {
-            cancelScheduledMessage(for: messageType)
-        }
-    }
-
-    // MARK: - ARKit
-
-    func showTrackingQualityInfo(for trackingState: ARCamera.TrackingState, autoHide: Bool) {
-        showMessage(trackingState.presentationString, autoHide: autoHide)
-    }
-
-    func escalateFeedback(for trackingState: ARCamera.TrackingState, inSeconds seconds: TimeInterval) {
-        cancelScheduledMessage(for: .trackingStateEscalation)
-
-        let timer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false, block: { [unowned self] _ in
-            self.cancelScheduledMessage(for: .trackingStateEscalation)
-
-            var message = trackingState.presentationString
-            if let recommendation = trackingState.recommendation {
-                message.append(": \(recommendation)")
-            }
-
-            self.showMessage(message, autoHide: false)
-        })
-
-        timers[.trackingStateEscalation] = timer
-    }
-
-    // MARK: - IBActions
-
-    @IBAction private func restartExperience(_ sender: UIButton) {
-        restartExperienceHandler()
-    }
-
-    // MARK: - Panel Visibility
-
-    private func setMessageHidden(_ hide: Bool, animated: Bool) {
-        messagePanel.isHidden = false
-
-        guard animated else {
-            messagePanel.alpha = hide ? 0 : 1
-            messagePanel.isHidden = hide
-            return
-        }
-
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.beginFromCurrentState], animations: {
-            self.messagePanel.alpha = hide ? 0 : 1
-        }, completion: { _ in
-            self.messagePanel.isHidden = hide
-        })
-    }
-}
-
-// MARK: - ARCamera.TrackingState Extension
-
-extension ARCamera.TrackingState {
-    var presentationString: String {
-        switch self {
-        case .notAvailable:
-            return "TRACKING UNAVAILABLE"
-        case .normal:
-            return "TRACKING NORMAL"
-        case .limited(.excessiveMotion):
-            return "TRACKING LIMITED\nTerlalu banyak gerakan"
-        case .limited(.insufficientFeatures):
-            return "TRACKING LIMITED\nPermukaan kurang detail"
-        case .limited(.initializing):
-            return "Initializing"
-        case .limited(.relocalizing):
-            return "Recovering from interruption"
-        @unknown default:
-            return "Unknown tracking state."
-        }
-    }
-
-    var recommendation: String? {
-        switch self {
-        case .limited(.excessiveMotion):
-            return "Cobalah perlambat gerakan, atau reset sesi."
-        case .limited(.insufficientFeatures):
-            return "Cobalah arahkan ke permukaan yang lebih detail, atau reset sesi."
-        case .limited(.relocalizing):
-            return "Kembali ke posisi sebelumnya atau coba reset sesi."
-        default:
-            return nil
-        }
     }
 }
 
 // MARK: - ThresholdPanGesture
 
 class ThresholdPanGesture: UIPanGestureRecognizer {
-
     private(set) var isThresholdExceeded = false
-
     private var threshold: CGFloat
 
     init(target: Any?, action: Selector?, threshold: CGFloat = 30) {
@@ -899,7 +667,6 @@ class ThresholdPanGesture: UIPanGestureRecognizer {
             switch state {
             case .began, .changed:
                 break
-
             default:
                 isThresholdExceeded = false
             }
@@ -914,7 +681,6 @@ class ThresholdPanGesture: UIPanGestureRecognizer {
         let translationMagnitude = translation(in: view).length
         if translationMagnitude > threshold {
             isThresholdExceeded = true
-
             setTranslation(.zero, in: view)
         }
     }
@@ -931,7 +697,6 @@ func metersFromImageSize(_ image: UIImage, dpi: CGFloat = 300) -> CGSize {
     return CGSize(width: widthMeters, height: heightMeters)
 }
 
-
 // MARK: - CGPoint extension
 
 extension CGPoint {
@@ -941,14 +706,12 @@ extension CGPoint {
 }
 
 // MARK: - Float4x4 Extension for Matrix Transformations
-
 extension simd_float4x4 {
-
     var translation: SIMD3<Float> {
         let translation = columns.3
         return SIMD3<Float>(translation.x, translation.y, translation.z)
     }
-    
+
     static func makeTranslation(_ translation: SIMD3<Float>) -> simd_float4x4 {
         var matrix = matrix_identity_float4x4
         matrix.columns.3.x = translation.x
