@@ -19,6 +19,11 @@ class HomeView: UIView {
     var recentDrawView = MyDrawView()
     let segmentedCardView = SegmentedCardView()
     
+    var segmentedCardDelegate: SegmentedCardViewDelegate? {
+        get { segmentedCardView.delegate }
+        set { segmentedCardView.delegate = newValue }
+    }
+    
 //    func configure(with data: DrawData) {
 //        self.unfinsihedDraw = data.unfineshedDraws
 //        self.finishedDraw = data.fineshedDraws

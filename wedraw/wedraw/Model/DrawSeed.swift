@@ -10,11 +10,10 @@ import CoreData
 class InitialDataSeeder {
     static func seedDrawIfNeeded() {
         let context = CoreDataManager.shared.context
-
-        // Check if a draw already exists
+        
         let fetchRequest: NSFetchRequest<Draw> = Draw.fetchRequest()
         let count = (try? context.count(for: fetchRequest)) ?? 0
-        guard count < 2 else {
+        guard count < 3 else {
             print("✅ Draw already seeded.")
             return
         }
@@ -29,10 +28,9 @@ class InitialDataSeeder {
             draw.similarity_score = Int16.random(in: 0...100)
             draw.is_finished = false
             draw.finished_image = "draw_preview.jpg" // This can be a filename or base64 depending on your needs
+            draw.draw_mode = "reference"
 
             CoreDataManager.shared.saveContext()
         
-        
-//        print("✅ Seeded draw with angle '\(a  ngle.angleName ?? "")'")
     }
 }

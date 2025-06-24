@@ -22,6 +22,7 @@ extension Draw {
     @NSManaged public var similarity_score: Int16
     @NSManaged public var finished_image: String?
     @NSManaged public var is_finished: Bool
+    @NSManaged public var draw_mode: String?
 
 }
 

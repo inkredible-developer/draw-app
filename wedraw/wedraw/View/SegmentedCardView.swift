@@ -7,14 +7,23 @@
 
 import UIKit
 
+protocol SegmentedCardViewDelegate: AnyObject {
+    func didTapDrawCard(draw:Draw)
+}
+
 class SegmentedCardView: UIView {
+    
+    
+    weak var delegate: SegmentedCardViewDelegate?
     
     private var allDraws: DrawData?
     private var finishedDraws: [Draw] = []
     
+    
     private let segmentedControl = UISegmentedControl(items: ["Finished Draw", "Unfinished Draw"])
     private let scrollView = UIScrollView()
     private let cardStackView = UIStackView()
+    var drawMap: [Int: Draw] = [:]
     
     func configure(with allDraws: DrawData) {
         self.allDraws = allDraws
@@ -137,13 +146,30 @@ class SegmentedCardView: UIView {
             let icon = UIImage(named: "icon_head")
             let sketch = UIImage(named: "Sketch")
             let card = makeCard(icon: icon, sketch: sketch)
+            let tag = draw.draw_id.hashValue
+            
+            card.tag = tag
+            drawMap[tag] = draw
+            
+//            card.draw = draw
+//            card.data = draw.draw_id
+            card.isUserInteractionEnabled = true
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(drawCardTapped(_:)))
+            card.addGestureRecognizer(tapGesture)
             cardStackView.addArrangedSubview(card)
         }
     }
-    
+    @objc private func drawCardTapped(_ sender: UITapGestureRecognizer) {
+        guard let tag = sender.view?.tag,
+        let draw = drawMap[tag] else { return }
+//        print("test tap")
+//        print("draw",draw)
+        delegate?.didTapDrawCard(draw: draw)
+    }
     
     private func makeCard(icon: UIImage?, sketch: UIImage?) -> UIView {
         let card = UIView()
+//        var draw: Draw?
         card.backgroundColor = .clear
         card.layer.cornerRadius = 20
         card.layer.masksToBounds = true

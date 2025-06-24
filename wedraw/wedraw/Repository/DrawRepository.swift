@@ -26,7 +26,7 @@ class DrawRepository {
         return (try? context.fetch(request)) ?? []
     }
 
-    func insertDraw(draw_id: UUID, angle_id: UUID, current_step: Int, similarity_score: Int, finished_image: String?, is_finished: Bool) {
+    func insertDraw(draw_id: UUID, angle_id: UUID, current_step: Int, similarity_score: Int, finished_image: String?, is_finished: Bool, draw_mode: String?) {
         let context = CoreDataManager.shared.context
         let draw = Draw(context: context)
         draw.draw_id = draw_id
@@ -35,6 +35,7 @@ class DrawRepository {
         draw.similarity_score = Int16(similarity_score)
         draw.finished_image = finished_image
         draw.is_finished = is_finished
+        draw.draw_mode = draw_mode
         CoreDataManager.shared.saveContext()
     }
 

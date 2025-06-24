@@ -12,7 +12,7 @@ struct DrawData {
     let unfineshedDraws: [Draw]
     let fineshedDraws: [Draw]
 }
-class HomeViewController: UIViewController {
+class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     var router: MainFlowRouter?
     let drawService = DrawService()
     var unfineshedDraws: [Draw] = []
@@ -28,6 +28,7 @@ class HomeViewController: UIViewController {
         
         let allDrawData = DrawData(unfineshedDraws: unfineshedDraws, fineshedDraws: fineshedDraws)
         homeView = HomeView(frame: .zero, with: allDrawData)
+        homeView.segmentedCardDelegate = self
         self.view = homeView
         
         setupContent()
@@ -191,6 +192,18 @@ class HomeViewController: UIViewController {
     
     @objc private func modelCardTapped(_ sender: UITapGestureRecognizer) {
         router?.navigate(to: .setAngleViewController, animated: true)
+    }
+    
+    @objc func didTapDrawCard(draw: Draw) {
+        print("draw data",draw)
+        print("draw card tapped")
+        var drawVC = UIViewController()
+        if draw.draw_mode == "reference" {
+            drawVC = DrawingStepsViewController()
+        }else{
+            drawVC = DrawingStepsUsingCameraController()
+        }
+        navigationController?.pushViewController(drawVC, animated: true)
     }
     
 }

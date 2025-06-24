@@ -32,7 +32,8 @@ class DrawService {
             current_step: 1,
             similarity_score: 0,
             finished_image: nil,
-            is_finished: false
+            is_finished: false,
+            draw_mode: ""
         )
     }
 
