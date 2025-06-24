@@ -47,6 +47,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainVC = HomeViewController()
 //        let mainVC = DrawingStepsViewController()
 //        let mainVC = DrawingStepsUsingCameraController()
+//        let mainVC = SetAngleViewController()
         
         let mainNavigationController = UINavigationController(rootViewController: mainVC)
         router = MainFlowRouter(navigationController: mainNavigationController)

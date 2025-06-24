@@ -7,8 +7,6 @@
 
 import UIKit
 
-import UIKit
-
 protocol CustomButtonDelegate: AnyObject {
   func customButtonDidTap(_ button: CustomButton)
 }

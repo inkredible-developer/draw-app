@@ -110,6 +110,9 @@ class HomeViewController: UIViewController {
         
         for (title, image) in models {
             let card = createCardView(with: title, with: image)
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(modelCardTapped(_:)))
+            card.addGestureRecognizer(tapGesture)
+            card.isUserInteractionEnabled = true
             homeView.modelsStackView.addArrangedSubview(card)
         }
     }
@@ -176,6 +179,10 @@ class HomeViewController: UIViewController {
             sheet.detents = [.medium()]
         }
         present(infoVC, animated: true, completion: nil)
+    }
+    
+    @objc private func modelCardTapped(_ sender: UITapGestureRecognizer) {
+        router?.navigate(to: .setAngleViewController, animated: true)
     }
     
 }
