@@ -16,7 +16,7 @@ class LoomishDetailViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.backgroundColor = UIColor(named: "Inkredible-Green")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         view.layer.cornerRadius = 20
         view.clipsToBounds = true
 
@@ -25,7 +25,7 @@ class LoomishDetailViewController: UIViewController {
         titleLabel.text = "The Loomis Method:\nBuilding Head Structures"
         titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
         titleLabel.textAlignment = .center
-//        titleLabel.textColor = UIColor.systemGreen
+        titleLabel.textColor = UIColor.white
         titleLabel.numberOfLines = 2
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -37,15 +37,15 @@ class LoomishDetailViewController: UIViewController {
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
 
         
-        // Circle Background View
-        let circleView = UIView()
-        circleView.translatesAutoresizingMaskIntoConstraints = false
-        circleView.backgroundColor = .white
-        circleView.layer.cornerRadius = 50 // Will be set to half of width/height later
-        circleView.clipsToBounds = true
+//        // Circle Background View
+//        let circleView = UIView()
+//        circleView.translatesAutoresizingMaskIntoConstraints = false
+//        circleView.backgroundColor = .white
+//        circleView.layer.cornerRadius = 50 // Will be set to half of width/height later
+//        circleView.clipsToBounds = true
         
         // Image (Placeholder)
-        let imageView = UIImageView(image: UIImage(named: "HeadHome") ?? UIImage(systemName: "person.crop.circle"))
+        let imageView = UIImageView(image: UIImage(named: "LoomishDetail") ?? UIImage(systemName: "person.crop.circle"))
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.tintColor = .gray
@@ -55,7 +55,7 @@ class LoomishDetailViewController: UIViewController {
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .left
         descriptionLabel.font = UIFont.systemFont(ofSize: 15)
-        descriptionLabel.textColor = .black
+        descriptionLabel.textColor = UIColor.white
         descriptionLabel.text = """
         The Loomis Method, developed by illustrator **Andrew Loomis**, is a timeless drawing technique that helps artists understand and build the human head from any angle.
 
@@ -68,8 +68,8 @@ class LoomishDetailViewController: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(closeButton)
         
-        view.addSubview(circleView)
-        circleView.addSubview(imageView)
+        view.addSubview(imageView)
+//        circleView.addSubview(imageView)
 //        view.addSubview(imageView)
         view.addSubview(descriptionLabel)
 
@@ -84,15 +84,15 @@ class LoomishDetailViewController: UIViewController {
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             
-            circleView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-            circleView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            circleView.widthAnchor.constraint(equalToConstant: 100),
-            circleView.heightAnchor.constraint(equalToConstant: 100),
+//            circleView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+//            circleView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            circleView.widthAnchor.constraint(equalToConstant: 100),
+//            circleView.heightAnchor.constraint(equalToConstant: 100),
 
-            imageView.centerXAnchor.constraint(equalTo: circleView.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: circleView.centerYAnchor),
-            imageView.widthAnchor.constraint(equalToConstant: 80),
-            imageView.heightAnchor.constraint(equalToConstant: 80),
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            imageView.widthAnchor.constraint(equalToConstant: 250),
+            imageView.heightAnchor.constraint(equalToConstant: 120),
 
             descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 16),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
