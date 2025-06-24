@@ -9,16 +9,84 @@ import UIKit
 
 class HomeViewController: UIViewController {
 
+    let drawService = DrawService()
+    var unfineshedDraws: [Draw] = []
+    var fineshedDraws: [Draw] = []
+    var allDraws: [Draw] = []
+    
     private var homeView: HomeView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        loadDraw()
         homeView = HomeView(frame: .zero)
         self.view = homeView
         
         setupContent()
         homeView.learnMoreButton.addTarget(self, action: #selector(infoButtonTapped),for: UIControl.Event.touchUpInside)
+    }
+    
+    func loadDraw() {
+        allDraws = drawService.getDraws()
+        print("=== Loaded \(allDraws.count) total Draws ===")
+        for draw in allDraws {
+            let drawId = draw.draw_id
+            let angleId = draw.angle_id
+            let currentStep = draw.current_step
+            let similarityScore = draw.similarity_score
+            let finishedImage = draw.finished_image ?? "No Image"
+            let isFinished = draw.is_finished
+
+            print("""
+            🔹 Draw ID: \(drawId)
+               - Angle ID: \(angleId)
+               - Current Step: \(currentStep)
+               - Similarity Score: \(similarityScore)
+               - Is Finished: \(isFinished)
+               - Finished Image: \(finishedImage)
+            """)
+        }
+        
+        unfineshedDraws = drawService.getUnfinishedDraws()
+        print("=== Loaded \(unfineshedDraws.count) Unfinished Draws ===")
+        for draw in unfineshedDraws {
+            let drawId = draw.draw_id
+            let angleId = draw.angle_id
+            let currentStep = draw.current_step
+            let similarityScore = draw.similarity_score
+            let finishedImage = draw.finished_image ?? "No Image"
+            let isFinished = draw.is_finished
+
+            print("""
+            🔹 Draw ID: \(drawId)
+               - Angle ID: \(angleId)
+               - Current Step: \(currentStep)
+               - Similarity Score: \(similarityScore)
+               - Is Finished: \(isFinished)
+               - Finished Image: \(finishedImage)
+            """)
+        }
+        
+        
+        fineshedDraws = drawService.getFinishedDraws()
+        print("=== Loaded \(fineshedDraws.count) FinishedDraws ===")
+        for draw in fineshedDraws {
+            let drawId = draw.draw_id
+            let angleId = draw.angle_id
+            let currentStep = draw.current_step
+            let similarityScore = draw.similarity_score
+            let finishedImage = draw.finished_image ?? "No Image"
+            let isFinished = draw.is_finished
+
+            print("""
+            🔹 Draw ID: \(drawId)
+               - Angle ID: \(angleId)
+               - Current Step: \(currentStep)
+               - Similarity Score: \(similarityScore)
+               - Is Finished: \(isFinished)
+               - Finished Image: \(finishedImage)
+            """)
+        }
     }
     
     let test: UILabel = {
