@@ -21,23 +21,18 @@ class AngleModel {
     static let shared = AngleModel()
     
     let cameraPresets: [AnglePreset] = [
-        // Top view - looking down from above
         AnglePreset(name: "Top", iconName: "preset_top",
-                   rotationAngles: SCNVector3(x: Float.pi/2, y: 0, z: 0), angle: 1.1),
+                   rotationAngles: SCNVector3(x: Float.pi/4, y: 0, z: 0), angle: 1.1),
         
-        // Side Left - 3/4 view from left
         AnglePreset(name: "Side Left", iconName: "preset_side_left",
-                   rotationAngles: SCNVector3(x: 0.3, y: Float.pi/2, z: 0), angle: 1.35),
+                    rotationAngles: SCNVector3(x: 0, y: 0, z: Float.pi/2), angle: 1.35),
         
-        // Quarter - 3/4 view from right
         AnglePreset(name: "Quarter", iconName: "preset_quarter",
-                   rotationAngles: SCNVector3(x: 0.3, y: -Float.pi/4, z: 0), angle: 1.5707),
+                   rotationAngles: SCNVector3(x: 0, y: 0, z: Float.pi/4), angle: 1.5707),
         
-        // Side Right - 3/4 view from right side
         AnglePreset(name: "Side Right", iconName: "preset_side_right",
-                   rotationAngles: SCNVector3(x: 0.3, y: -Float.pi/2, z: 0), angle: 1.8),
+                   rotationAngles: SCNVector3(x: 0, y: 0, z: -Float.pi/2), angle: 1.8),
         
-        // Front - straight on view
         AnglePreset(name: "Front", iconName: "preset_front",
                    rotationAngles: SCNVector3(x: 0, y: 0, z: 0), angle: 2.05)
     ]

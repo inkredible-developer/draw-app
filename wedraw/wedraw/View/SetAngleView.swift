@@ -20,19 +20,12 @@ protocol SetAngleViewDelegate: AnyObject {
 
 class SetAngleView: UIView {
     weak var delegate: SetAngleViewDelegate?
-    
-    // let cameraPresets: [SCNVector3] = [
-    //     SCNVector3(x: 1.57, y: 0, z: 0),              // Front
-    //     SCNVector3(x: 1.57, y: 0, z: 1.57),         // Right
-    //     SCNVector3(x: 1.57, y: 0, z: -1.5),        // Left
-    //     SCNVector3(x: 0.8, y: 0, z: 0),  // Top
-    //     SCNVector3(x: 1.57, y: 0, z: 0.6)        // quarter
-    // ]
+
     
     let sceneView: SCNView = {
         let view = SCNView()
         view.backgroundColor = .clear
-        view.allowsCameraControl = true
+        view.allowsCameraControl = false
         return view
     }()
     
@@ -49,7 +42,7 @@ class SetAngleView: UIView {
     
     let cameraCoordinateLabel: UILabel = {
         let label = UILabel()
-        label.text = "Camera: (x: 0, y: 0, z: 0)"
+        label.text = "Model: (x: 0, y: 0, z: 0)"
         label.textColor = .darkGray
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textAlignment = .center
@@ -122,6 +115,7 @@ class SetAngleView: UIView {
         setupView()
         setupConstraints()
         setupActions()
+        setupRotationGesture()
         startCameraCoordinateUpdates()
     }
     
@@ -130,6 +124,7 @@ class SetAngleView: UIView {
         setupView()
         setupConstraints()
         setupActions()
+        setupRotationGesture()
         startCameraCoordinateUpdates()
     }
         
@@ -370,11 +365,31 @@ class SetAngleView: UIView {
     }
     
     @objc private func updateCameraCoordinateDisplay() {
-        guard let cameraNode = sceneView.pointOfView else { return }
-        let pos = cameraNode.eulerAngles
-        let positionText = String(format: "Camera: (x: %.2f, y: %.2f, z: %.2f)", pos.x, pos.y, pos.z)
+        guard let modelNode = self.modelNode else { return }
+        let pos = modelNode.eulerAngles
+        let positionText = String(format: "Model: (x: %.2f, y: %.2f, z: %.2f)", pos.x, pos.y, pos.z)
         updateCameraCoordinateLabel(positionText)
         delegate?.cameraPositionChanged(pos)
+    }
+    
+    private func setupRotationGesture() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        sceneView.addGestureRecognizer(panGesture)
+    }
+    
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let modelNode = self.modelNode else { return }
+        let translation = gesture.translation(in: sceneView)
+        let widthRatio = Float(translation.x) / Float(sceneView.bounds.size.width) * Float.pi
+        let heightRatio = Float(translation.y) / Float(sceneView.bounds.size.height) * Float.pi
+        
+        // Only allow rotation on x and z, keep y at 0
+        if gesture.state == .changed || gesture.state == .ended {
+            modelNode.eulerAngles.x += heightRatio
+            modelNode.eulerAngles.z += widthRatio
+            modelNode.eulerAngles.y = 0
+            gesture.setTranslation(.zero, in: sceneView)
+        }
     }
     
     deinit {
