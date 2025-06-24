@@ -8,7 +8,7 @@
 import UIKit
 
 class HomeViewController: UIViewController {
-
+    var router: MainFlowRouter?
     let drawService = DrawService()
     var unfineshedDraws: [Draw] = []
     var fineshedDraws: [Draw] = []
