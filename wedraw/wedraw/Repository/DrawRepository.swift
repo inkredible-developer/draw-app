@@ -19,10 +19,8 @@ class DrawRepository {
     }
     
     func fetchDraws(isFinished: Bool) -> [Draw] {
-        print("isFinished",isFinished)
         let request: NSFetchRequest<Draw> = Draw.fetchRequest()
         request.predicate = NSPredicate(format: "is_finished == %@", NSNumber(value: isFinished))
-        print(request)
         return (try? context.fetch(request)) ?? []
     }
 
@@ -38,7 +36,41 @@ class DrawRepository {
         draw.draw_mode = draw_mode
         CoreDataManager.shared.saveContext()
     }
+    
+    func updateCurrentStep(draw_id: UUID, to newStep: Int) {
+        let request: NSFetchRequest<Draw> = Draw.fetchRequest()
+        request.predicate = NSPredicate(format: "draw_id == %@", draw_id as CVarArg)
+        request.fetchLimit = 1
 
+        do {
+            if let draw = try context.fetch(request).first {
+                draw.current_step = Int16(newStep)
+                CoreDataManager.shared.saveContext()
+            } else {
+                print("❌ Draw with id \(draw_id) not found.")
+            }
+        } catch {
+            print("❌ Failed to update current_step for Draw with id \(draw_id): \(error)")
+        }
+    }
+    
+    func updateFinishedStatus(draw_id: UUID, isFinished: Bool, finishedImage: String?) {
+        let request: NSFetchRequest<Draw> = Draw.fetchRequest()
+        request.predicate = NSPredicate(format: "draw_id == %@", draw_id as CVarArg)
+        request.fetchLimit = 1
+
+        do {
+            if let draw = try context.fetch(request).first {
+                draw.is_finished = isFinished
+                draw.finished_image = finishedImage
+                CoreDataManager.shared.saveContext()
+            } else {
+                print("❌ Draw with id \(draw_id) not found.")
+            }
+        } catch {
+            print("❌ Failed to update finished status: \(error)")
+        }
+    }
     func delete(draw: Draw) {
         let context = CoreDataManager.shared.context
         context.delete(draw)
