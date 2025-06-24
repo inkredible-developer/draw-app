@@ -145,7 +145,7 @@ extension SetAngleViewController: SetAngleViewDelegate {
             if distance < 0.3 {
                 if index != angleModel.selectedPresetIndex {
                     angleModel.updateSelectedPreset(index)
-                    setAngleView.updatePresetButtonSelection(selectedIndex: index)
+//                    setAngleView.updatePresetButtonSelection(selectedIndex: index)
                 }
                 break
             }
