@@ -68,6 +68,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
 
         
+        window = UIWindow(windowScene: windowScene)
+//        let mainVC = MainViewController()
+        let mainVC = SelectDrawingViewController()
+//        let mainVC = HomeViewController()
+//        let mainVC = DrawingStepsViewController()
+
+        let nav = UINavigationController(rootViewController: mainVC)
+        window?.rootViewController = nav
+        window?.makeKeyAndVisible()
+    }
+
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.

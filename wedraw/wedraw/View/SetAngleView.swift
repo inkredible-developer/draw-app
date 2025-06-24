@@ -1,0 +1,304 @@
+//
+//  SetAngleView.swift
+//  wedraw
+//
+//  Created by Rudi Butarbutar on 22/06/25.
+//
+
+import UIKit
+import SceneKit
+
+protocol SetAngleViewDelegate: AnyObject {
+    func infoButtonTapped()
+    func chooseButtonTapped()
+    func presetAngleButtonTapped()
+}
+
+class SetAngleView: UIView {
+    
+    weak var delegate: SetAngleViewDelegate?
+    
+    let sceneView: SCNView = {
+        let view = SCNView()
+        view.backgroundColor = .clear
+        view.allowsCameraControl = true
+        return view
+    }()
+    
+    let angleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "3/4 Angle"
+        label.textColor = .black
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        return label
+    }()
+    
+    let presetAngleButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Preset Angle", for: .normal)
+        button.setTitleColor(UIColor(.black), for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        button.backgroundColor = .clear
+        return button
+    }()
+    
+    let chooseButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Choose", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        button.backgroundColor = UIColor(named: "Inkredible-Green")
+        button.layer.cornerRadius = 16
+        return button
+    }()
+    
+    let bottomContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "Inkredible-LightPurple")
+        return view
+    }()
+    
+    let infoButton: UIButton = {
+        let button = UIButton(type: .system)
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular)
+        button.setImage(UIImage(systemName: "info.circle.fill", withConfiguration: symbolConfig), for: .normal)
+        button.tintColor = UIColor(red: 0.75, green: 0.75, blue: 0.9, alpha: 1.0)
+        return button
+    }()
+    
+    let infoToastView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 0.2, alpha: 0.95)
+        view.layer.cornerRadius = 12
+        view.alpha = 0
+        return view
+    }()
+    
+    let infoToastLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Use your finger to rotate the model and choose the angle that best suits your needs."
+        label.textColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 16)
+        return label
+    }()
+    
+    let toastOverlayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.alpha = 0
+        return view
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+        setupConstraints()
+        setupActions()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+        setupConstraints()
+        setupActions()
+    }
+    
+    //Setup
+    
+    private func setupView() {
+        backgroundColor = .white
+        
+        addSubview(sceneView)
+        addSubview(angleLabel)
+        addSubview(bottomContainerView)
+        addSubview(infoButton)
+        addSubview(infoToastView)
+        addSubview(toastOverlayView)
+        
+        bottomContainerView.addSubview(presetAngleButton)
+        bottomContainerView.addSubview(chooseButton)
+        infoToastView.addSubview(infoToastLabel)
+        
+        setupSceneKit()
+        setupSetAngleButtons()
+        setupToastOverlay()
+    }
+    
+    private func setupConstraints() {
+        sceneView.translatesAutoresizingMaskIntoConstraints = false
+        angleLabel.translatesAutoresizingMaskIntoConstraints = false
+        bottomContainerView.translatesAutoresizingMaskIntoConstraints = false
+        presetAngleButton.translatesAutoresizingMaskIntoConstraints = false
+        chooseButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoToastView.translatesAutoresizingMaskIntoConstraints = false
+        infoToastLabel.translatesAutoresizingMaskIntoConstraints = false
+        toastOverlayView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            // SceneView
+            sceneView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
+            sceneView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            sceneView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
+            sceneView.heightAnchor.constraint(equalTo: sceneView.widthAnchor),
+            
+            // Angle Label
+            angleLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 20),
+            angleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            
+            // Info Button
+            infoButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 5),
+            infoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            
+            // Bottom Container
+            bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            bottomContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            bottomContainerView.heightAnchor.constraint(equalToConstant: 157),
+            
+            // Choose Button
+            chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
+            chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
+            chooseButton.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 32),
+            chooseButton.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -32),
+            
+            // Preset Angle Button
+            presetAngleButton.bottomAnchor.constraint(equalTo: chooseButton.topAnchor, constant: -15),
+            presetAngleButton.centerXAnchor.constraint(equalTo: bottomContainerView.centerXAnchor),
+            
+            // Info Toast
+            infoToastView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
+            infoToastView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            infoToastView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            
+            infoToastLabel.topAnchor.constraint(equalTo: infoToastView.topAnchor, constant: 16),
+            infoToastLabel.bottomAnchor.constraint(equalTo: infoToastView.bottomAnchor, constant: -16),
+            infoToastLabel.leadingAnchor.constraint(equalTo: infoToastView.leadingAnchor, constant: 16),
+            infoToastLabel.trailingAnchor.constraint(equalTo: infoToastView.trailingAnchor, constant: -16),
+            
+            // Toast Overlay
+            toastOverlayView.topAnchor.constraint(equalTo: topAnchor),
+            toastOverlayView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            toastOverlayView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            toastOverlayView.trailingAnchor.constraint(equalTo: trailingAnchor)
+        ])
+    }
+    
+    private func setupActions() {
+        infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
+        chooseButton.addTarget(self, action: #selector(chooseButtonTapped), for: .touchUpInside)
+        presetAngleButton.addTarget(self, action: #selector(presetAngleButtonTapped), for: .touchUpInside)
+    }
+    
+    private func setupSceneKit() {
+        let scene = SCNScene(named: "SceneKit Asset Catalog.scnassets/head_angle.scn")
+        
+        // Create a light node
+        let lightNode = SCNNode()
+        let light = SCNLight()
+        light.type = .omni
+        light.intensity = 1000
+        lightNode.light = light
+        lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
+
+        // Add the light to the scene
+        scene?.rootNode.addChildNode(lightNode)
+
+        // Optionally, add an ambient light for softer shadows
+        let ambientLightNode = SCNNode()
+        let ambientLight = SCNLight()
+        ambientLight.type = .ambient
+        ambientLight.intensity = 300
+        ambientLight.color = UIColor.white
+        ambientLightNode.light = ambientLight
+        scene?.rootNode.addChildNode(ambientLightNode)
+
+        // Assign the scene to the view
+        sceneView.scene = scene
+    }
+    
+    private func setupSetAngleButtons() {
+        let radius: CGFloat = 150
+        let buttonSize: CGFloat = 50
+        let angles: [CGFloat] = [1.1, 1.35, 1.5707, 1.8, 2.05]
+        let buttonIcons = ["preset_top", "preset_side_left", "preset_quarter", "preset_side_right", "preset_front"]
+
+        
+        for (index, angle) in angles.enumerated() {
+            let button = UIButton()
+            let image = UIImage(named: buttonIcons[index])
+            button.setImage(image, for: .normal)
+            button.imageView?.contentMode = .scaleAspectFit
+            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+            
+            if index == 2 {
+                button.backgroundColor = .black
+                button.layer.borderColor = UIColor.white.cgColor
+                button.layer.borderWidth = 2
+            } else {
+                button.backgroundColor = .systemGray3
+            }
+            button.layer.cornerRadius = buttonSize / 2
+            
+            addSubview(button)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            
+            let centerXConstant = radius * cos(angle)
+            let centerYConstant = radius * sin(angle) - radius - 20
+            
+            NSLayoutConstraint.activate([
+                button.centerXAnchor.constraint(equalTo: centerXAnchor, constant: centerXConstant),
+                button.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: centerYConstant),
+                button.widthAnchor.constraint(equalToConstant: buttonSize),
+                button.heightAnchor.constraint(equalToConstant: buttonSize)
+            ])
+        }
+
+    }
+    
+    private func setupToastOverlay() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissToast))
+        toastOverlayView.addGestureRecognizer(tapGesture)
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func infoButtonTapped() {
+        delegate?.infoButtonTapped()
+    }
+    
+    @objc private func chooseButtonTapped() {
+        delegate?.chooseButtonTapped()
+    }
+    
+    @objc private func presetAngleButtonTapped() {
+        delegate?.presetAngleButtonTapped()
+    }
+    
+    @objc private func dismissToast() {
+        delegate?.infoButtonTapped() // Reuse the same delegate method for dismissal
+    }
+        
+    func showToast() {
+        bringSubviewToFront(toastOverlayView)
+        bringSubviewToFront(infoToastView)
+        
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+            self.infoToastView.alpha = 1.0
+            self.toastOverlayView.alpha = 1.0
+        }, completion: nil)
+    }
+    
+    func hideToast() {
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+            self.infoToastView.alpha = 0.0
+            self.toastOverlayView.alpha = 0.0
+        }, completion: nil)
+    }
+    
+    func updateAngleLabel(_ text: String) {
+        angleLabel.text = text
+    }
+} 
