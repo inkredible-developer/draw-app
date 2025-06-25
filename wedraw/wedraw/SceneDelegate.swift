@@ -20,9 +20,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: windowScene)
 //        let mainVC = MainViewController()
-        let mainVC = SelectDrawingViewController()
+//        let mainVC = SelectDrawingViewController()
 //        let mainVC = HomeViewController()
 //        let mainVC = DrawingStepsViewController()
+          let mainVC = DrawingStepsUsingCameraController()
 
         let nav = UINavigationController(rootViewController: mainVC)
         window?.rootViewController = nav
