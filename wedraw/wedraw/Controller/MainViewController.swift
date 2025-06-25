@@ -158,12 +158,12 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
 
     @objc func startARTracing() {
-        guard let anchorImage = anchorImage, let tracingImage = tracingImage else { return }
-        let arVC = ARTracingViewController()
-        arVC.anchorImage = anchorImage
-        arVC.tracingImage = tracingImage
-        arVC.modalPresentationStyle = .fullScreen
-        present(arVC, animated: true)
+//        guard let anchorImage = anchorImage, let tracingImage = tracingImage else { return }
+//        let arVC = ARTracingViewController()
+//        arVC.anchorImage = anchorImage
+//        arVC.tracingImage = tracingImage
+//        arVC.modalPresentationStyle = .fullScreen
+//        present(arVC, animated: true)
     }
     
     // MARK: - CropViewControllerDelegate
@@ -177,17 +177,17 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
 }
 
-extension UIImage {
-    func normalizedImage() -> UIImage {
-        if self.imageOrientation == .up {
-            return self
-        }
-
-        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
-        self.draw(in: CGRect(origin: .zero, size: self.size))
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
-
-        return normalizedImage
-    }
-}
+//extension UIImage {
+//    func normalizedImage() -> UIImage {
+//        if self.imageOrientation == .up {
+//            return self
+//        }
+//
+//        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+//        self.draw(in: CGRect(origin: .zero, size: self.size))
+//        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+//        UIGraphicsEndImageContext()
+//
+//        return normalizedImage
+//    }
+//}

@@ -5,10 +5,6 @@
 //  Created by Ali An Nuur on 22/06/25.
 //
 
-//
-// TooltipView.swift
-// Custom tooltip with arrow
-//
 import UIKit
 
 final class TooltipView: UIView {
@@ -19,8 +15,8 @@ final class TooltipView: UIView {
   init(text: String, dismissHandler: (() -> Void)? = nil) {
     self.dismissHandler = dismissHandler
     super.init(frame: .zero)
-    backgroundColor = UIColor.black.withAlphaComponent(0.8)
-    layer.cornerRadius = 8
+    backgroundColor = UIColor(named: "Inkredible-DarkText")
+    layer.cornerRadius = 20
     layer.masksToBounds = true
     
     setupLabel(with: text)
@@ -29,7 +25,7 @@ final class TooltipView: UIView {
   
   private func setupLabel(with text: String) {
     label.text = text
-    label.font = .systemFont(ofSize: 13)
+    label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .medium)
     label.textColor = .white
     label.textAlignment = .center
     label.numberOfLines = 0
@@ -56,14 +52,12 @@ final class TooltipView: UIView {
   @objc private func handleOutsideTap(_ gesture: UITapGestureRecognizer) {
     let location = gesture.location(in: self)
     if !self.bounds.contains(location) {
-      // Tap is outside tooltip
       self.removeFromSuperview()
       dismissHandler?()
     }
   }
   
   override func removeFromSuperview() {
-    // Clean up when removed
     if let gesture = tapGesture, let window = getKeyWindow() {
       window.removeGestureRecognizer(gesture)
       tapGesture = nil
@@ -71,7 +65,6 @@ final class TooltipView: UIView {
     super.removeFromSuperview()
   }
   
-  // Helper method to get key window in a way that's compatible with iOS 15+
   private func getKeyWindow() -> UIWindow? {
     if #available(iOS 15, *) {
       return UIApplication.shared.connectedScenes

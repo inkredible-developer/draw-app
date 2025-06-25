@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import Foundation
 
-enum DrawingMode: CaseIterable {
+enum DrawingMode: CaseIterable, Codable, Equatable, Hashable {
   case reference
   case liveAR
 

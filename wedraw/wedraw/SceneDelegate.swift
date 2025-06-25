@@ -10,24 +10,57 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    var router: MainFlowRouter?
+    var cameraCoordinator: CameraCoordinator? 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
+//        
+        let window = UIWindow(windowScene: windowScene)
+                
+        // Check if user has completed onboarding
+        if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            showOnboarding(in: window)
+        } else {
+            setupMainInterface(in: window)
+        }
         
-        window = UIWindow(windowScene: windowScene)
-//        let mainVC = MainViewController()
+        self.window = window
+        window.makeKeyAndVisible()
+    }
+            
+    private func showOnboarding(in window: UIWindow) {
+        let onboardingVC = OnboardingViewController()
+        onboardingVC.onboardingCompleted = { [weak self] in
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+            self?.setupMainInterface(in: window)
+        }
+        window.rootViewController = onboardingVC
+    }
+            
+    private func setupMainInterface(in window: UIWindow) {
+        
 //        let mainVC = SelectDrawingViewController()
-//        let mainVC = HomeViewController()
+        let mainVC = HomeViewController()
 //        let mainVC = DrawingStepsViewController()
-          let mainVC = DrawingStepsUsingCameraController()
-
-        let nav = UINavigationController(rootViewController: mainVC)
-        window?.rootViewController = nav
-        window?.makeKeyAndVisible()
+//        let mainVC = DrawingStepsUsingCameraController()
+//        let mainVC = SetAngleViewController()
+        
+        let mainNavigationController = UINavigationController(rootViewController: mainVC)
+        router = MainFlowRouter(navigationController: mainNavigationController)
+        
+        mainVC.router = router
+        
+        // Animate transition if changing from onboarding
+        if window.rootViewController is OnboardingViewController {
+            window.rootViewController = mainNavigationController
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil)
+        } else {
+            window.rootViewController = mainNavigationController
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Angle" representedClassName="Angle" syncable="YES">
+        <attribute name="angle" optional="YES" attributeType="Double" usesScalarValueType="YES"/>
+        <attribute name="angle_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="angle_name" optional="YES" attributeType="String"/>
+        <attribute name="icon_name" optional="YES" attributeType="String"/>
+        <attribute name="is_preset" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="x" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="y" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="z" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="Draw" representedClassName="Draw" syncable="YES">
+        <attribute name="angle_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="current_step" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="draw_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="draw_mode" optional="YES" attributeType="String"/>
+        <attribute name="finished_image" optional="YES" attributeType="String"/>
+        <attribute name="is_finished" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="similarity_score" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="Step" representedClassName="Step" syncable="YES">
+        <attribute name="angle_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
+        <attribute name="step_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="step_number" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+</model>

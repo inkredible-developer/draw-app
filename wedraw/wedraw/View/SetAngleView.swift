@@ -5,6 +5,8 @@
 //  Created by Rudi Butarbutar on 22/06/25.
 //
 
+
+
 import UIKit
 import SceneKit
 
@@ -12,24 +14,38 @@ protocol SetAngleViewDelegate: AnyObject {
     func infoButtonTapped()
     func chooseButtonTapped()
     func presetAngleButtonTapped()
+    func presetButtonTapped(at index: Int)
+    func cameraPositionChanged(_ position: SCNVector3)
 }
 
 class SetAngleView: UIView {
-    
     weak var delegate: SetAngleViewDelegate?
+
     
     let sceneView: SCNView = {
         let view = SCNView()
         view.backgroundColor = .clear
-        view.allowsCameraControl = true
+        view.allowsCameraControl = false
         return view
     }()
+    
+    // Expose the 3D model node for rotation
+    private(set) var modelNode: SCNNode?
     
     let angleLabel: UILabel = {
         let label = UILabel()
         label.text = "3/4 Angle"
         label.textColor = .black
         label.font = .systemFont(ofSize: 16, weight: .medium)
+        return label
+    }()
+    
+    let cameraCoordinateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Model: (x: 0, y: 0, z: 0)"
+        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.textAlignment = .center
         return label
     }()
     
@@ -62,7 +78,7 @@ class SetAngleView: UIView {
         let button = UIButton(type: .system)
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular)
         button.setImage(UIImage(systemName: "info.circle.fill", withConfiguration: symbolConfig), for: .normal)
-        button.tintColor = UIColor(red: 0.75, green: 0.75, blue: 0.9, alpha: 1.0)
+        button.tintColor = UIColor(named: "Inkredible-LightPurple")
         return button
     }()
     
@@ -91,11 +107,16 @@ class SetAngleView: UIView {
         return view
     }()
     
+    private var cameraDisplayLink: CADisplayLink?
+    private var presetButtons: [UIButton] = []
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
         setupConstraints()
         setupActions()
+        setupRotationGesture()
+        startCameraCoordinateUpdates()
     }
     
     required init?(coder: NSCoder) {
@@ -103,15 +124,16 @@ class SetAngleView: UIView {
         setupView()
         setupConstraints()
         setupActions()
+        setupRotationGesture()
+        startCameraCoordinateUpdates()
     }
-    
-    //Setup
-    
+        
     private func setupView() {
         backgroundColor = .white
         
         addSubview(sceneView)
         addSubview(angleLabel)
+        addSubview(cameraCoordinateLabel)
         addSubview(bottomContainerView)
         addSubview(infoButton)
         addSubview(infoToastView)
@@ -122,13 +144,14 @@ class SetAngleView: UIView {
         infoToastView.addSubview(infoToastLabel)
         
         setupSceneKit()
-        setupSetAngleButtons()
+        setupPresetButtons()
         setupToastOverlay()
     }
     
     private func setupConstraints() {
         sceneView.translatesAutoresizingMaskIntoConstraints = false
         angleLabel.translatesAutoresizingMaskIntoConstraints = false
+        cameraCoordinateLabel.translatesAutoresizingMaskIntoConstraints = false
         bottomContainerView.translatesAutoresizingMaskIntoConstraints = false
         presetAngleButton.translatesAutoresizingMaskIntoConstraints = false
         chooseButton.translatesAutoresizingMaskIntoConstraints = false
@@ -143,9 +166,14 @@ class SetAngleView: UIView {
             sceneView.centerXAnchor.constraint(equalTo: centerXAnchor),
             sceneView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
             sceneView.heightAnchor.constraint(equalTo: sceneView.widthAnchor),
+
+            // Camera Coordinate Label
+            cameraCoordinateLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 8),
+            cameraCoordinateLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            cameraCoordinateLabel.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
             
             // Angle Label
-            angleLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 20),
+            angleLabel.topAnchor.constraint(equalTo: cameraCoordinateLabel.bottomAnchor, constant: 100),
             angleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             
             // Info Button
@@ -195,18 +223,22 @@ class SetAngleView: UIView {
     private func setupSceneKit() {
         let scene = SCNScene(named: "SceneKit Asset Catalog.scnassets/head_angle.scn")
         
+        // Find and store the model node (assuming it's the first child of root)
+        if let rootNode = scene?.rootNode, let firstChild = rootNode.childNodes.first {
+            modelNode = firstChild
+        }
+        
         // Create a light node
         let lightNode = SCNNode()
         let light = SCNLight()
-        light.type = .omni
-        light.intensity = 1000
+        light.type = .area
+        light.intensity = 100
         lightNode.light = light
         lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
 
         // Add the light to the scene
         scene?.rootNode.addChildNode(lightNode)
 
-        // Optionally, add an ambient light for softer shadows
         let ambientLightNode = SCNNode()
         let ambientLight = SCNLight()
         ambientLight.type = .ambient
@@ -215,17 +247,15 @@ class SetAngleView: UIView {
         ambientLightNode.light = ambientLight
         scene?.rootNode.addChildNode(ambientLightNode)
 
-        // Assign the scene to the view
         sceneView.scene = scene
     }
     
-    private func setupSetAngleButtons() {
+    private func setupPresetButtons() {
         let radius: CGFloat = 150
         let buttonSize: CGFloat = 50
         let angles: [CGFloat] = [1.1, 1.35, 1.5707, 1.8, 2.05]
         let buttonIcons = ["preset_top", "preset_side_left", "preset_quarter", "preset_side_right", "preset_front"]
 
-        
         for (index, angle) in angles.enumerated() {
             let button = UIButton()
             let image = UIImage(named: buttonIcons[index])
@@ -241,9 +271,13 @@ class SetAngleView: UIView {
                 button.backgroundColor = .systemGray3
             }
             button.layer.cornerRadius = buttonSize / 2
+            button.tag = index
+            
+            button.addTarget(self, action: #selector(presetButtonTapped(_:)), for: .touchUpInside)
             
             addSubview(button)
             button.translatesAutoresizingMaskIntoConstraints = false
+            presetButtons.append(button)
             
             let centerXConstant = radius * cos(angle)
             let centerYConstant = radius * sin(angle) - radius - 20
@@ -255,15 +289,12 @@ class SetAngleView: UIView {
                 button.heightAnchor.constraint(equalToConstant: buttonSize)
             ])
         }
-
     }
     
     private func setupToastOverlay() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissToast))
         toastOverlayView.addGestureRecognizer(tapGesture)
     }
-    
-    // MARK: - Actions
     
     @objc private func infoButtonTapped() {
         delegate?.infoButtonTapped()
@@ -277,8 +308,12 @@ class SetAngleView: UIView {
         delegate?.presetAngleButtonTapped()
     }
     
+    @objc private func presetButtonTapped(_ sender: UIButton) {
+        delegate?.presetButtonTapped(at: sender.tag)
+    }
+    
     @objc private func dismissToast() {
-        delegate?.infoButtonTapped() // Reuse the same delegate method for dismissal
+        delegate?.infoButtonTapped()
     }
         
     func showToast() {
@@ -301,4 +336,67 @@ class SetAngleView: UIView {
     func updateAngleLabel(_ text: String) {
         angleLabel.text = text
     }
-} 
+    
+    func updateCameraCoordinateLabel(_ text: String) {
+        cameraCoordinateLabel.text = text
+    }
+    
+    func updatePresetButtonSelection(selectedIndex: Int) {
+        for (index, button) in presetButtons.enumerated() {
+            if index == selectedIndex {
+                button.backgroundColor = .black
+                button.layer.borderColor = UIColor.white.cgColor
+                button.layer.borderWidth = 2
+            } else {
+                button.backgroundColor = .systemGray3
+                button.layer.borderWidth = 0
+            }
+        }
+    }
+    
+    private func startCameraCoordinateUpdates() {
+        cameraDisplayLink = CADisplayLink(target: self, selector: #selector(updateCameraCoordinateDisplay))
+        cameraDisplayLink?.add(to: .main, forMode: .default)
+    }
+    
+    private func stopCameraCoordinateUpdates() {
+        cameraDisplayLink?.invalidate()
+        cameraDisplayLink = nil
+    }
+    
+    @objc private func updateCameraCoordinateDisplay() {
+        guard let modelNode = self.modelNode else { return }
+        let pos = modelNode.eulerAngles
+        let positionText = String(format: "Model: (x: %.2f, y: %.2f, z: %.2f)", pos.x, pos.y, pos.z)
+        updateCameraCoordinateLabel(positionText)
+        delegate?.cameraPositionChanged(pos)
+    }
+    
+    private func setupRotationGesture() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        sceneView.addGestureRecognizer(panGesture)
+    }
+    
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let modelNode = self.modelNode else { return }
+        let translation = gesture.translation(in: sceneView)
+        let widthRatio = Float(translation.x) / Float(sceneView.bounds.size.width) * Float.pi
+        let heightRatio = Float(translation.y) / Float(sceneView.bounds.size.height) * Float.pi
+        
+        // Only allow rotation on x and z, keep y at 0
+        if gesture.state == .changed || gesture.state == .ended {
+            modelNode.eulerAngles.x += heightRatio
+            modelNode.eulerAngles.z += widthRatio
+            modelNode.eulerAngles.y = 0
+            gesture.setTranslation(.zero, in: sceneView)
+        }
+    }
+    
+    deinit {
+        stopCameraCoordinateUpdates()
+    }
+}
+
+#Preview {
+    SetAngleView()
+}

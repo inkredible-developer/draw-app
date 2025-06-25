@@ -36,9 +36,9 @@ final class ModeCarouselView: UIView {
   private let pageControl: UIPageControl = {
     let pc = UIPageControl()
     pc.translatesAutoresizingMaskIntoConstraints = false
-    pc.pageIndicatorTintColor = .systemGray4
+      pc.pageIndicatorTintColor = .systemGray
 //      pc.backgroundColor = .blue
-    pc.currentPageIndicatorTintColor = .systemBlue
+    pc.currentPageIndicatorTintColor = UIColor(named: "Inkredible-DarkPurple")
     return pc
   }()
 
@@ -84,7 +84,7 @@ final class ModeCarouselView: UIView {
         super.layoutSubviews()
         
         let newW = bounds.width * 0.65
-        let newH = bounds.height * 0.7
+        let newH = bounds.height * 0.8
 
         if cards.isEmpty || newW != cardWidth || newH != cardHeight {
             cardWidth = newW
@@ -160,7 +160,7 @@ final class ModeCarouselView: UIView {
         pageControl.isUserInteractionEnabled = false
         
         NSLayoutConstraint.activate([
-            pageControl.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -100),
+            pageControl.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -70),
             pageControl.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
     }

@@ -10,7 +10,7 @@ final class ModeCardView: UIView {
     private let container: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.2)
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         view.layer.cornerRadius = 20
         // Removed border from container
         return view
@@ -34,8 +34,8 @@ final class ModeCardView: UIView {
         // Configure main view with border
         backgroundColor = UIColor.clear
         layer.cornerRadius = 20
-        layer.borderWidth = 1
-        layer.borderColor = UIColor.systemPurple.cgColor
+        layer.borderWidth = 2
+            layer.borderColor = UIColor(named: "Inkredible-DarkPurple")?.cgColor ?? UIColor.systemPurple.cgColor
         clipsToBounds = true
 
         // Setup container constraints with padding
@@ -56,11 +56,13 @@ final class ModeCardView: UIView {
         // Configure labels
         titleLabel.text = mode.title
         titleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .semibold)
+        titleLabel.textColor = .white
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 2
 
         descriptionLabel.text = mode.description
-        descriptionLabel.font = .systemFont(ofSize: 12)
+        descriptionLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize, weight: .medium)
+        descriptionLabel.textColor = .white
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .center
 
@@ -76,14 +78,14 @@ final class ModeCardView: UIView {
         contentStack.axis = .vertical
         contentStack.alignment = .center
         contentStack.distribution = .equalSpacing
-        contentStack.spacing = 35
+        contentStack.spacing = 30
         container.addSubview(contentStack)
         
         NSLayoutConstraint.activate([
-            contentStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            contentStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 20),
             contentStack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 8),
             contentStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
-            contentStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16),
+            contentStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -24),
             
             imageView.widthAnchor.constraint(equalTo: contentStack.widthAnchor, multiplier: 0.765),
             imageView.heightAnchor.constraint(equalTo: contentStack.widthAnchor),

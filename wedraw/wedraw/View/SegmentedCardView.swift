@@ -7,17 +7,28 @@
 
 import UIKit
 
+protocol SegmentedCardViewDelegate: AnyObject {
+    func didTapDrawCard(draw:Draw)
+}
+
 class SegmentedCardView: UIView {
+    
+    
+    weak var delegate: SegmentedCardViewDelegate?
+    
+    private var allDraws: DrawData?
+    private var finishedDraws: [Draw] = []
+    
     
     private let segmentedControl = UISegmentedControl(items: ["Finished Draw", "Unfinished Draw"])
     private let scrollView = UIScrollView()
     private let cardStackView = UIStackView()
+    var drawMap: [Int: Draw] = [:]
     
-    // Example data (segment 0 has data, segment 1 is empty)
-    private let data: [[String]] = [
-        ["Sketch 1", "Sketch 2", "Sketch 3", "Sketch 4"],
-        [] // Empty data to show empty state
-    ]
+    func configure(with allDraws: DrawData) {
+        self.allDraws = allDraws
+        loadCards(forSegment: segmentedControl.selectedSegmentIndex)
+    }
     
     // Dynamic label for empty state
     private let emptyStateLabel: UILabel = {
@@ -117,30 +128,48 @@ class SegmentedCardView: UIView {
     private func loadCards(forSegment index: Int) {
         cardStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        let items = data[index]
+        let items = index == 0 ? allDraws?.fineshedDraws : allDraws?.unfineshedDraws
         let segmentTitle = segmentedControl.titleForSegment(at: index) ?? "Draw"
         let capitalized = segmentTitle.prefix(1).capitalized + segmentTitle.dropFirst()
         emptyStateLabel.text = "Your \(capitalized) is Empty"
         
-        if items.isEmpty {
+        guard let items = items, !items.isEmpty else {
             scrollView.isHidden = true
             emptyStateView.isHidden = false
-        } else {
-            scrollView.isHidden = false
-            emptyStateView.isHidden = true
+            return
+        }
+        
+        scrollView.isHidden = false
+        emptyStateView.isHidden = true
+        
+        for draw in items {
+            let icon = UIImage(named: "icon_head")
+            let sketch = UIImage(named: "Sketch")
+            let card = makeCard(icon: icon, sketch: sketch)
+            let tag = draw.draw_id.hashValue
             
-            for _ in items {
-                let icon = UIImage(named: "icon_head")      // Add your top-left icon image to Assets
-                let sketch = UIImage(named: "Sketch") // Add your main sketch image to Assets
-                let card = makeCard(icon: icon, sketch: sketch)
-                cardStackView.addArrangedSubview(card)
-            }
+            card.tag = tag
+            drawMap[tag] = draw
+            
+//            card.draw = draw
+//            card.data = draw.draw_id
+            card.isUserInteractionEnabled = true
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(drawCardTapped(_:)))
+            card.addGestureRecognizer(tapGesture)
+            cardStackView.addArrangedSubview(card)
         }
     }
-    
+    @objc private func drawCardTapped(_ sender: UITapGestureRecognizer) {
+        guard let tag = sender.view?.tag,
+        let draw = drawMap[tag] else { return }
+//        print("test tap")
+//        print("draw",draw)
+        delegate?.didTapDrawCard(draw: draw)
+    }
     
     private func makeCard(icon: UIImage?, sketch: UIImage?) -> UIView {
         let card = UIView()
+//        var draw: Draw?
         card.backgroundColor = .clear
         card.layer.cornerRadius = 20
         card.layer.masksToBounds = true
