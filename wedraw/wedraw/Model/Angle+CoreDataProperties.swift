@@ -16,14 +16,14 @@ extension Angle {
         return NSFetchRequest<Angle>(entityName: "Angle")
     }
 
+    @NSManaged public var angle: Double
     @NSManaged public var angle_id: UUID?
     @NSManaged public var angle_name: String?
-    @NSManaged public var x: Double
-    @NSManaged public var y: Double
-    @NSManaged public var z: Double
-    @NSManaged public var is_preset: Bool
     @NSManaged public var icon_name: String?
-    @NSManaged public var angle: Double
+    @NSManaged public var is_preset: Bool
+    @NSManaged public var x: Float
+    @NSManaged public var y: Float
+    @NSManaged public var z: Float
 
 }
 

@@ -8,25 +8,49 @@
 import UIKit
 import SceneKit
 
+struct AnglePreset {
+    let name: String
+    let iconName: String
+    let rotationAngles: SCNVector3
+    let angle: CGFloat
+}
+
 class SetAngleViewController: UIViewController {
 
     // Router for navigation
     var router: MainFlowRouter?
+    
+    let angleService = AngleService()
+    
+    var allPresetAngle: [Angle] = []
+    var selectedPresetIndex: Int = 2 // Default to quarter view
+    var currentRotationAngles: SCNVector3 = SCNVector3(x: 0.3, y: -Float.pi/4, z: 0)
+    
 
     // MARK: - Properties
     private let setAngleView = SetAngleView()
-    private let angleModel = AngleModel.shared
+//    private let angleModel = AngleModel.shared
     private var isToastVisible = false
     private var dismissWorkItem: DispatchWorkItem?
-
+    var cameraPresets: [AnglePreset] = []
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Select Your Angle"
+        loadPreset()
         setupNavigationBar()
         setupView()
         setupInitialState()
+    }
+    func loadPreset() {
+        allPresetAngle = angleService.getPresetAngle()
+        print("=== Loaded \(allPresetAngle.count) total preset angle ===")
+        
+        for angle in allPresetAngle {
+            cameraPresets.append(AnglePreset(name: angle.angle_name!, iconName: angle.icon_name!, rotationAngles: SCNVector3(x: angle.x, y: Float(angle.y), z: angle.y), angle: angle.angle))
+        }
+        
     }
     
     override func loadView() {
@@ -44,15 +68,57 @@ class SetAngleViewController: UIViewController {
     
     private func setupInitialState() {
         // Set initial angle label based on default preset
-        let selectedPreset = angleModel.getSelectedPreset()
+        
+        let selectedPreset = getSelectedPreset()
         setAngleView.updateAngleLabel(selectedPreset.name)
-        setAngleView.updatePresetButtonSelection(selectedIndex: angleModel.selectedPresetIndex)
+        setAngleView.updatePresetButtonSelection(selectedIndex: selectedPresetIndex)
         
         // Set initial rotation of the 3D model to the default preset
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             self?.rotateModel(to: selectedPreset.rotationAngles)
         }
     }
+    
+    func getSelectedPreset() -> AnglePreset {
+        return cameraPresets[selectedPresetIndex]
+    }
+    
+    func updateSelectedPreset(_ index: Int) {
+        guard index >= 0 && index < cameraPresets.count else { return }
+        selectedPresetIndex = index
+        currentRotationAngles = cameraPresets[index].rotationAngles
+    }
+    
+    func updateRotationAngles(_ angles: SCNVector3) {
+        currentRotationAngles = angles
+    }
+    
+    func getAngleName(for angles: SCNVector3) -> String {
+        // Find the closest preset based on rotation angles
+        var closestPreset = cameraPresets[0]
+        var minDistance = Float.greatestFiniteMagnitude
+        
+        for preset in cameraPresets {
+            let distance = sqrt(
+                pow(angles.x - preset.rotationAngles.x, 2) +
+                pow(angles.y - preset.rotationAngles.y, 2) +
+                pow(angles.z - preset.rotationAngles.z, 2)
+            )
+            
+            if distance < minDistance {
+                minDistance = distance
+                closestPreset = preset
+            }
+        }
+        
+        // If we're close enough to a preset, return its name
+        if minDistance < 0.3 {
+            return closestPreset.name
+        } else {
+            return "Custom Angle"
+        }
+    }
+    
 }
 
 // MARK: - SetAngleViewDelegate
@@ -82,10 +148,10 @@ extension SetAngleViewController: SetAngleViewDelegate {
     
     func presetButtonTapped(at index: Int) {
         // Update the model with the selected preset
-        angleModel.updateSelectedPreset(index)
+        updateSelectedPreset(index)
         
         // Update the view to reflect the selection
-        let selectedPreset = angleModel.getSelectedPreset()
+        let selectedPreset = getSelectedPreset()
         setAngleView.updateAngleLabel(selectedPreset.name)
         setAngleView.updatePresetButtonSelection(selectedIndex: index)
         
@@ -97,10 +163,10 @@ extension SetAngleViewController: SetAngleViewDelegate {
     
     func cameraPositionChanged(_ position: SCNVector3) {
         // Update the model with the new rotation angles
-        angleModel.updateRotationAngles(position)
+        updateRotationAngles(position)
         
         // Determine the angle name based on the new rotation
-        let angleName = angleModel.getAngleName(for: position)
+        let angleName = getAngleName(for: position)
         setAngleView.updateAngleLabel(angleName)
         
         // Check if the rotation matches any preset and update selection if needed
@@ -132,7 +198,7 @@ extension SetAngleViewController: SetAngleViewDelegate {
     }
     
     private func updatePresetSelectionIfNeeded(for angles: SCNVector3) {
-        let presets = angleModel.cameraPresets
+        let presets = cameraPresets
         
         for (index, preset) in presets.enumerated() {
             let distance = sqrt(
@@ -143,8 +209,8 @@ extension SetAngleViewController: SetAngleViewDelegate {
             
             // If we're close enough to a preset, update the selection
             if distance < 0.3 {
-                if index != angleModel.selectedPresetIndex {
-                    angleModel.updateSelectedPreset(index)
+                if index != selectedPresetIndex {
+                    updateSelectedPreset(index)
 //                    setAngleView.updatePresetButtonSelection(selectedIndex: index)
                 }
                 break
