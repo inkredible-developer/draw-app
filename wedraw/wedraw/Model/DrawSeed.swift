@@ -54,13 +54,14 @@ class InitialDataSeeder {
         print("Float.pi/2",Float.pi/2)
         let initialPresetData :[PresetData] = [
             PresetData(name: "Top", iconName: "preset_top", x: Float.pi/4, y: Float(0), z: Float(0), angle: 1.1),
-            PresetData(name: "Side Left", iconName: "preset_side_left", x: Float(0), y: Float(0), z: Float(Float.pi/2), angle: 1.35),
-            PresetData(name: "Quarter", iconName: "preset_quarter", x: Float(0), y: Float(0), z: Float(Float.pi/4), angle: 1.5707),
-            PresetData(name: "Side Right", iconName: "preset_side_right", x: Float(0), y: Float(0), z: -1.5707963, angle: 1.8),
+            PresetData(name: "Side Left", iconName: "preset_side_left", x: Float(0), y: Float(0), z: Float.pi/2, angle: 1.35),
+            PresetData(name: "Quarter", iconName: "preset_quarter", x: Float(0), y: Float(0), z: Float.pi/4, angle: 1.5707),
+            PresetData(name: "Side Right", iconName: "preset_side_right", x: Float(0), y: Float(0), z: -Float.pi/2, angle: 1.8),
             PresetData(name: "Front", iconName: "preset_front", x: Float(0), y: Float(0), z: Float(0), angle: 2.05),
         ]
         
         for data in initialPresetData {
+            print("🆕 Seeding \(data.name) x:\(data.x) y:\(data.y) z:\(data.z) angle:\(data.angle)")
             let angle_id = UUID()
             let angle = Angle(context: context)
             angle.angle_id = angle_id
@@ -72,8 +73,9 @@ class InitialDataSeeder {
             angle.icon_name = data.iconName
             angle.angle = data.angle
             
-            CoreDataManager.shared.saveContext()
         }
+        
+        CoreDataManager.shared.saveContext()
         
     }
 }

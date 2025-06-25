@@ -48,7 +48,8 @@ class SetAngleViewController: UIViewController {
         print("=== Loaded \(allPresetAngle.count) total preset angle ===")
         
         for angle in allPresetAngle {
-            cameraPresets.append(AnglePreset(name: angle.angle_name!, iconName: angle.icon_name!, rotationAngles: SCNVector3(x: angle.x, y: Float(angle.y), z: angle.y), angle: angle.angle))
+            print("angle",angle)
+            cameraPresets.append(AnglePreset(name: angle.angle_name!, iconName: angle.icon_name!, rotationAngles: SCNVector3(x: angle.x, y: angle.y, z: angle.z), angle: angle.angle))
         }
         
     }
