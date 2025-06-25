@@ -177,13 +177,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = W7D3GH6GQF;
+				DEVELOPMENT_TEAM = J75FX2834X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos so that can show tracing image properly";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -204,13 +204,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = W7D3GH6GQF;
+				DEVELOPMENT_TEAM = J75FX2834X;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos so that can show tracing image properly";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

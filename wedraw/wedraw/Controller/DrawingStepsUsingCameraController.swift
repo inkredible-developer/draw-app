@@ -236,7 +236,7 @@ class DrawingStepsUsingCameraController: UIViewController {
 
     private let bottomContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hex: "C6C5FC")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -254,7 +254,7 @@ class DrawingStepsUsingCameraController: UIViewController {
 
     private let buttonCardView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hex: "C6C5FC")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         view.layer.cornerRadius = 24
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -268,7 +268,7 @@ class DrawingStepsUsingCameraController: UIViewController {
         button.setImage(image, for: .normal)
         button.tintColor = .black
         
-        button.backgroundColor = UIColor(red: 225/255, green: 252/255, blue: 185/255, alpha: 1.0) // Warna E1FCB9
+        button.backgroundColor = UIColor(named: "Inkredible-Green") // Warna E1FCB9
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
         
@@ -290,7 +290,7 @@ class DrawingStepsUsingCameraController: UIViewController {
         button.setImage(image, for: .normal)
         button.tintColor = .black
         
-        button.backgroundColor = UIColor(red: 225/255, green: 252/255, blue: 185/255, alpha: 1.0) // Warna E1FCB9
+        button.backgroundColor = UIColor(named: "Inkredible-Green") // Warna E1FCB9
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
         
@@ -365,7 +365,7 @@ class DrawingStepsUsingCameraController: UIViewController {
     
         
         NSLayoutConstraint.activate([
-            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -20),
             infoButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
 
             topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
