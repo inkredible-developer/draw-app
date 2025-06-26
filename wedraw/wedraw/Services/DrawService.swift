@@ -22,6 +22,15 @@ class DrawService {
     func getUnfinishedDraws() -> [Draw] {
         return repository.fetchDraws(isFinished: false)
     }
+    func getDrawById(draw_id: UUID) -> [Draw] {
+        return repository.getDrawById(id: draw_id)
+    }
+    
+    func updateDrawStep(draw: Draw, draw_step: Int) -> Bool{
+        print("draw_step",draw_step)
+        return repository.updateDrawStep(draw: draw, draw_step: draw_step)
+    }
+
 
     func createDraw(draw_id: UUID, angle_id: UUID, draw_mode: String) {
         print("draw_id",draw_id)
@@ -41,4 +50,5 @@ class DrawService {
     func removeDraw(_ draw: Draw) {
         repository.delete(draw: draw)
     }
+    
 }

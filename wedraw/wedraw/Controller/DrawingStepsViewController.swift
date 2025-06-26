@@ -37,6 +37,9 @@ class DrawingStepsViewController: UIViewController {
     
     var router : MainFlowRouter?
     private let drawID: UUID
+    var drawService = DrawService()
+    var drawDetails : [Draw] = []
+    private var currentIndex: Int = 0
     
     init(drawID: UUID) {
         self.drawID = drawID
@@ -46,6 +49,14 @@ class DrawingStepsViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func loadDraw() {
+        
+        drawDetails = drawService.getDrawById(draw_id: drawID)
+//        print("drawDetails",drawDetails)
+        currentIndex = Int(drawDetails[0].current_step - 1)
+        print("currentIndex",currentIndex)
     }
     
     private var steps: [DrawingStep] = [
@@ -61,7 +72,7 @@ class DrawingStepsViewController: UIViewController {
         DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
     ]
 
-    private var currentIndex = 0
+    
 
     // UI Components
     private let infoButton: UIButton = {
@@ -181,7 +192,7 @@ class DrawingStepsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-
+        loadDraw()
         view.addSubview(infoButton)
         view.addSubview(topButton)
         view.addSubview(cardView)
@@ -198,6 +209,7 @@ class DrawingStepsViewController: UIViewController {
         setupConstraints()
         setupActions()
         updateStep()
+        topButton.addTarget(self, action: #selector(topButtonTapped), for: .touchUpInside)
     }
 
     private func setupConstraints() {
@@ -270,6 +282,10 @@ class DrawingStepsViewController: UIViewController {
     @objc private func prevTapped() {
         if currentIndex > 0 {
             currentIndex -= 1
+            let res = drawService.updateDrawStep(draw: drawDetails[0], draw_step: Int(drawDetails[0].current_step) - 1)
+            if(res == true){
+                updateStep()
+            }
             updateStep()
         }
     }
@@ -277,7 +293,10 @@ class DrawingStepsViewController: UIViewController {
     @objc private func nextTapped() {
         if currentIndex < steps.count - 1 {
             currentIndex += 1
-            updateStep()
+            let res = drawService.updateDrawStep(draw: drawDetails[0], draw_step:  Int(drawDetails[0].current_step) + 1)
+            if(res == true){
+                updateStep()
+            }
         }
     }
 
@@ -292,4 +311,20 @@ class DrawingStepsViewController: UIViewController {
         prevButton.isHidden = currentIndex == 0
         nextButton.isHidden = currentIndex == steps.count - 1
     }
+    @objc private func topButtonTapped() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return
+        }
+
+        // Create your destination view controller
+        let homeVC = HomeViewController()
+        let nav = UINavigationController(rootViewController: homeVC)
+        nav.interactivePopGestureRecognizer?.isEnabled = false // Disable swipe back
+
+        // Set as new root
+        window.rootViewController = nav
+        window.makeKeyAndVisible()
+    }
+
 }
