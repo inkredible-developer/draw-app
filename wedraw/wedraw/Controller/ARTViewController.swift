@@ -28,17 +28,150 @@ class ARTracingViewController: UIViewController {
     private var imageAnchorNode: SCNNode?
     private var worldAnchorNode: SCNNode?
 
+    private var tooltip: TooltipView?
+    
     private var relativeTransform: SCNMatrix4?
+    
+    private var currentIndex = 0
+    private let opacitySlider = OpacitySliderView()
 
     private var isAnchorVisible = false
     private var lastKnownImageAnchorTransform: simd_float4x4?
     private var hasPlacedInitialTracingNode = false
+    
+    private var lastScaleWhenAnchored: CGFloat = 1.0
+    private var lastRelativePosition: SCNVector3?
+    private var lastRelativeRotation: SCNVector3?
     
     private let updateQueue = DispatchQueue(label: "com.example.artracing.serialSceneKitQueue")
     private var isRestartAvailable = true
     
     // Anchor popup view
     private var anchorPopupView: AnchorPopupView?
+    
+    private var steps: [DrawingStep] = [
+        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
+        DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),
+        DrawingStep(title: "Split Face Horizontally", description: "Add eye and nose level.", imageName: "step3"),
+        DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
+        DrawingStep(title: "Draw Eye Line", description: "Mark horizontal eye level.", imageName: "step5"),
+        DrawingStep(title: "Mark Nose Line", description: "Place nose at 1/3 down from eyes to chin.", imageName: "step6"),
+        DrawingStep(title: "Define Jaw", description: "Sketch jaw shape to connect head and chin.", imageName: "step7"),
+        DrawingStep(title: "Add Ear Level", description: "Align ear from eye to nose level.", imageName: "step8"),
+        DrawingStep(title: "Draw Neck Guide", description: "Extend lines for neck from jaw.", imageName: "step9"),
+        DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
+    ]
+    
+    // UI Components
+    private let infoButton = CustomIconButtonView(
+        iconName: "info",
+        iconColor: .white,
+        backgroundColor: UIColor(named: "Inkredible-DarkPurple") ?? .systemYellow,
+        iconScale: 0.5
+    )
+    
+    private lazy var finishButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Save", for: .normal)
+        button.setTitleColor(UIColor(named: "Inkredible-Green"), for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .bold)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(finishButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
+    private let stepTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 20)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let stepDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let bottomContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private let sliderContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.white
+        view.layer.cornerRadius = 20
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        view.clipsToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private let buttonCardView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+        view.layer.cornerRadius = 24
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private let prevButton: UIButton = {
+        let button = UIButton(type: .system)
+
+        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        let image = UIImage(systemName: "chevron.left", withConfiguration: config)
+        button.setImage(image, for: .normal)
+        button.tintColor = .black
+
+        button.backgroundColor = UIColor(named: "Inkredible-Green")
+        button.layer.cornerRadius = 24
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 48),
+            button.heightAnchor.constraint(equalToConstant: 48)
+        ])
+
+        return button
+    }()
+
+    private let nextButton: UIButton = {
+        let button = UIButton(type: .system)
+
+        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        let image = UIImage(systemName: "chevron.right", withConfiguration: config)
+        button.setImage(image, for: .normal)
+        button.tintColor = .black
+
+        button.backgroundColor = UIColor(named: "Inkredible-Green")
+        button.layer.cornerRadius = 24
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 48),
+            button.heightAnchor.constraint(equalToConstant: 48)
+        ])
+
+        return button
+    }()
+
+    private let stepProgressLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     
     init(anchorImage: UIImage?, tracingImage: UIImage) {
         self.anchorImage = anchorImage
@@ -57,24 +190,66 @@ class ARTracingViewController: UIViewController {
         setupARView()
         setupAnchorPopupView()
         setupGestures()
+        setupNavBarColor()
+        configureNavigationBar()
+        setupDrawingStepsUI()
+        updateStep()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        router?.navigationController?.setNavigationBarHidden(true, animated: animated)
         resetTracking()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         UIApplication.shared.isIdleTimerDisabled = true
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.showTooltip(withText: self.steps[self.currentIndex].description)
+        }
     }
+
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         arView.session.pause()
         UIApplication.shared.isIdleTimerDisabled = false
     }
+    
+    private func setupNavBarColor() {
+        if #available(iOS 13.0, *) {
+          let appearance = UINavigationBarAppearance()
+          appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .white
+          appearance.titleTextAttributes = [.foregroundColor: UIColor(named: "Inkredible-DarkPurple") ?? .black]
+          navigationController?.navigationBar.standardAppearance = appearance
+          navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            navigationController?.navigationBar.tintColor = UIColor(named: "Inkredible-Green") ?? .green
+        } else {
+          navigationController?.navigationBar.barTintColor = .white
+          navigationController?.navigationBar.tintColor = UIColor(named: "Inkredible-Green") ?? .green
+          navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor(named: "Inkredible-DarkPurple") ?? .black]
+        }
+      }
+    
+    private func configureNavigationBar() {
+        navigationItem.title = "Drawing With Reference"
+        navigationItem.hidesBackButton = true
+   
+        finishButton.setTitle(currentIndex == steps.count - 1 ? "Finish" : "Save", for: .normal)
+        
+        let saveItem = UIBarButtonItem(
+            customView: finishButton
+        )
+        
+        lazy var infoItem = UIBarButtonItem(customView: infoButton)
+        navigationItem.leftBarButtonItem = infoItem
+        
+        navigationItem.rightBarButtonItem = saveItem
+    }
+
 
     // MARK: - Setup
     private func setupARView() {
@@ -114,7 +289,7 @@ class ARTracingViewController: UIViewController {
             popup.heightAnchor.constraint(lessThanOrEqualToConstant: 120)
         ])
         
-        popup.isHidden = true // Initially hidden
+        popup.isHidden = true
         anchorPopupView = popup
     }
 
@@ -131,7 +306,7 @@ class ARTracingViewController: UIViewController {
     }
 
     private func resetTracking() {
-        // Show the popup when starting tracking
+      
         anchorPopupView?.isHidden = false
         
         isAnchorVisible = false
@@ -177,14 +352,35 @@ class ARTracingViewController: UIViewController {
 
     // MARK: - Tracing Node Management
 
+//    private func createTracingNode() -> SCNNode {
+//        let image = tracingImage
+//        let width: CGFloat = 0.25
+//        let aspectRatio = image.size.height / image.size.width
+//        let height = width * aspectRatio
+//
+//        let plane = SCNPlane(width: width, height: height)
+//        plane.firstMaterial?.diffuse.contents = image
+//        plane.firstMaterial?.isDoubleSided = true
+//        plane.firstMaterial?.lightingModel = .constant
+//
+//        let node = SCNNode(geometry: plane)
+//        node.eulerAngles.x = -.pi / 2
+//        node.position = SCNVector3(0, 0, 0)
+//        node.opacity = 0.8
+//        return node
+//    }
+    
+    
     private func createTracingNode() -> SCNNode {
-        let image = tracingImage
+        // Get current step image
+        let currentStepImage = UIImage(named: steps[currentIndex].imageName) ?? tracingImage
+
         let width: CGFloat = 0.25
-        let aspectRatio = image.size.height / image.size.width
+        let aspectRatio = currentStepImage.size.height / currentStepImage.size.width
         let height = width * aspectRatio
 
         let plane = SCNPlane(width: width, height: height)
-        plane.firstMaterial?.diffuse.contents = image
+        plane.firstMaterial?.diffuse.contents = currentStepImage
         plane.firstMaterial?.isDoubleSided = true
         plane.firstMaterial?.lightingModel = .constant
 
@@ -195,36 +391,50 @@ class ARTracingViewController: UIViewController {
         return node
     }
 
-    private func createTracingNode(for imageAnchor: ARImageAnchor? = nil) -> SCNNode {
-        let imageSize = tracingImage.size
-
-        let physicalWidth: CGFloat = 0.2
-        let aspectRatio = imageSize.height / imageSize.width
-        let physicalHeight = physicalWidth * aspectRatio
-
-        let plane = SCNPlane(width: physicalWidth, height: physicalHeight)
-        plane.firstMaterial?.diffuse.contents = tracingImage
-        plane.firstMaterial?.isDoubleSided = true
-        plane.firstMaterial?.lightingModel = .constant
-
-        let node = SCNNode(geometry: plane)
-        node.opacity = 0.8
-
-        if let imageAnchor = imageAnchor {
-            let anchorWidth = imageAnchor.referenceImage.physicalSize.width
-            let anchorHeight = imageAnchor.referenceImage.physicalSize.height
-
-            let posX = (anchorWidth / 2) + (Double(physicalWidth) / 2)
-            let posZ = (anchorHeight / 2) + (Double(physicalHeight) / 2)
-
-            node.position = SCNVector3(x: Float(posX), y: 0.001, z: Float(posZ))
-
-            node.eulerAngles.x = -.pi / 2
+//    private func createTracingNode(for imageAnchor: ARImageAnchor? = nil) -> SCNNode {
+//        let imageSize = tracingImage.size
+//
+//        let physicalWidth: CGFloat = 0.2
+//        let aspectRatio = imageSize.height / imageSize.width
+//        let physicalHeight = physicalWidth * aspectRatio
+//
+//        let plane = SCNPlane(width: physicalWidth, height: physicalHeight)
+//        plane.firstMaterial?.diffuse.contents = tracingImage
+//        plane.firstMaterial?.isDoubleSided = true
+//        plane.firstMaterial?.lightingModel = .constant
+//
+//        let node = SCNNode(geometry: plane)
+//        node.opacity = 0.8
+//
+//        if let imageAnchor = imageAnchor {
+//            let anchorWidth = imageAnchor.referenceImage.physicalSize.width
+//            let anchorHeight = imageAnchor.referenceImage.physicalSize.height
+//
+//            let posX = (anchorWidth / 2) + (Double(physicalWidth) / 2)
+//            let posZ = (anchorHeight / 2) + (Double(physicalHeight) / 2)
+//
+//            node.position = SCNVector3(x: Float(posX), y: 0.001, z: Float(posZ))
+//
+//            node.eulerAngles.x = -.pi / 2
+//        } else {
+//            node.eulerAngles = SCNVector3Zero
+//        }
+//
+//        return node
+//    }
+    
+    @objc private func finishButtonTapped() {
+        // Close AR experience or save depending on current step
+        if currentIndex == steps.count - 1 {
+            // This is the last step - finish the experience
+//            dismiss(animated: true)
         } else {
-            node.eulerAngles = SCNVector3Zero
+            // Save functionality
+            // You can implement saving functionality here
+//            let alert = UIAlertController(title: "Save Drawing", message: "Your drawing progress has been saved.", preferredStyle: .alert)
+//            alert.addAction(UIAlertAction(title: "OK", style: <#UIAlertAction.Style#>, for: .default))
+//            present(alert, animated: true)
         }
-
-        return node
     }
 
     private func prepareImages() {
@@ -317,12 +527,32 @@ class ARTracingViewController: UIViewController {
         guard let tracingNode = tracingNode, let imageAnchorNode = imageAnchorNode else { return }
 
         relativeTransform = imageAnchorNode.convertTransform(tracingNode.transform, from: tracingNode.parent)
+        lastRelativePosition = tracingNode.position
+        lastRelativeRotation = tracingNode.eulerAngles
+        
+        if let plane = tracingNode.geometry as? SCNPlane,
+           let originalSize = originalPlaneSize {
+            lastScaleWhenAnchored = plane.width / originalSize.width
+        }
     }
+
    
     private func moveTracingNodeToWorldSpace() {
         guard let tracingNode = tracingNode,
               worldAnchorNode == nil,
               !hasRelocatedToWorld else { return }
+
+       
+        if let plane = tracingNode.geometry as? SCNPlane {
+            if let originalSize = originalPlaneSize {
+                lastScaleWhenAnchored = plane.width / originalSize.width
+            }
+        }
+        
+        if let imageAnchorNode = imageAnchorNode {
+            lastRelativePosition = tracingNode.position
+            lastRelativeRotation = tracingNode.eulerAngles
+        }
 
         let worldTransform = tracingNode.worldTransform
 
@@ -338,7 +568,6 @@ class ARTracingViewController: UIViewController {
         self.worldAnchorNode = worldNode
         self.hasRelocatedToWorld = true
         
-        // Show popup when anchor is lost
         DispatchQueue.main.async {
             self.anchorPopupView?.isHidden = false
         }
@@ -352,28 +581,34 @@ class ARTracingViewController: UIViewController {
         tracingNode.removeFromParentNode()
         imageAnchorNode.addChildNode(tracingNode)
 
-        if let relativeTransform = self.relativeTransform {
+        if let lastPosition = lastRelativePosition {
+            tracingNode.position = lastPosition
+        } else if let relativeTransform = self.relativeTransform {
             tracingNode.transform = relativeTransform
         } else {
             tracingNode.transform = SCNMatrix4Identity
             tracingNode.position.y = 0.001
         }
+        
+        if let lastRotation = lastRelativeRotation {
+            tracingNode.eulerAngles = lastRotation
+        }
 
         if let plane = tracingNode.geometry as? SCNPlane,
-              let original = originalPlaneSize {
-            plane.width  = original.width
-            plane.height = original.height
+           let original = originalPlaneSize {
+            plane.width = original.width * lastScaleWhenAnchored
+            plane.height = original.height * lastScaleWhenAnchored
         }
 
         worldNode.removeFromParentNode()
         worldAnchorNode = nil
         hasRelocatedToWorld = false
         
-        // Hide popup when anchor is found
         DispatchQueue.main.async {
             self.anchorPopupView?.isHidden = true
         }
     }
+
 
     // MARK: - Gesture Actions
 
@@ -401,6 +636,7 @@ class ARTracingViewController: UIViewController {
             } else if self.imageAnchorNode != nil {
                 tracingNode.position.x += dx
                 tracingNode.position.z += dy
+                self.lastRelativePosition = tracingNode.position
                 self.updateRelativeTransform()
             }
         }
@@ -415,8 +651,11 @@ class ARTracingViewController: UIViewController {
 
         plane.width *= CGFloat(scaleFactor)
         plane.height *= CGFloat(scaleFactor)
-
+        
         if imageAnchorNode != nil && worldAnchorNode == nil {
+            if let originalSize = originalPlaneSize {
+                lastScaleWhenAnchored = plane.width / originalSize.width
+            }
             updateRelativeTransform()
         }
 
@@ -433,16 +672,16 @@ class ARTracingViewController: UIViewController {
             tracingNode.eulerAngles.z -= rotation
         } else if imageAnchorNode != nil {
             tracingNode.eulerAngles.y -= rotation
+            lastRelativeRotation = tracingNode.eulerAngles
             self.updateRelativeTransform()
         }
     }
-
     // MARK: - Experience Actions
 
     @IBAction func closeAR() {
         dismiss(animated: true)
     }
-
+    
     func restartExperience() {
         guard isRestartAvailable else { return }
         isRestartAvailable = false
@@ -461,18 +700,215 @@ class ARTracingViewController: UIViewController {
             self.isRestartAvailable = true
         }
     }
+    
+    // MARK: - Drawing Steps UI Setup
+    private func setupDrawingStepsUI() {
+        
+        infoButton.updateSize(width: 30)
+        infoButton.delegate = self
+        
+        view.addSubview(infoButton)
+        view.addSubview(sliderContainer)
+        view.addSubview(bottomContainer)
+
+        bottomContainer.addSubview(buttonCardView)
+        buttonCardView.addSubview(prevButton)
+        buttonCardView.addSubview(nextButton)
+        buttonCardView.addSubview(stepProgressLabel)
+
+        opacitySlider.translatesAutoresizingMaskIntoConstraints = false
+        sliderContainer.addSubview(opacitySlider)
+        sliderContainer.clipsToBounds = false
+
+        prevButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
+        nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
+
+        opacitySlider.onOpacityChanged = { [weak self] value in
+            self?.tracingNode?.opacity = CGFloat(value)
+        }
+        
+        NSLayoutConstraint.activate([
+            infoButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
+            infoButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            bottomContainer.heightAnchor.constraint(equalToConstant: 158),
+            bottomContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            sliderContainer.heightAnchor.constraint(equalToConstant: 50),
+            sliderContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            sliderContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            sliderContainer.topAnchor.constraint(equalTo: bottomContainer.topAnchor, constant: -50),
+
+            buttonCardView.centerXAnchor.constraint(equalTo: bottomContainer.centerXAnchor),
+            buttonCardView.centerYAnchor.constraint(equalTo: bottomContainer.centerYAnchor),
+            buttonCardView.heightAnchor.constraint(equalToConstant: 55),
+            buttonCardView.leadingAnchor.constraint(equalTo: bottomContainer.leadingAnchor, constant: 24),
+            buttonCardView.trailingAnchor.constraint(equalTo: bottomContainer.trailingAnchor, constant: -24),
+
+            prevButton.centerYAnchor.constraint(equalTo: buttonCardView.centerYAnchor),
+            prevButton.leadingAnchor.constraint(equalTo: buttonCardView.leadingAnchor, constant: 16),
+            prevButton.widthAnchor.constraint(equalToConstant: 48),
+            prevButton.heightAnchor.constraint(equalToConstant: 48),
+
+            nextButton.centerYAnchor.constraint(equalTo: buttonCardView.centerYAnchor),
+            nextButton.trailingAnchor.constraint(equalTo: buttonCardView.trailingAnchor, constant: -16),
+            nextButton.widthAnchor.constraint(equalToConstant: 48),
+            nextButton.heightAnchor.constraint(equalToConstant: 48),
+  
+            opacitySlider.leadingAnchor.constraint(equalTo: sliderContainer.leadingAnchor, constant: 0),
+            opacitySlider.trailingAnchor.constraint(equalTo: sliderContainer.trailingAnchor, constant: 0),
+            opacitySlider.centerYAnchor.constraint(equalTo: sliderContainer.centerYAnchor),
+            stepProgressLabel.centerXAnchor.constraint(equalTo: buttonCardView.centerXAnchor),
+            stepProgressLabel.centerYAnchor.constraint(equalTo: buttonCardView.centerYAnchor)
+        ])
+
+    }
+
+    // MARK: - Step Navigation
+    @objc private func prevTapped() {
+        if currentIndex > 0 {
+            currentIndex -= 1
+            updateStep()
+            updateTracingImageForCurrentStep()
+        }
+    }
+
+    @objc private func nextTapped() {
+        if currentIndex < steps.count - 1 {
+            currentIndex += 1
+            updateStep()
+            updateTracingImageForCurrentStep()
+        } else {
+            showCompletionTooltip()
+        }
+    }
+
+    private func showCompletionTooltip() {
+        let tooltipView = TooltipView(text: "Great job! You've completed all the steps!") { [weak self] in
+            self?.dismiss(animated: true)
+        }
+
+        view.addSubview(tooltipView)
+        tooltipView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            tooltipView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            tooltipView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            tooltipView.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8)
+        ])
+    }
+
+    private func updateStep() {
+        let step = steps[currentIndex]
+        stepTitleLabel.text = step.title
+        stepDescriptionLabel.text = step.description
+        stepProgressLabel.text = "Step \(currentIndex + 1) of \(steps.count)"
+        
+        let isLast = (currentIndex == steps.count - 1)
+        finishButton.setTitle(isLast ? "Finish" : "Save", for: .normal)
+        prevButton.isHidden = (currentIndex == 0)
+        nextButton.isHidden = isLast
+   
+        showTooltip(withText: step.description)
+    }
+
+
+    private func updateTracingImageForCurrentStep() {
+        // Update the tracing image based on the current step
+        if let newImage = UIImage(named: steps[currentIndex].imageName) {
+            // Replace the tracing image in the existing node
+            if let tracingNode = self.tracingNode, let plane = tracingNode.geometry as? SCNPlane {
+                plane.firstMaterial?.diffuse.contents = newImage
+            }
+        }
+    }
+    
+    @objc private func toggleTooltip() {
+      if let tip = tooltip {
+        // Sudah tampil → sembunyikan & buang
+        UIView.animate(withDuration: 0.2, animations: {
+          tip.alpha = 0
+        }, completion: { _ in
+          tip.removeFromSuperview()
+          self.tooltip = nil
+        })
+      } else {
+        // Belum tampil → buat & tampilkan
+        let text = steps[currentIndex].description
+        let tip = TooltipView(text: text)
+        tip.alpha = 0
+        tip.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tip)
+        self.tooltip = tip
+
+        NSLayoutConstraint.activate([
+          tip.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 12),
+          tip.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+          tip.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+        ])
+
+        UIView.animate(withDuration: 0.2) {
+          tip.alpha = 1
+        }
+      }
+    }
+    
+    private func showTooltip(withText text: String, autoDismiss: Bool = true) {
+        tooltip?.removeFromSuperview()
+        
+        let tip = TooltipView(text: text) { [weak self] in
+            self?.tooltip = nil
+        }
+        
+        tip.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tip)
+        tooltip = tip
+        
+        NSLayoutConstraint.activate([
+            tip.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 20),
+            tip.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tip.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tip.heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
+        ])
+        
+        view.layoutIfNeeded()
+    
+        if autoDismiss {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self, weak tip] in
+                guard let tip = tip, tip == self?.tooltip else { return }
+                
+                UIView.animate(withDuration: 0.5, animations: {
+                    tip.alpha = 0
+                }, completion: { _ in
+                    if tip == self?.tooltip {
+                        tip.removeFromSuperview()
+                        self?.tooltip = nil
+                    }
+                })
+            }
+        }
+    }
+
+}
+
+extension ARTracingViewController: CustomIconButtonViewDelegate {
+    func didTapCustomViewButton(_ button: CustomIconButtonView) {
+        if button === infoButton {
+            toggleTooltip()
+        }
+    }
 }
 
 // MARK: - ARSCNViewDelegate & ARSessionDelegate
 
 extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
-
+    
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         guard let imageAnchor = anchor as? ARImageAnchor,
               imageAnchor.referenceImage.name == "AnchorImage" else { return }
 
         DispatchQueue.main.async {
-            // Hide popup when anchor is detected
             self.anchorPopupView?.isHidden = true
             self.hasPlacedInitialTracingNode = true
         }
@@ -486,7 +922,19 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
                 self.moveTracingNodeToImageAnchor()
             }
         } else if tracingNode == nil {
-            let newTracingNode = createTracingNode(for: imageAnchor)
+            let newTracingNode = createTracingNode()
+            
+            let anchorWidth = imageAnchor.referenceImage.physicalSize.width
+            let anchorHeight = imageAnchor.referenceImage.physicalSize.height
+            
+            if let plane = newTracingNode.geometry as? SCNPlane {
+                let posX = (anchorWidth / 2) + (Double(plane.width) / 2)
+                let posZ = (anchorHeight / 2) + (Double(plane.height) / 2)
+                newTracingNode.position = SCNVector3(x: Float(posX), y: 0.001, z: Float(posZ))
+            }
+            
+            newTracingNode.eulerAngles.x = -.pi / 2
+            
             node.addChildNode(newTracingNode)
             tracingNode = newTracingNode
 
@@ -508,8 +956,7 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
             if !isAnchorVisible {
                 isAnchorVisible = true
                 lastKnownImageAnchorTransform = imageAnchor.transform
-                
-                // Hide popup when anchor becomes visible
+   
                 DispatchQueue.main.async {
                     self.anchorPopupView?.isHidden = true
                 }
@@ -525,7 +972,6 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
         } else if isAnchorVisible {
             isAnchorVisible = false
             
-            // Show popup when anchor becomes invisible
             DispatchQueue.main.async {
                 self.anchorPopupView?.isHidden = false
                 SCNTransaction.begin()
@@ -545,7 +991,6 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
             isAnchorVisible = false
             imageAnchorNode = nil
             
-            // Show popup when anchor is removed
             DispatchQueue.main.async {
                 self.anchorPopupView?.isHidden = false
                 self.moveTracingNodeToWorldSpace()
@@ -588,7 +1033,6 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
         self.worldAnchorNode = worldNode
         self.hasRelocatedToWorld = true
         
-        // Show popup when using last known transform
         DispatchQueue.main.async {
             self.anchorPopupView?.isHidden = false
         }
@@ -597,7 +1041,6 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
     func session(_ session: ARSession, didFailWithError error: Error) {
         guard error is ARError else { return }
 
-        // Show popup for AR session failures
         DispatchQueue.main.async {
             self.anchorPopupView?.isHidden = false
             
@@ -608,14 +1051,12 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
     }
 
     func sessionWasInterrupted(_ session: ARSession) {
-        // Show popup when session is interrupted
         DispatchQueue.main.async {
             self.anchorPopupView?.isHidden = false
         }
     }
 
     func sessionInterruptionEnded(_ session: ARSession) {
-        // Keep popup visible if anchor is not visible
         if !isAnchorVisible {
             DispatchQueue.main.async {
                 self.anchorPopupView?.isHidden = false
@@ -631,7 +1072,6 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
                 }
             }
         } else {
-            // Hide popup if anchor is visible
             DispatchQueue.main.async {
                 self.anchorPopupView?.isHidden = true
             }
@@ -751,5 +1191,199 @@ extension SCNNode {
 
     func setScale(_ scale: SIMD3<Float>) {
         self.scale = SCNVector3(scale.x, scale.y, scale.z)
+    }
+}
+
+class OpacityUISlider: UISlider {
+  private let trackHeight: CGFloat = 20
+
+  override func trackRect(forBounds bounds: CGRect) -> CGRect {
+    let y = (bounds.height - trackHeight) / 2
+    return CGRect(x: 0, y: y, width: bounds.width, height: trackHeight)
+  }
+
+  override func thumbRect(
+    forBounds bounds: CGRect,
+    trackRect rect: CGRect,
+    value: Float
+  ) -> CGRect {
+    let r = super.thumbRect(forBounds: bounds, trackRect: rect, value: value)
+    let dy = rect.midY - r.midY
+    return r.offsetBy(dx: 0, dy: dy)
+  }
+}
+
+private func makeRoundedWedgeGradient(
+  size: CGSize,
+  startColor: UIColor,
+  endColor: UIColor,
+  startThickness: CGFloat,
+  cornerRadius: CGFloat
+) -> UIImage {
+  let grad = CAGradientLayer()
+  grad.frame = CGRect(origin: .zero, size: size)
+  grad.colors = [ startColor.cgColor, endColor.cgColor ]
+  grad.startPoint = CGPoint(x: 0, y: 0.5)
+  grad.endPoint   = CGPoint(x: 1, y: 0.5)
+
+  let midY = size.height/2
+  let leftHalfH = startThickness/2
+  let path = UIBezierPath()
+  
+  path.move(to: CGPoint(x: cornerRadius, y: midY - leftHalfH))
+  path.addLine(to: CGPoint(x: size.width - cornerRadius, y: 0))
+  path.addArc(
+    withCenter: CGPoint(x: size.width - cornerRadius, y: cornerRadius),
+    radius: cornerRadius,
+    startAngle: -CGFloat.pi/2,
+    endAngle: 0,
+    clockwise: true
+  )
+  path.addLine(to: CGPoint(x: size.width, y: size.height - cornerRadius))
+  path.addArc(
+    withCenter: CGPoint(x: size.width - cornerRadius, y: size.height - cornerRadius),
+    radius: cornerRadius,
+    startAngle: 0,
+    endAngle: CGFloat.pi/2,
+    clockwise: true
+  )
+  path.addLine(to: CGPoint(x: cornerRadius, y: midY + leftHalfH))
+  path.addArc(
+    withCenter: CGPoint(x: cornerRadius, y: size.height/2 + leftHalfH - cornerRadius),
+    radius: cornerRadius,
+    startAngle: CGFloat.pi/2,
+    endAngle: CGFloat.pi,
+    clockwise: true
+  )
+  path.addArc(
+    withCenter: CGPoint(x: cornerRadius, y: size.height/2 - leftHalfH + cornerRadius),
+    radius: cornerRadius,
+    startAngle: CGFloat.pi,
+    endAngle: 3 * CGFloat.pi / 2,
+    clockwise: true
+  )
+  path.close()
+
+  let mask = CAShapeLayer()
+  mask.path = path.cgPath
+  grad.mask = mask
+
+  UIGraphicsBeginImageContextWithOptions(size, false, 0)
+  grad.render(in: UIGraphicsGetCurrentContext()!)
+  let img = UIGraphicsGetImageFromCurrentImageContext()!
+  UIGraphicsEndImageContext()
+  return img
+}
+
+
+class OpacitySliderView: UIView {
+  var onOpacityChanged: ((Float) -> Void)?
+
+  private let label: UILabel = {
+    let l = UILabel()
+    l.text = "OPACITY"
+    l.textColor = UIColor(named: "Inkredible-DarkPurple")
+    l.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .subheadline).pointSize, weight: .bold)
+    l.translatesAutoresizingMaskIntoConstraints = false
+    return l
+  }()
+
+  private let slider: OpacityUISlider = {
+    let s = OpacityUISlider()
+    s.minimumValue = 0
+    s.maximumValue = 1
+    s.value = 0.8
+    s.translatesAutoresizingMaskIntoConstraints = false
+    s.setThumbImage(OpacitySliderView.generateThumb(size: 25), for: .normal)
+    return s
+  }()
+
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    setup()
+  }
+  required init?(coder: NSCoder) {
+    super.init(coder: coder)
+    setup()
+  }
+
+    private func setup() {
+        backgroundColor = .white
+        layer.cornerRadius = 16
+        clipsToBounds = false
+
+        addSubview(label)
+        addSubview(slider)
+
+        slider.addTarget(self, action: #selector(valueChanged), for: .valueChanged)
+
+        NSLayoutConstraint.activate([
+          label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+          label.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+
+          slider.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 10),
+          slider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+          slider.centerYAnchor.constraint(equalTo: label.centerYAnchor),
+          slider.heightAnchor.constraint(equalToConstant: 30),
+
+          bottomAnchor.constraint(equalTo: slider.bottomAnchor, constant: 8)
+        ])
+
+        valueChanged(slider)
+      }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+
+      let trackRect = slider.trackRect(forBounds: slider.bounds)
+      
+        let img = makeRoundedWedgeGradient(
+          size: trackRect.size,
+          startColor: .white,
+          endColor: UIColor(named: "Inkredible-DarkText") ?? .black,
+          startThickness: 0,
+          cornerRadius: trackRect.height/2
+        )
+     
+        let caps = UIEdgeInsets(top: 0, left: trackRect.height/2, bottom: 0, right: trackRect.height/2)
+        let stretchable = img.resizableImage(withCapInsets: caps, resizingMode: .stretch)
+
+        slider.setMinimumTrackImage(stretchable, for: .normal)
+        slider.setMaximumTrackImage(stretchable, for: .normal)
+  }
+
+    @objc private func valueChanged(_ s: UISlider) {
+        onOpacityChanged?(s.value)
+        let minD: CGFloat = 10, maxD: CGFloat = 35
+        let d = minD + CGFloat(s.value) * (maxD - minD)
+        s.setThumbImage(Self.generateThumb(size: d), for: .normal)
+      }
+
+    private static func generateThumb(size: CGFloat) -> UIImage {
+      let scale = UIScreen.main.scale
+      let diameter = floor(size * scale) / scale
+      let rect = CGRect(origin: .zero, size: CGSize(width: diameter, height: diameter))
+
+      UIGraphicsBeginImageContextWithOptions(rect.size, false, scale)
+      guard let ctx = UIGraphicsGetCurrentContext() else {
+        return UIImage()
+      }
+
+      let fillColor   = (UIColor(named: "Inkredible-Green") ?? .green).cgColor
+      let strokeColor = UIColor.black.cgColor
+      ctx.setFillColor(fillColor)
+      ctx.setStrokeColor(strokeColor)
+
+      let lineWidth = 1.0 / scale
+      ctx.setLineWidth(lineWidth)
+
+      let insetRect = rect.insetBy(dx: lineWidth/2, dy: lineWidth/2)
+
+      ctx.fillEllipse(in: insetRect)
+      ctx.strokeEllipse(in: insetRect)
+
+      let img = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
+      UIGraphicsEndImageContext()
+      return img
     }
 }

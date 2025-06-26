@@ -140,7 +140,7 @@ class OnboardingViewController: UIViewController {
     view.addSubview(pageControl)
     
       NSLayoutConstraint.activate([
-        actionButton.heightAnchor.constraint(equalToConstant: 52),
+        actionButton.heightAnchor.constraint(equalToConstant: 55),
         actionButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
         actionButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
         actionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),

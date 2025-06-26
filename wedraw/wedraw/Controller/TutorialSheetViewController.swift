@@ -144,7 +144,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
   private func setupUI() {
     container.translatesAutoresizingMaskIntoConstraints = false
     container.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
-    container.layer.cornerRadius = 16
+    container.layer.cornerRadius = 20
     view.addSubview(container)
       
       infoButton.delegate = self
@@ -210,7 +210,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
 
       actionButton.leadingAnchor.constraint(equalTo: container.leadingAnchor),
       actionButton.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-      actionButton.heightAnchor.constraint(equalToConstant: 52),
+      actionButton.heightAnchor.constraint(equalToConstant: 55),
       actionButton.bottomAnchor.constraint(equalTo: container.bottomAnchor)
     ])
   }

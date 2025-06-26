@@ -228,7 +228,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         if draw.draw_mode == "reference" {
             drawVC = DrawingStepsViewController()
         }else{
-            drawVC = DrawingStepsUsingCameraController()
+//            drawVC = DrawingStepsUsingCameraController()
         }
         navigationController?.pushViewController(drawVC, animated: true)
     }
