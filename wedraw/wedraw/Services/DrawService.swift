@@ -23,8 +23,9 @@ class DrawService {
         return repository.fetchDraws(isFinished: false)
     }
 
-    func createDraw(draw_id: UUID, angle_id: UUID) {
-        
+    func createDraw(draw_id: UUID, angle_id: UUID, draw_mode: String) {
+        print("draw_id",draw_id)
+        print("create draw")
         // You can put validation or extra logic here
         repository.insertDraw(
             draw_id: draw_id,
@@ -33,7 +34,7 @@ class DrawService {
             similarity_score: 0,
             finished_image: nil,
             is_finished: false,
-            draw_mode: ""
+            draw_mode: draw_mode
         )
     }
 

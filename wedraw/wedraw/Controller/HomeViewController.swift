@@ -226,11 +226,11 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         print("draw card tapped")
         var drawVC = UIViewController()
         if draw.draw_mode == "reference" {
-            drawVC = DrawingStepsViewController()
+            drawVC = DrawingStepsViewController(drawID: draw.draw_id)
         }else{
             drawVC = DrawingStepsUsingCameraController()
         }
-        navigationController?.pushViewController(drawVC, animated: true)
+        navigationController?.setViewControllers([drawVC], animated: true)
     }
     
 }

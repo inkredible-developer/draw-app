@@ -25,6 +25,7 @@ class DrawRepository {
     }
 
     func insertDraw(draw_id: UUID, angle_id: UUID, current_step: Int, similarity_score: Int, finished_image: String?, is_finished: Bool, draw_mode: String?) {
+        print("insert in repo")
         let context = CoreDataManager.shared.context
         let draw = Draw(context: context)
         draw.draw_id = draw_id

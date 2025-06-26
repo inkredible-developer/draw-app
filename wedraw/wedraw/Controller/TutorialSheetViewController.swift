@@ -14,6 +14,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     
     private var cameraCoordinator: CameraCoordinator?
     
+    var drawService = DrawService()
     var router : MainFlowRouter?
   // MARK: – UI
   private let container = UIView()
@@ -39,13 +40,15 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     private var playerItemStatusObserver: NSKeyValueObservation?
     private var playerReadyObserver: NSKeyValueObservation?
 
-  private let mode: DrawingMode
+    private let mode: DrawingMode
+    private let selectedAngle: Angle
     
     // MARK: - Image Properties
     private var anchorImage: UIImage?
 
-  init(mode: DrawingMode) {
+  init(mode: DrawingMode, angle: Angle) {
     self.mode = mode
+    self.selectedAngle = angle
     super.init(nibName: nil, bundle: nil)
     modalPresentationStyle = .pageSheet
     if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
@@ -301,8 +304,10 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
 //            arVC.tracingImage = tracingImage
 //            arVC.modalPresentationStyle = .fullScreen
 //            present(arVC, animated: true)
-        }
     }
+    
+}
+
 
 extension TutorialSheetViewController: CustomIconButtonViewDelegate {
     func didTapCustomViewButton(_ button: CustomIconButtonView) {
@@ -348,7 +353,27 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                     }
                 }
             } else {
-                dismissSheet()
+                    let draw_id = UUID()
+                    self.drawService.createDraw(
+                        draw_id: draw_id,
+                        angle_id: selectedAngle.angle_id!,
+                        draw_mode: mode.type
+                    )
+                    let drawVC = DrawingStepsViewController(drawID: draw_id)
+                    navigationController?.setViewControllers([drawVC], animated: true)
+                    dismiss(animated: true) {
+                        print("get here")
+                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                             let window = windowScene.windows.first else {
+                           return
+                        }
+                        
+                        let navController = UINavigationController(rootViewController: drawVC)
+                        navController.interactivePopGestureRecognizer?.isEnabled = false
+
+                            window.rootViewController = navController
+                            window.makeKeyAndVisible()
+                    }
             }
         }
     }

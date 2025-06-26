@@ -12,6 +12,13 @@ enum DrawingMode: CaseIterable, Codable, Equatable, Hashable {
   case reference
   case liveAR
 
+  var type: String {
+    switch self {
+        case .reference: return "reference"
+        case .liveAR:    return "guided"
+    }
+  }
+  
   var title: String {
     switch self {
     case .reference: return "Draw with Reference"

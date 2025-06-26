@@ -34,7 +34,20 @@ extension UIColor {
 }
 
 class DrawingStepsViewController: UIViewController {
-
+    
+    var router : MainFlowRouter?
+    private let drawID: UUID
+    
+    init(drawID: UUID) {
+        self.drawID = drawID
+        print("drawID",drawID)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private var steps: [DrawingStep] = [
         DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don’t worry about perfection; just aim for a clean round shape", imageName: "step1"),
         DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),

@@ -134,9 +134,8 @@ extension SetAngleViewController: SetAngleViewDelegate {
     }
     
     func chooseButtonTapped() {
-        // Handle choose button action
-        // Navigate to SelectDrawingViewController using the router
-        router?.navigate(to: .selectDrawingViewController, animated: true)
+        let selectedAngle = allPresetAngle[selectedPresetIndex]
+        router?.navigate(to: .selectDrawingViewController(selectedAngle: selectedAngle), animated: true)
     }
     
     func presetAngleButtonTapped() {
