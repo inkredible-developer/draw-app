@@ -36,14 +36,7 @@ class LoomishDetailViewController: UIViewController {
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
 
-        
-//        // Circle Background View
-//        let circleView = UIView()
-//        circleView.translatesAutoresizingMaskIntoConstraints = false
-//        circleView.backgroundColor = .white
-//        circleView.layer.cornerRadius = 50 // Will be set to half of width/height later
-//        circleView.clipsToBounds = true
-        
+
         // Image (Placeholder)
         let imageView = UIImageView(image: UIImage(named: "LoomishDetail") ?? UIImage(systemName: "person.crop.circle"))
         imageView.contentMode = .scaleAspectFit
