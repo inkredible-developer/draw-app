@@ -147,11 +147,11 @@ class SegmentedCardView: UIView {
         for draw in items {
             let icon = UIImage(named: "icon_head")
             let sketch = UIImage(named: "Sketch")
-            let card = makeCard(icon: icon, sketch: sketch)
-            let tag = draw.draw_id.hashValue
+            let card = makeCard(sketch: sketch, angle_name: draw.angle.angle_name!)
+            let tag = draw.draw.draw_id.hashValue
             
             card.tag = tag
-            drawMap[tag] = draw
+            drawMap[tag] = draw.draw
             
 //            card.draw = draw
 //            card.data = draw.draw_id
@@ -169,17 +169,105 @@ class SegmentedCardView: UIView {
         delegate?.didTapDrawCard(draw: draw)
     }
     
-    private func makeCard(icon: UIImage?, sketch: UIImage?) -> UIView {
+//    private func makeCard(icon: UIImage?, sketch: UIImage?, angle_name: String) -> UIView {
+//        let card = UIView()
+////        var draw: Draw?
+//        card.backgroundColor = .clear
+//        card.layer.cornerRadius = 20
+//        card.layer.masksToBounds = true
+//        card.translatesAutoresizingMaskIntoConstraints = false
+//        card.widthAnchor.constraint(equalToConstant: 160).isActive = true
+//        card.heightAnchor.constraint(equalToConstant: 220).isActive = true
+//
+//        // Sketch image as background
+//        let sketchImageView = UIImageView(image: sketch)
+//        sketchImageView.translatesAutoresizingMaskIntoConstraints = false
+//        sketchImageView.contentMode = .scaleAspectFill
+//        sketchImageView.clipsToBounds = true
+//        sketchImageView.layer.borderColor = UIColor.lightGray.cgColor
+//        sketchImageView.layer.borderWidth = 2.0
+//        card.addSubview(sketchImageView)
+//
+//        // Gradient overlay (optional)
+//        let gradientView = UIView()
+//        gradientView.translatesAutoresizingMaskIntoConstraints = false
+//        gradientView.backgroundColor = .clear
+//
+//        let gradientLayer = CAGradientLayer()
+//        gradientLayer.colors = [UIColor.white.withAlphaComponent(0.0).cgColor,
+//                                UIColor.systemPurple.withAlphaComponent(0.3).cgColor]
+//        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.5)
+//        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
+//        gradientView.layer.insertSublayer(gradientLayer, at: 0)
+//        card.addSubview(gradientView)
+//
+//        // Icon (top-left)
+//        let iconImageView = UIImageView(image: icon)
+//        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+//        iconImageView.contentMode = .scaleAspectFit
+//        card.addSubview(iconImageView)
+//
+//        // Arrow button (bottom-right)
+//        let arrowButton = UIButton(type: .system)
+//        arrowButton.setImage(UIImage(systemName: "arrow.right"), for: .normal)
+//        arrowButton.tintColor = .black
+//        arrowButton.backgroundColor = UIColor(red: 0.84, green: 1.0, blue: 0.75, alpha: 1.0) // soft green
+//        arrowButton.layer.cornerRadius = 20
+//        arrowButton.translatesAutoresizingMaskIntoConstraints = false
+//        card.addSubview(arrowButton)
+//
+//        // Constraints
+//        NSLayoutConstraint.activate([
+//            sketchImageView.topAnchor.constraint(equalTo: card.topAnchor),
+//            sketchImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+//            sketchImageView.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+//            sketchImageView.bottomAnchor.constraint(equalTo: card.bottomAnchor),
+//
+//            gradientView.topAnchor.constraint(equalTo: card.topAnchor),
+//            gradientView.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+//            gradientView.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+//            gradientView.bottomAnchor.constraint(equalTo: card.bottomAnchor),
+//
+//            iconImageView.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
+//            iconImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12),
+//            iconImageView.widthAnchor.constraint(equalToConstant: 30),
+//            iconImageView.heightAnchor.constraint(equalToConstant: 30),
+//
+//            arrowButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -12),
+//            arrowButton.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12),
+//            arrowButton.widthAnchor.constraint(equalToConstant: 40),
+//            arrowButton.heightAnchor.constraint(equalToConstant: 40)
+//        ])
+//
+//        // Make sure gradient layer resizes
+//        gradientView.layoutIfNeeded()
+//        gradientLayer.frame = card.bounds
+//
+//        return card
+//    }
+    private func makeCard(sketch: UIImage?, angle_name: String) -> UIView {
+        // Container holds the title label and the card
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        // Title Label
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = angle_name
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        titleLabel.textColor = .label
+        titleLabel.textAlignment = .center
+        container.addSubview(titleLabel)
+
+        // Card View
         let card = UIView()
-//        var draw: Draw?
         card.backgroundColor = .clear
         card.layer.cornerRadius = 20
         card.layer.masksToBounds = true
         card.translatesAutoresizingMaskIntoConstraints = false
-        card.widthAnchor.constraint(equalToConstant: 160).isActive = true
-        card.heightAnchor.constraint(equalToConstant: 220).isActive = true
+        container.addSubview(card)
 
-        // Sketch image as background
+        // Sketch Image as Background
         let sketchImageView = UIImageView(image: sketch)
         sketchImageView.translatesAutoresizingMaskIntoConstraints = false
         sketchImageView.contentMode = .scaleAspectFill
@@ -188,10 +276,11 @@ class SegmentedCardView: UIView {
         sketchImageView.layer.borderWidth = 2.0
         card.addSubview(sketchImageView)
 
-        // Gradient overlay (optional)
+        // Gradient Overlay
         let gradientView = UIView()
         gradientView.translatesAutoresizingMaskIntoConstraints = false
         gradientView.backgroundColor = .clear
+        card.addSubview(gradientView)
 
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [UIColor.white.withAlphaComponent(0.0).cgColor,
@@ -199,24 +288,32 @@ class SegmentedCardView: UIView {
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.5)
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
         gradientView.layer.insertSublayer(gradientLayer, at: 0)
-        card.addSubview(gradientView)
 
-        // Icon (top-left)
-        let iconImageView = UIImageView(image: icon)
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
-        iconImageView.contentMode = .scaleAspectFit
-        card.addSubview(iconImageView)
-
-        // Arrow button (bottom-right)
+        // Arrow Button
         let arrowButton = UIButton(type: .system)
         arrowButton.setImage(UIImage(systemName: "arrow.right"), for: .normal)
         arrowButton.tintColor = .black
-        arrowButton.backgroundColor = UIColor(red: 0.84, green: 1.0, blue: 0.75, alpha: 1.0) // soft green
+        arrowButton.backgroundColor = UIColor(red: 0.84, green: 1.0, blue: 0.75, alpha: 1.0)
         arrowButton.layer.cornerRadius = 20
         arrowButton.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(arrowButton)
 
-        // Constraints
+        // Constraints for title and card
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: container.topAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            titleLabel.heightAnchor.constraint(equalToConstant: 20),
+
+            card.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+            card.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            card.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            card.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            card.widthAnchor.constraint(equalToConstant: 160),
+            card.heightAnchor.constraint(equalToConstant: 220)
+        ])
+
+        // Constraints for internal card contents
         NSLayoutConstraint.activate([
             sketchImageView.topAnchor.constraint(equalTo: card.topAnchor),
             sketchImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor),
@@ -228,23 +325,20 @@ class SegmentedCardView: UIView {
             gradientView.trailingAnchor.constraint(equalTo: card.trailingAnchor),
             gradientView.bottomAnchor.constraint(equalTo: card.bottomAnchor),
 
-            iconImageView.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
-            iconImageView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12),
-            iconImageView.widthAnchor.constraint(equalToConstant: 30),
-            iconImageView.heightAnchor.constraint(equalToConstant: 30),
-
             arrowButton.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -12),
             arrowButton.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12),
             arrowButton.widthAnchor.constraint(equalToConstant: 40),
             arrowButton.heightAnchor.constraint(equalToConstant: 40)
         ])
 
-        // Make sure gradient layer resizes
-        gradientView.layoutIfNeeded()
+        // Final gradient frame update
+        card.layoutIfNeeded()
         gradientLayer.frame = card.bounds
 
-        return card
+        return container
     }
+
+
 
 
 }
