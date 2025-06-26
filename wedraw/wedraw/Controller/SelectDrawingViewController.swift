@@ -8,8 +8,10 @@
 import UIKit
 
 final class SelectDrawingViewController: UIViewController {
+    var selectedAngle: Angle?
+    var drawService: DrawService?
     var router: MainFlowRouter?
-    
+
   private lazy var carousel = ModeCarouselView()
   private lazy var selectButton = CustomButton(title: "Select", backgroundColor: UIColor(named: "Inkredible-Green") ?? .systemGreen, titleColor: UIColor(named: "Inkredible-DarkText") ?? .systemGreen)
 
@@ -24,6 +26,10 @@ final class SelectDrawingViewController: UIViewController {
     setupSubviews()
     carousel.delegate = self
     selectButton.delegate = self
+    
+//    if let angle = selectedAngle {
+//        print("Selected angle: \(angle.angle_name ?? "-") angle_id: \(angle.angle_id))")
+//    }
   }
 
   private func setupSubviews() {
@@ -53,8 +59,21 @@ extension SelectDrawingViewController: ModeCarouselViewDelegate {
 
 extension SelectDrawingViewController : CustomButtonDelegate {
     func customButtonDidTap(_ button: CustomButton) {
+        guard let selectedAngle = selectedAngle, let angleID = selectedAngle.angle_id else {
+           print("No angle selected.")
+           return
+        }
+    
+        let draw_id = UUID()
+        
+//        drawService?.createDraw(
+//            draw_id: draw_id,
+//            angle_id: angleID,
+//            draw_mode: "reference"
+//        )
         let mode = DrawingMode.allCases[carousel.selectedIndex]
-        router?.presentDirectly(.tutorialSheetViewController(mode), animated: true)
+        print("mode",mode)
+        router?.presentDirectly(.tutorialSheetViewController(mode,selectedAngle), animated: true)
     }
 }
 

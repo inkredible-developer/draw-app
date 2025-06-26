@@ -31,7 +31,7 @@ class AngleRepository {
         return (try? context.fetch(request)) ?? []
     }
 
-    func insertAngle(angle_id: UUID, angle_name: String,x:Double, y:Double, z:Double, angle_value: Double ) {
+    func insertAngle(angle_id: UUID, angle_name: String,x:Float, y:Float, z:Float, angle_value: Double ) {
         let context = CoreDataManager.shared.context
         let angle = Angle(context: context)
         angle.angle_id = angle_id

@@ -6,9 +6,9 @@
         <attribute name="angle_name" optional="YES" attributeType="String"/>
         <attribute name="icon_name" optional="YES" attributeType="String"/>
         <attribute name="is_preset" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="x" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="y" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="z" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="x" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="y" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="z" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
     <entity name="Draw" representedClassName="Draw" syncable="YES">
         <attribute name="angle_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>

@@ -5,22 +5,19 @@
 //  Created by Rudi Butarbutar on 22/06/25.
 //
 
-
-
 import UIKit
 import SceneKit
 
 protocol SetAngleViewDelegate: AnyObject {
     func infoButtonTapped()
     func chooseButtonTapped()
-    func presetAngleButtonTapped()
     func presetButtonTapped(at index: Int)
+    func presetAngleButtonTapped()
     func cameraPositionChanged(_ position: SCNVector3)
 }
 
 class SetAngleView: UIView {
     weak var delegate: SetAngleViewDelegate?
-
     
     let sceneView: SCNView = {
         let view = SCNView()
@@ -29,7 +26,6 @@ class SetAngleView: UIView {
         return view
     }()
     
-    // Expose the 3D model node for rotation
     private(set) var modelNode: SCNNode?
     
     let angleLabel: UILabel = {
@@ -52,7 +48,7 @@ class SetAngleView: UIView {
     let presetAngleButton: UIButton = {
         let button = UIButton()
         button.setTitle("Preset Angle", for: .normal)
-        button.setTitleColor(UIColor(.black), for: .normal)
+        button.setTitleColor(UIColor(.white), for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         button.backgroundColor = .clear
         return button
@@ -82,33 +78,10 @@ class SetAngleView: UIView {
         return button
     }()
     
-    let infoToastView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor(white: 0.2, alpha: 0.95)
-        view.layer.cornerRadius = 12
-        view.alpha = 0
-        return view
-    }()
-    
-    let infoToastLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Use your finger to rotate the model and choose the angle that best suits your needs."
-        label.textColor = .white
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 16)
-        return label
-    }()
-    
-    let toastOverlayView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        view.alpha = 0
-        return view
-    }()
-    
     private var cameraDisplayLink: CADisplayLink?
     private var presetButtons: [UIButton] = []
+    private let choosePresetPickerView = ChoosePresetPickerView()
+    var tooltip: TooltipView?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -136,16 +109,14 @@ class SetAngleView: UIView {
         addSubview(cameraCoordinateLabel)
         addSubview(bottomContainerView)
         addSubview(infoButton)
-        addSubview(infoToastView)
-        addSubview(toastOverlayView)
         
         bottomContainerView.addSubview(presetAngleButton)
         bottomContainerView.addSubview(chooseButton)
-        infoToastView.addSubview(infoToastLabel)
+        
+        addSubview(choosePresetPickerView)
         
         setupSceneKit()
-        setupPresetButtons()
-        setupToastOverlay()
+//        setupPresetButtons()
     }
     
     private func setupConstraints() {
@@ -156,9 +127,7 @@ class SetAngleView: UIView {
         presetAngleButton.translatesAutoresizingMaskIntoConstraints = false
         chooseButton.translatesAutoresizingMaskIntoConstraints = false
         infoButton.translatesAutoresizingMaskIntoConstraints = false
-        infoToastView.translatesAutoresizingMaskIntoConstraints = false
-        infoToastLabel.translatesAutoresizingMaskIntoConstraints = false
-        toastOverlayView.translatesAutoresizingMaskIntoConstraints = false
+        choosePresetPickerView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             // SceneView
@@ -171,21 +140,27 @@ class SetAngleView: UIView {
             cameraCoordinateLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 8),
             cameraCoordinateLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             cameraCoordinateLabel.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
-            
+
             // Angle Label
-            angleLabel.topAnchor.constraint(equalTo: cameraCoordinateLabel.bottomAnchor, constant: 100),
+            angleLabel.topAnchor.constraint(equalTo: cameraCoordinateLabel.bottomAnchor, constant: 8),
             angleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            
+
+            // Choose Preset Picker (directly above bottom container)
+            choosePresetPickerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            choosePresetPickerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            choosePresetPickerView.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor),
+            choosePresetPickerView.heightAnchor.constraint(equalToConstant: 50),
+
             // Info Button
             infoButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 5),
             infoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            
+
             // Bottom Container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bottomContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomContainerView.heightAnchor.constraint(equalToConstant: 157),
-            
+
             // Choose Button
             chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
             chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
@@ -195,28 +170,13 @@ class SetAngleView: UIView {
             // Preset Angle Button
             presetAngleButton.bottomAnchor.constraint(equalTo: chooseButton.topAnchor, constant: -15),
             presetAngleButton.centerXAnchor.constraint(equalTo: bottomContainerView.centerXAnchor),
-            
-            // Info Toast
-            infoToastView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
-            infoToastView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            infoToastView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            
-            infoToastLabel.topAnchor.constraint(equalTo: infoToastView.topAnchor, constant: 16),
-            infoToastLabel.bottomAnchor.constraint(equalTo: infoToastView.bottomAnchor, constant: -16),
-            infoToastLabel.leadingAnchor.constraint(equalTo: infoToastView.leadingAnchor, constant: 16),
-            infoToastLabel.trailingAnchor.constraint(equalTo: infoToastView.trailingAnchor, constant: -16),
-            
-            // Toast Overlay
-            toastOverlayView.topAnchor.constraint(equalTo: topAnchor),
-            toastOverlayView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            toastOverlayView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            toastOverlayView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
     
     private func setupActions() {
         infoButton.addTarget(self, action: #selector(infoButtonTapped), for: .touchUpInside)
         chooseButton.addTarget(self, action: #selector(chooseButtonTapped), for: .touchUpInside)
+        choosePresetPickerView.delegate = self
         presetAngleButton.addTarget(self, action: #selector(presetAngleButtonTapped), for: .touchUpInside)
     }
     
@@ -250,51 +210,6 @@ class SetAngleView: UIView {
         sceneView.scene = scene
     }
     
-    private func setupPresetButtons() {
-        let radius: CGFloat = 150
-        let buttonSize: CGFloat = 50
-        let angles: [CGFloat] = [1.1, 1.35, 1.5707, 1.8, 2.05]
-        let buttonIcons = ["preset_top", "preset_side_left", "preset_quarter", "preset_side_right", "preset_front"]
-
-        for (index, angle) in angles.enumerated() {
-            let button = UIButton()
-            let image = UIImage(named: buttonIcons[index])
-            button.setImage(image, for: .normal)
-            button.imageView?.contentMode = .scaleAspectFit
-            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-            
-            if index == 2 {
-                button.backgroundColor = .black
-                button.layer.borderColor = UIColor.white.cgColor
-                button.layer.borderWidth = 2
-            } else {
-                button.backgroundColor = .systemGray3
-            }
-            button.layer.cornerRadius = buttonSize / 2
-            button.tag = index
-            
-            button.addTarget(self, action: #selector(presetButtonTapped(_:)), for: .touchUpInside)
-            
-            addSubview(button)
-            button.translatesAutoresizingMaskIntoConstraints = false
-            presetButtons.append(button)
-            
-            let centerXConstant = radius * cos(angle)
-            let centerYConstant = radius * sin(angle) - radius - 20
-            
-            NSLayoutConstraint.activate([
-                button.centerXAnchor.constraint(equalTo: centerXAnchor, constant: centerXConstant),
-                button.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: centerYConstant),
-                button.widthAnchor.constraint(equalToConstant: buttonSize),
-                button.heightAnchor.constraint(equalToConstant: buttonSize)
-            ])
-        }
-    }
-    
-    private func setupToastOverlay() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissToast))
-        toastOverlayView.addGestureRecognizer(tapGesture)
-    }
     
     @objc private func infoButtonTapped() {
         delegate?.infoButtonTapped()
@@ -310,48 +225,6 @@ class SetAngleView: UIView {
     
     @objc private func presetButtonTapped(_ sender: UIButton) {
         delegate?.presetButtonTapped(at: sender.tag)
-    }
-    
-    @objc private func dismissToast() {
-        delegate?.infoButtonTapped()
-    }
-        
-    func showToast() {
-        bringSubviewToFront(toastOverlayView)
-        bringSubviewToFront(infoToastView)
-        
-        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
-            self.infoToastView.alpha = 1.0
-            self.toastOverlayView.alpha = 1.0
-        }, completion: nil)
-    }
-    
-    func hideToast() {
-        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
-            self.infoToastView.alpha = 0.0
-            self.toastOverlayView.alpha = 0.0
-        }, completion: nil)
-    }
-    
-    func updateAngleLabel(_ text: String) {
-        angleLabel.text = text
-    }
-    
-    func updateCameraCoordinateLabel(_ text: String) {
-        cameraCoordinateLabel.text = text
-    }
-    
-    func updatePresetButtonSelection(selectedIndex: Int) {
-        for (index, button) in presetButtons.enumerated() {
-            if index == selectedIndex {
-                button.backgroundColor = .black
-                button.layer.borderColor = UIColor.white.cgColor
-                button.layer.borderWidth = 2
-            } else {
-                button.backgroundColor = .systemGray3
-                button.layer.borderWidth = 0
-            }
-        }
     }
     
     private func startCameraCoordinateUpdates() {
@@ -395,8 +268,32 @@ class SetAngleView: UIView {
     deinit {
         stopCameraCoordinateUpdates()
     }
+    
+    func updateCameraCoordinateLabel(_ text: String) {
+        cameraCoordinateLabel.text = text
+    }
+    
+    func updateAngleLabel(_ text: String) {
+        angleLabel.text = text
+    }
+    
+    func updatePresetButtonSelection(selectedIndex: Int) {
+        // If you still have presetButtons, update their selection state here.
+        for (index, button) in presetButtons.enumerated() {
+            if index == selectedIndex {
+                button.backgroundColor = .black
+                button.layer.borderColor = UIColor.white.cgColor
+                button.layer.borderWidth = 2
+            } else {
+                button.backgroundColor = .systemGray3
+                button.layer.borderWidth = 0
+            }
+        }
+    }
 }
 
-#Preview {
-    SetAngleView()
+extension SetAngleView: ChoosePresetPickerViewDelegate {
+    func choosePresetPickerView(_ picker: ChoosePresetPickerView, didSelectPresetAt index: Int) {
+        delegate?.presetButtonTapped(at: index)
+    }
 }

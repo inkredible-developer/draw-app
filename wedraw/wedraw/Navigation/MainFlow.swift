@@ -9,8 +9,8 @@ import UIKit
 
 enum MainFlow: NavigationDestination, Equatable {
     case homeViewController
-    case selectDrawingViewController
-    case tutorialSheetViewController(DrawingMode)
+    case selectDrawingViewController(selectedAngle: Angle)
+    case tutorialSheetViewController(DrawingMode, Angle)
     case arTracingViewController(UIImage, UIImage)
     case setAngleViewController
     
@@ -33,10 +33,12 @@ enum MainFlow: NavigationDestination, Equatable {
         switch self {
         case .homeViewController:
             return SelectDrawingViewController()
-        case .selectDrawingViewController:
-            return SelectDrawingViewController()
-        case .tutorialSheetViewController(let drawingMode):
-            return TutorialSheetViewController(mode: drawingMode)
+        case .selectDrawingViewController(let selectedAngle):
+            let vc = SelectDrawingViewController()
+            vc.selectedAngle = selectedAngle
+            return vc
+        case .tutorialSheetViewController(let drawingMode, let selectedAngle):
+            return TutorialSheetViewController(mode: drawingMode, angle: selectedAngle)
         case .arTracingViewController(let image, let referenceImage):
             return ARTracingViewController(anchorImage: image, tracingImage: referenceImage)
         case .setAngleViewController:
@@ -52,14 +54,15 @@ enum MainFlow: NavigationDestination, Equatable {
                     vc.router = typedRouter
                 }
                 return vc
-            case .selectDrawingViewController:
+            case .selectDrawingViewController(let selectedAngle):
                 let vc = SelectDrawingViewController()
+                vc.selectedAngle = selectedAngle
                 if let typedRouter = router as? MainFlowRouter {
                     vc.router = typedRouter
                 }
                 return vc
-            case .tutorialSheetViewController(let drawingMode):
-                let vc = TutorialSheetViewController(mode: drawingMode)
+            case .tutorialSheetViewController(let drawingMode, let selectedAngle):
+                let vc = TutorialSheetViewController(mode: drawingMode, angle: selectedAngle)
                 if let typedRouter = router as? MainFlowRouter {
                     vc.router = typedRouter
                 }

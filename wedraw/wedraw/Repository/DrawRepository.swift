@@ -23,8 +23,22 @@ class DrawRepository {
         request.predicate = NSPredicate(format: "is_finished == %@", NSNumber(value: isFinished))
         return (try? context.fetch(request)) ?? []
     }
+    
+    func getDrawById(id: UUID) -> [Draw] {
+        let request: NSFetchRequest<Draw> = Draw.fetchRequest()
+        request.predicate = NSPredicate(format: "draw_id == %@", id as CVarArg)
+
+        return (try? context.fetch(request)) ?? []
+    }
+    
+    func updateDrawStep(draw: Draw, draw_step: Int) -> Bool{
+        draw.current_step = Int16(draw_step)
+        
+        return (try? context.save()) != nil
+    }
 
     func insertDraw(draw_id: UUID, angle_id: UUID, current_step: Int, similarity_score: Int, finished_image: String?, is_finished: Bool, draw_mode: String?) {
+        print("insert in repo")
         let context = CoreDataManager.shared.context
         let draw = Draw(context: context)
         draw.draw_id = draw_id

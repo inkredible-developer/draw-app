@@ -48,5 +48,4 @@ final class CustomButton: UIButton {
   @objc private func didTap() {
     delegate?.customButtonDidTap(self)
   }
-    
 }
