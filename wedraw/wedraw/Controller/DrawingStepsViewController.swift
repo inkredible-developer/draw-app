@@ -320,7 +320,8 @@ class DrawingStepsViewController: UIViewController {
         // Create your destination view controller
         let homeVC = HomeViewController()
         let nav = UINavigationController(rootViewController: homeVC)
-        nav.interactivePopGestureRecognizer?.isEnabled = false // Disable swipe back
+        nav.interactivePopGestureRecognizer?.isEnabled = false
+        homeVC.router = MainFlowRouter(navigationController: nav)
 
         // Set as new root
         window.rootViewController = nav
