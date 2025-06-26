@@ -469,3 +469,4 @@ class DrawingStepsUsingCameraController: UIViewController {
         nextButton.isHidden = currentIndex == steps.count - 1
     }
 }
+

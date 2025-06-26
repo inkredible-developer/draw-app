@@ -191,3 +191,6 @@ class MainViewController: UIViewController, UIImagePickerControllerDelegate, UIN
 //        return normalizedImage
 //    }
 //}
+
+
+
