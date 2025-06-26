@@ -41,14 +41,13 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     private var playerReadyObserver: NSKeyValueObservation?
 
     private let mode: DrawingMode
-    private let selectedAngle: Angle
+//    private let selectedAngle: Angle?
     
     // MARK: - Image Properties
     private var anchorImage: UIImage?
 
-  init(mode: DrawingMode, angle: Angle) {
+  init(mode: DrawingMode) {
     self.mode = mode
-    self.selectedAngle = angle
     super.init(nibName: nil, bundle: nil)
     modalPresentationStyle = .pageSheet
     if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
@@ -187,7 +186,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     NSLayoutConstraint.activate([
       container.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
       container.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-      container.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+      container.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
       container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
 
       infoButton.topAnchor.constraint(equalTo: container.topAnchor),
@@ -378,6 +377,7 @@ extension TutorialSheetViewController: CustomButtonDelegate {
         }
     }
 }
+
 extension UIViewController {
     var topmostPresentedViewController: UIViewController {
         if let presented = presentedViewController {

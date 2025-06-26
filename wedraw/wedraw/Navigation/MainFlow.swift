@@ -12,7 +12,9 @@ enum MainFlow: NavigationDestination, Equatable {
     case selectDrawingViewController(selectedAngle: Angle)
     case tutorialSheetViewController(DrawingMode, Angle)
     case arTracingViewController(UIImage, UIImage, drawId: UUID)
+    case drawingStepsViewController(UUID)
     case setAngleViewController
+    case photoCaptureSheetVIewController
     
     var title: String {
         switch self {
@@ -26,6 +28,10 @@ enum MainFlow: NavigationDestination, Equatable {
             return "AR Tracing"
         case .setAngleViewController:
             return "Set Angle"
+        case .drawingStepsViewController:
+            return "Drawing Steps"
+        case .photoCaptureSheetVIewController:
+            return "Photo Capture"
         }
     }
     
@@ -41,8 +47,12 @@ enum MainFlow: NavigationDestination, Equatable {
             return TutorialSheetViewController(mode: drawingMode, angle: selectedAngle)
         case .arTracingViewController(let image, let referenceImage, let drawId):
             return ARTracingViewController(anchorImage: image, tracingImage: referenceImage, drawId: drawId)
+        case .drawingStepsViewController(let id):
+            return DrawingStepsViewController(drawID: id)
         case .setAngleViewController:
             return SetAngleViewController()
+        case .photoCaptureSheetVIewController:
+            return PhotoCaptureSheetViewController()
         }
     }
     
@@ -61,8 +71,8 @@ enum MainFlow: NavigationDestination, Equatable {
                     vc.router = typedRouter
                 }
                 return vc
-            case .tutorialSheetViewController(let drawingMode, let selectedAngle):
-                let vc = TutorialSheetViewController(mode: drawingMode, angle: selectedAngle)
+            case .tutorialSheetViewController(let drawingMode):
+                let vc = TutorialSheetViewController(mode: drawingMode)
                 if let typedRouter = router as? MainFlowRouter {
                     vc.router = typedRouter
                 }
@@ -79,6 +89,18 @@ enum MainFlow: NavigationDestination, Equatable {
                     vc.router = typedRouter
                 }
                 return vc
+            case .drawingStepsViewController(let id):
+                let vc = DrawingStepsViewController(drawID: id)
+                if let typedRouter = router as? MainFlowRouter {
+                    vc.router = typedRouter
+                }
+                return vc
+            case .photoCaptureSheetVIewController:
+                let vc = PhotoCaptureSheetViewController()
+                if let typedRouter = router as? MainFlowRouter {
+                    vc.router = typedRouter
+                }
+                return vc
             }
         }
     
@@ -91,6 +113,10 @@ enum MainFlow: NavigationDestination, Equatable {
         case (.tutorialSheetViewController(let lhsMode), .tutorialSheetViewController(let rhsMode)):
             return lhsMode == rhsMode
         case (.setAngleViewController, .setAngleViewController):
+            return true
+        case (.drawingStepsViewController(let lhsMode), .drawingStepsViewController(let rhsMode)):
+            return lhsMode == rhsMode
+        case (.photoCaptureSheetVIewController, .photoCaptureSheetVIewController):
             return true
         default:
             return false
