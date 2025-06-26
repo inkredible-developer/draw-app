@@ -47,7 +47,6 @@ class ObjectListView: UIView {
     
     lazy var bannerCard: UIView = {
         let card = UIView()
-//        card.backgroundColor = UIColor(red: 0.88, green: 0.89, blue: 1, alpha: 1) // Light purple
         card.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         card.layer.cornerRadius = 16
         card.translatesAutoresizingMaskIntoConstraints = false
@@ -68,8 +67,7 @@ class ObjectListView: UIView {
         title.text = "The Loomis Method: Building Head Structures"
         title.font = UIFont.preferredFont(forTextStyle: .callout)
 
-//        title.textColor = UIColor(red: 0.2, green: 0.2, blue: 0.5, alpha: 1)
-//        title.textColor = UIColor(named: "Inkredible-DarkText")
+
         title.textColor = UIColor.white
         title.numberOfLines = 0
         title.translatesAutoresizingMaskIntoConstraints = false
@@ -155,7 +153,5 @@ class ObjectListView: UIView {
         return label
         
     }()
-    
-    
-
 }
+

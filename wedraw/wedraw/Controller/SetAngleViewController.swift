@@ -47,11 +47,21 @@ class SetAngleViewController: UIViewController {
         allPresetAngle = angleService.getPresetAngle()
         print("=== Loaded \(allPresetAngle.count) total preset angle ===")
         
+        // Create a mapping from iconName to Angle
+        var angleByIcon: [String: Angle] = [:]
         for angle in allPresetAngle {
-            print("angle",angle)
-            cameraPresets.append(AnglePreset(name: angle.angle_name!, iconName: angle.icon_name!, rotationAngles: SCNVector3(x: angle.x, y: angle.y, z: angle.z), angle: angle.angle))
+            if let iconName = angle.icon_name {
+                angleByIcon[iconName] = angle
+            }
         }
-        
+        // Desired icon order to match ChoosePresetPickerView
+        let presetIconOrder = ["preset_front", "preset_side_right", "preset_quarter", "preset_side_left", "preset_top"]
+        cameraPresets = []
+        for iconName in presetIconOrder {
+            if let angle = angleByIcon[iconName], let name = angle.angle_name, let icon = angle.icon_name {
+                cameraPresets.append(AnglePreset(name: name, iconName: icon, rotationAngles: SCNVector3(x: angle.x, y: angle.y, z: angle.z), angle: angle.angle))
+            }
+        }
     }
     
     override func loadView() {
@@ -126,11 +136,22 @@ class SetAngleViewController: UIViewController {
 extension SetAngleViewController: SetAngleViewDelegate {
     
     func infoButtonTapped() {
-        if isToastVisible {
-            dismissToast()
-        } else {
-            showToast()
+        // Remove any existing tooltip
+        setAngleView.tooltip?.removeFromSuperview()
+        // Create and show a new tooltip
+        let tip = TooltipView(text: "Use your finger to rotate the model and choose the angle that best suits your needs.") { [weak self] in
+            self?.setAngleView.tooltip = nil
         }
+        tip.translatesAutoresizingMaskIntoConstraints = false
+        setAngleView.addSubview(tip)
+        setAngleView.tooltip = tip
+
+        // Position the tooltip below the info button
+        NSLayoutConstraint.activate([
+            tip.topAnchor.constraint(equalTo: setAngleView.infoButton.bottomAnchor, constant: 8),
+            tip.trailingAnchor.constraint(equalTo: setAngleView.infoButton.trailingAnchor),
+            tip.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9)
+        ])
     }
     
     func chooseButtonTapped() {
@@ -141,9 +162,6 @@ extension SetAngleViewController: SetAngleViewDelegate {
     func presetAngleButtonTapped() {
         // Handle preset angle button action
         print("Preset angle button tapped")
-        
-        // Here you could show a modal or sheet with preset options
-        // For now, just print the action
     }
     
     func presetButtonTapped(at index: Int) {
@@ -220,7 +238,6 @@ extension SetAngleViewController: SetAngleViewDelegate {
         
     private func showToast() {
         isToastVisible = true
-        setAngleView.showToast()
         
         dismissWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
@@ -234,11 +251,10 @@ extension SetAngleViewController: SetAngleViewDelegate {
         if !isToastVisible { return }
         
         dismissWorkItem?.cancel()
-        setAngleView.hideToast()
         isToastVisible = false
     }
 }
-
 #Preview {
     SetAngleViewController()
 }
+
