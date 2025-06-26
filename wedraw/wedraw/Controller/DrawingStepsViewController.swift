@@ -197,8 +197,8 @@ class DrawingStepsViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 60),
-            button.heightAnchor.constraint(equalToConstant: 60)
+            button.widthAnchor.constraint(equalToConstant: 55),
+            button.heightAnchor.constraint(equalToConstant: 55)
         ])
         
         return button
@@ -217,8 +217,8 @@ class DrawingStepsViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 60),
-            button.heightAnchor.constraint(equalToConstant: 60)
+            button.widthAnchor.constraint(equalToConstant: 55),
+            button.heightAnchor.constraint(equalToConstant: 55)
         ])
         
         return button
@@ -288,7 +288,7 @@ class DrawingStepsViewController: UIViewController {
 
             buttonCardView.centerXAnchor.constraint(equalTo: bottomContainer.centerXAnchor),
             buttonCardView.centerYAnchor.constraint(equalTo: bottomContainer.centerYAnchor),
-            buttonCardView.heightAnchor.constraint(equalToConstant: 60),
+            buttonCardView.heightAnchor.constraint(equalToConstant: 55),
             buttonCardView.leadingAnchor.constraint(equalTo: bottomContainer.leadingAnchor, constant: 24),
             buttonCardView.trailingAnchor.constraint(equalTo: bottomContainer.trailingAnchor, constant: -24),
 

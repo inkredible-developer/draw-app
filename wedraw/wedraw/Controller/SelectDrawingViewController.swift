@@ -46,7 +46,7 @@ final class SelectDrawingViewController: UIViewController {
       selectButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
       selectButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
       selectButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-      selectButton.heightAnchor.constraint(equalToConstant: 52)
+      selectButton.heightAnchor.constraint(equalToConstant: 55)
     ])
   }
 }
