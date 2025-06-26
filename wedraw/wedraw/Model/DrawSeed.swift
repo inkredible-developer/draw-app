@@ -14,6 +14,12 @@ struct PresetData {
     let y: Float
     let z: Float
     let angle: CGFloat
+    let angle_number: Int
+}
+struct DrawingStep {
+    let title: String
+    let description: String
+    let imageName: String
 }
 
 class InitialDataSeeder {
@@ -53,11 +59,11 @@ class InitialDataSeeder {
         }
         print("Float.pi/2",Float.pi/2)
         let initialPresetData :[PresetData] = [
-            PresetData(name: "Side Left", iconName: "preset_side_left", x: Float(0), y: Float(0), z: Float.pi/2, angle: 1.35),
-            PresetData(name: "Quarter", iconName: "preset_quarter", x: Float(0), y: Float(0), z: Float.pi/4, angle: 1.5707),
-            PresetData(name: "Side Right", iconName: "preset_side_right", x: Float(0), y: Float(0), z: -Float.pi/2, angle: 1.8),
-            PresetData(name: "Front", iconName: "preset_front", x: Float(0), y: Float(0), z: Float(0), angle: 2.05),
-            PresetData(name: "Top", iconName: "preset_top", x: Float.pi/4, y: Float(0), z: Float(0), angle: 1.1),
+            PresetData(name: "Front", iconName: "preset_front", x: Float(0), y: Float(0), z: Float(0), angle: 2.05, angle_number: 1),
+            PresetData(name: "Side Right", iconName: "preset_side_right", x: Float(0), y: Float(0), z: -Float.pi/2, angle: 1.8, angle_number: 2),
+            PresetData(name: "Quarter", iconName: "preset_quarter", x: Float(0), y: Float(0), z: Float.pi/4, angle: 1.5707, angle_number: 3),
+            PresetData(name: "Side Left", iconName: "preset_side_left", x: Float(0), y: Float(0), z: Float.pi/2, angle: 1.35, angle_number: 4),
+            PresetData(name: "Top", iconName: "preset_top", x: Float.pi/4, y: Float(0), z: Float(0), angle: 1.1, angle_number: 5),
 
         ]
         
@@ -73,7 +79,15 @@ class InitialDataSeeder {
             angle.is_preset = true
             angle.icon_name = data.iconName
             angle.angle = data.angle
-            
+            angle.angle_number = Int16(data.angle_number)
+            for i in 1..<11 {
+                let step_id = UUID()
+                let steps = Step(context: context)
+                steps.step_id = step_id
+                steps.angle_id = angle_id
+                steps.step_number = Int16(i)
+                steps.image = "\(data.name)_step\(i)"
+            }
         }
         
         CoreDataManager.shared.saveContext()

@@ -1,10 +1,6 @@
 import UIKit
 
-struct DrawingStep {
-    let title: String
-    let description: String
-    let imageName: String
-}
+
 
 extension UIColor {
     convenience init(hex: String) {
@@ -36,8 +32,11 @@ class DrawingStepsViewController: UIViewController {
     var router : MainFlowRouter?
     private let drawID: UUID
     var drawService = DrawService()
+    var stepService = StepService()
     var drawDetails : [Draw] = []
+    var dataSteps : [Step] = []
     private var currentIndex: Int = 0
+    var steps: [DrawingStep] = []
     
     private var tooltip: TooltipView?
     
@@ -51,6 +50,68 @@ class DrawingStepsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func loadDraw() {
+        
+        drawDetails = drawService.getDrawById(draw_id: drawID)
+//        print("drawDetails",drawDetails)
+        currentIndex = Int(drawDetails[0].current_step - 1)
+        print("currentIndex",currentIndex)
+        
+        dataSteps = stepService.getSteps(angle_id: drawDetails[0].angle_id)
+        steps = [
+            DrawingStep(
+                title: "Draw the Base Circle",
+                description: "Start with a simple circle, this will be the skull base. Don’t worry about perfection; just aim for a clean round shape",
+                imageName: dataSteps[0].image!
+            ),
+            DrawingStep(
+                title: "Draw Guide for Side",
+                description: "Draw vertical line for direction. Use center as anchor.",
+                imageName: dataSteps[1].image!
+            ),
+            DrawingStep(
+                title: "Split Face Horizontally",
+                description: "Add eye and nose level.",
+                imageName: dataSteps[2].image!
+            ),
+            DrawingStep(
+                title: "Add Chin Box",
+                description: "Sketch box to shape the chin.",
+                imageName: dataSteps[3].image!
+            ),
+            DrawingStep(
+                title: "Draw Eye Line",
+                description: "Mark horizontal eye level.",
+                imageName: dataSteps[4].image!
+            ),
+            DrawingStep(
+                title: "Mark Nose Line",
+                description: "Place nose at 1/3 down from eyes to chin.",
+                imageName: dataSteps[5].image!
+            ),
+            DrawingStep(
+                title: "Define Jaw",
+                description: "Sketch jaw shape to connect head and chin.",
+                imageName: dataSteps[6].image!
+            ),
+            DrawingStep(
+                title: "Add Ear Level",
+                description: "Align ear from eye to nose level.",
+                imageName: dataSteps[7].image!
+            ),
+            DrawingStep(
+                title: "Draw Neck Guide",
+                description: "Extend lines for neck from jaw.",
+                imageName: dataSteps[8].image!
+            ),
+            DrawingStep(
+                title: "Draw A Line to Make A Nose",
+                description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)",
+                imageName: dataSteps[9].image!
+            )
+        ]
+        print("steps",steps)
+    }
 //    func loadDraw() {
 //        drawDetails = drawService.getDrawById(draw_id: drawID)
 //        currentIndex = Int(drawDetails[0].current_step - 1)

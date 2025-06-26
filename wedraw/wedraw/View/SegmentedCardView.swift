@@ -82,6 +82,8 @@ class SegmentedCardView: UIView {
         backgroundColor = .white
         translatesAutoresizingMaskIntoConstraints = false
         
+        segmentedControl.selectedSegmentTintColor = UIColor(named: "Inkredible-Green")
+        
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.addTarget(self, action: #selector(segmentChanged(_:)), for: .valueChanged)
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false

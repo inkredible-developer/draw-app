@@ -24,6 +24,7 @@ extension Angle {
     @NSManaged public var x: Float
     @NSManaged public var y: Float
     @NSManaged public var z: Float
+    @NSManaged public var angle_number: Int16
 
 }
 

@@ -17,11 +17,11 @@ class AngleService {
     func getAngle(angle_id: UUID) -> [Angle] {
         return repository.getAngleById(id: angle_id)
     }
-    func createAngle(angle_id: UUID, angle_name: String, x: Float, y: Float, z: Float, angle_value: Double) {
+    func createAngle(angle_id: UUID, angle_name: String, x: Float, y: Float, z: Float, angle_value: Double, angle_number: Int16) {
         
         // You can put validation or extra logic here
         repository.insertAngle(
-            angle_id: angle_id, angle_name: angle_name, x: x, y: y, z: z, angle_value: angle_value
+            angle_id: angle_id, angle_name: angle_name, x: x, y: y, z: z, angle_value: angle_value, angle_number: angle_number
         )
     }
 
