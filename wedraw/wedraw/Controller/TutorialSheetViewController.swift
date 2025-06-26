@@ -41,22 +41,23 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     private var playerReadyObserver: NSKeyValueObservation?
 
     private let mode: DrawingMode
-//    private let selectedAngle: Angle?
+    private let selectedAngle: Angle?
     
     // MARK: - Image Properties
     private var anchorImage: UIImage?
 
-  init(mode: DrawingMode) {
-    self.mode = mode
-    super.init(nibName: nil, bundle: nil)
-    modalPresentationStyle = .pageSheet
-    if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
-      let customDetent = UISheetPresentationController.Detent.custom { ctx in
-        ctx.maximumDetentValue * 0.85
-      }
-      sheet.detents = [customDetent]
-      sheet.prefersGrabberVisible = true
-    }
+    init(mode: DrawingMode, angle: Angle) {
+        self.mode = mode
+        self.selectedAngle = angle
+        super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .pageSheet
+        if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
+          let customDetent = UISheetPresentationController.Detent.custom { ctx in
+            ctx.maximumDetentValue * 0.85
+          }
+          sheet.detents = [customDetent]
+          sheet.prefersGrabberVisible = true
+        }
   }
   required init?(coder: NSCoder) { fatalError() }
 
@@ -324,7 +325,7 @@ extension TutorialSheetViewController: CustomButtonDelegate {
             let draw_id = UUID()
             self.drawService.createDraw(
                 draw_id: draw_id,
-                angle_id: selectedAngle.angle_id!,
+                angle_id: selectedAngle!.angle_id!,
                 draw_mode: mode.type
             )
             if mode == .liveAR {

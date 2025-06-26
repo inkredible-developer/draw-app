@@ -71,8 +71,8 @@ enum MainFlow: NavigationDestination, Equatable {
                     vc.router = typedRouter
                 }
                 return vc
-            case .tutorialSheetViewController(let drawingMode):
-                let vc = TutorialSheetViewController(mode: drawingMode)
+            case .tutorialSheetViewController(let drawingMode, let angle):
+                let vc = TutorialSheetViewController(mode: drawingMode, angle: angle)
                 if let typedRouter = router as? MainFlowRouter {
                     vc.router = typedRouter
                 }

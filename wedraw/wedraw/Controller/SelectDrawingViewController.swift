@@ -70,7 +70,7 @@ extension SelectDrawingViewController : CustomButtonDelegate {
 
         let mode = DrawingMode.allCases[carousel.selectedIndex]
         print("mode",mode)
-        router?.presentDirectly(.tutorialSheetViewController(mode), animated: true)
+        router?.presentDirectly(.tutorialSheetViewController(mode,selectedAngle!), animated: true)
     }
 }
 
