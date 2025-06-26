@@ -16,6 +16,15 @@ class ARTracingViewController: UIViewController {
     var router: MainFlowRouter?
     private var anchorImage: UIImage?
     private var tracingImage: UIImage
+    private var drawId: UUID
+    
+    
+    var drawService = DrawService()
+    var stepService = StepService()
+    
+    var drawDetails : [Draw] = []
+    var dataSteps : [Step] = []
+    var steps: [DrawingStep] = []
     
     var referenceImagePhysicalWidth: CGFloat = 0.1
     private let tracingPlaneWidth: CGFloat = 0.20
@@ -49,19 +58,79 @@ class ARTracingViewController: UIViewController {
     // Anchor popup view
     private var anchorPopupView: AnchorPopupView?
     
-    private var steps: [DrawingStep] = [
-        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
-        DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),
-        DrawingStep(title: "Split Face Horizontally", description: "Add eye and nose level.", imageName: "step3"),
-        DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
-        DrawingStep(title: "Draw Eye Line", description: "Mark horizontal eye level.", imageName: "step5"),
-        DrawingStep(title: "Mark Nose Line", description: "Place nose at 1/3 down from eyes to chin.", imageName: "step6"),
-        DrawingStep(title: "Define Jaw", description: "Sketch jaw shape to connect head and chin.", imageName: "step7"),
-        DrawingStep(title: "Add Ear Level", description: "Align ear from eye to nose level.", imageName: "step8"),
-        DrawingStep(title: "Draw Neck Guide", description: "Extend lines for neck from jaw.", imageName: "step9"),
-        DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
-    ]
-    
+//    private var steps: [DrawingStep] = [
+//        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
+//        DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),
+//        DrawingStep(title: "Split Face Horizontally", description: "Add eye and nose level.", imageName: "step3"),
+//        DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
+//        DrawingStep(title: "Draw Eye Line", description: "Mark horizontal eye level.", imageName: "step5"),
+//        DrawingStep(title: "Mark Nose Line", description: "Place nose at 1/3 down from eyes to chin.", imageName: "step6"),
+//        DrawingStep(title: "Define Jaw", description: "Sketch jaw shape to connect head and chin.", imageName: "step7"),
+//        DrawingStep(title: "Add Ear Level", description: "Align ear from eye to nose level.", imageName: "step8"),
+//        DrawingStep(title: "Draw Neck Guide", description: "Extend lines for neck from jaw.", imageName: "step9"),
+//        DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
+//    ]
+    func loadDraw(){
+        drawDetails = drawService.getDrawById(draw_id: drawId)
+//        print("drawDetails",drawDetails)
+        currentIndex = Int(drawDetails[0].current_step - 1)
+        print("currentIndex",currentIndex)
+        
+        dataSteps = stepService.getSteps(angle_id: drawDetails[0].angle_id)
+        
+        steps = [
+            DrawingStep(
+                title: "Draw the Base Circle",
+                description: "Draw a circle as the base of the head.",
+                imageName: dataSteps[0].image!
+            ),
+            DrawingStep(
+                title: "Draw Guide for Side",
+                description: "Add an oval next to the circle for the temple and ear area.",
+                imageName: dataSteps[1].image!
+            ),
+            DrawingStep(
+                title: "Split Face Horizontally",
+                description: "Draw a horizontal line in the middle of the circle and oval for the position of the eyebrow and upper ear.",
+                imageName: dataSteps[2].image!
+            ),
+            DrawingStep(
+                title: "Add Chin Box",
+                description: "Draw a vertical line in the circle to divide the face into left and right.",
+                imageName: dataSteps[3].image!
+            ),
+            DrawingStep(
+                title: "Draw Eye Line",
+                description: "Split the side oval in half with the vertical line to help draw the ear.",
+                imageName: dataSteps[4].image!
+            ),
+            DrawingStep(
+                title: "Mark Nose Line",
+                description: "Add a horizontal line below the circle to mark the position of the nose.",
+                imageName: dataSteps[5].image!
+            ),
+            DrawingStep(
+                title: "Define Jaw",
+                description: "Draw the ear between the eyebrow line and the nose line, inside the side oval.",
+                imageName: dataSteps[6].image!
+            ),
+            DrawingStep(
+                title: "Add Ear Level",
+                description: "Draw a line from under the oval towards the chin to form the jaw.",
+                imageName: dataSteps[7].image!
+            ),
+            DrawingStep(
+                title: "Draw Neck Guide",
+                description: "Continue the jaw line from under the ear to the chin.",
+                imageName: dataSteps[8].image!
+            ),
+            DrawingStep(
+                title: "Draw A Line to Make A Nose",
+                description: "draw the eyes, nose, and mouth in the appropriate places with the guide lines.",
+                imageName: dataSteps[9].image!
+            )
+        ]
+    }
     // UI Components
     private let infoButton = CustomIconButtonView(
         iconName: "info",
@@ -173,9 +242,10 @@ class ARTracingViewController: UIViewController {
     }()
 
     
-    init(anchorImage: UIImage?, tracingImage: UIImage) {
+    init(anchorImage: UIImage?, tracingImage: UIImage, drawId: UUID) {
         self.anchorImage = anchorImage
         self.tracingImage = tracingImage
+        self.drawId = drawId
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -186,7 +256,7 @@ class ARTracingViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        loadDraw()
         setupARView()
         setupAnchorPopupView()
         setupGestures()
@@ -800,6 +870,7 @@ class ARTracingViewController: UIViewController {
     }
 
     private func updateStep() {
+        print("currentIndex",currentIndex)
         let step = steps[currentIndex]
         stepTitleLabel.text = step.title
         stepDescriptionLabel.text = step.description

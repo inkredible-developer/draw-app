@@ -229,6 +229,35 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
             drawVC = DrawingStepsViewController(drawID: draw.draw_id)
         }else{
 //            drawVC = DrawingStepsUsingCameraController()
+            // Create the coordinator BEFORE dismissing the sheet
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let sceneDelegate = windowScene.delegate as? SceneDelegate,
+               let rootVC = windowScene.windows.first?.rootViewController {
+                
+                // Store coordinator in SceneDelegate to keep it alive
+                sceneDelegate.cameraCoordinator = CameraCoordinator(
+                    presentingViewController: rootVC,
+                    router: self.router,
+                    onImageCropped: { [weak sceneDelegate] image in
+                        guard let tracingImage = UIImage(named: "traceng") else { return }
+                        
+                        // Navigate to AR tracing screen with the cropped image
+                        self.router?.navigate(
+                            to: .arTracingViewController(image, tracingImage,drawId: draw.draw_id),
+                            animated: true
+                        )
+                        
+                        // Clear reference when done
+                        sceneDelegate?.cameraCoordinator = nil
+                    }
+                )
+                
+                // Then dismiss
+                dismiss(animated: true) {
+                    // Start camera after dismiss animation completes
+                    sceneDelegate.cameraCoordinator?.startCamera()
+                }
+            }
         }
         navigationController?.setViewControllers([drawVC], animated: true)
     }

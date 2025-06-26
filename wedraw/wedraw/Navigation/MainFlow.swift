@@ -11,7 +11,7 @@ enum MainFlow: NavigationDestination, Equatable {
     case homeViewController
     case selectDrawingViewController(selectedAngle: Angle)
     case tutorialSheetViewController(DrawingMode, Angle)
-    case arTracingViewController(UIImage, UIImage)
+    case arTracingViewController(UIImage, UIImage, drawId: UUID)
     case setAngleViewController
     
     var title: String {
@@ -39,8 +39,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return vc
         case .tutorialSheetViewController(let drawingMode, let selectedAngle):
             return TutorialSheetViewController(mode: drawingMode, angle: selectedAngle)
-        case .arTracingViewController(let image, let referenceImage):
-            return ARTracingViewController(anchorImage: image, tracingImage: referenceImage)
+        case .arTracingViewController(let image, let referenceImage, let drawId):
+            return ARTracingViewController(anchorImage: image, tracingImage: referenceImage, drawId: drawId)
         case .setAngleViewController:
             return SetAngleViewController()
         }
@@ -67,8 +67,8 @@ enum MainFlow: NavigationDestination, Equatable {
                     vc.router = typedRouter
                 }
                 return vc
-            case .arTracingViewController(let image, let referenceImage):
-                let vc = ARTracingViewController(anchorImage: image, tracingImage: referenceImage)
+            case .arTracingViewController(let image, let referenceImage, let drawId):
+                let vc = ARTracingViewController(anchorImage: image, tracingImage: referenceImage, drawId: drawId)
                 if let typedRouter = router as? MainFlowRouter {
                     vc.router = typedRouter
                 }

@@ -59,18 +59,12 @@ extension SelectDrawingViewController: ModeCarouselViewDelegate {
 
 extension SelectDrawingViewController : CustomButtonDelegate {
     func customButtonDidTap(_ button: CustomButton) {
-        guard let selectedAngle = selectedAngle, let angleID = selectedAngle.angle_id else {
+        guard let selectedAngle = selectedAngle else {
            print("No angle selected.")
            return
         }
     
-        let draw_id = UUID()
-        
-//        drawService?.createDraw(
-//            draw_id: draw_id,
-//            angle_id: angleID,
-//            draw_mode: "reference"
-//        )
+
         let mode = DrawingMode.allCases[carousel.selectedIndex]
         print("mode",mode)
         router?.presentDirectly(.tutorialSheetViewController(mode,selectedAngle), animated: true)

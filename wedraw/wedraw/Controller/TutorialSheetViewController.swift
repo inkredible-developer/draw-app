@@ -322,6 +322,12 @@ extension TutorialSheetViewController: CustomIconButtonViewDelegate {
 extension TutorialSheetViewController: CustomButtonDelegate {
     func customButtonDidTap(_ button: CustomButton) {
         if button === actionButton {
+            let draw_id = UUID()
+            self.drawService.createDraw(
+                draw_id: draw_id,
+                angle_id: selectedAngle.angle_id!,
+                draw_mode: mode.type
+            )
             if mode == .liveAR {
                 // Create the coordinator BEFORE dismissing the sheet
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -337,7 +343,7 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                             
                             // Navigate to AR tracing screen with the cropped image
                             self.router?.navigate(
-                                to: .arTracingViewController(image, tracingImage),
+                                to: .arTracingViewController(image, tracingImage, drawId: draw_id),
                                 animated: true
                             )
                             
@@ -353,12 +359,6 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                     }
                 }
             } else {
-                    let draw_id = UUID()
-                    self.drawService.createDraw(
-                        draw_id: draw_id,
-                        angle_id: selectedAngle.angle_id!,
-                        draw_mode: mode.type
-                    )
                     let drawVC = DrawingStepsViewController(drawID: draw_id)
                     navigationController?.setViewControllers([drawVC], animated: true)
                     dismiss(animated: true) {
