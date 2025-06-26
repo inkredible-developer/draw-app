@@ -49,6 +49,9 @@ final class SelectDrawingViewController: UIViewController {
       selectButton.heightAnchor.constraint(equalToConstant: 55)
     ])
   }
+    
+    
+    
 }
 
 extension SelectDrawingViewController: ModeCarouselViewDelegate {
@@ -59,12 +62,12 @@ extension SelectDrawingViewController: ModeCarouselViewDelegate {
 
 extension SelectDrawingViewController : CustomButtonDelegate {
     func customButtonDidTap(_ button: CustomButton) {
-        guard let selectedAngle = selectedAngle, let angleID = selectedAngle.angle_id else {
-           print("No angle selected.")
-           return
-        }
+//        guard let selectedAngle = selectedAngle, let angleID = selectedAngle.angle_id else {
+//           print("No angle selected.")
+//           return
+//        }
     
-        let draw_id = UUID()
+//        let draw_id = UUID()
         
 //        drawService?.createDraw(
 //            draw_id: draw_id,
@@ -73,7 +76,7 @@ extension SelectDrawingViewController : CustomButtonDelegate {
 //        )
         let mode = DrawingMode.allCases[carousel.selectedIndex]
         print("mode",mode)
-        router?.presentDirectly(.tutorialSheetViewController(mode,selectedAngle), animated: true)
+        router?.presentDirectly(.tutorialSheetViewController(mode), animated: true)
     }
 }
 

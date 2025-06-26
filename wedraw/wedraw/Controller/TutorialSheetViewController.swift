@@ -41,14 +41,13 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     private var playerReadyObserver: NSKeyValueObservation?
 
     private let mode: DrawingMode
-    private let selectedAngle: Angle
+//    private let selectedAngle: Angle?
     
     // MARK: - Image Properties
     private var anchorImage: UIImage?
 
-  init(mode: DrawingMode, angle: Angle) {
+  init(mode: DrawingMode) {
     self.mode = mode
-    self.selectedAngle = angle
     super.init(nibName: nil, bundle: nil)
     modalPresentationStyle = .pageSheet
     if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
@@ -187,7 +186,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     NSLayoutConstraint.activate([
       container.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
       container.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-      container.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+      container.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
       container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
 
       infoButton.topAnchor.constraint(equalTo: container.topAnchor),
@@ -353,31 +352,49 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                     }
                 }
             } else {
-                    let draw_id = UUID()
-                    self.drawService.createDraw(
-                        draw_id: draw_id,
-                        angle_id: selectedAngle.angle_id!,
-                        draw_mode: mode.type
-                    )
-                    let drawVC = DrawingStepsViewController(drawID: draw_id)
-                    navigationController?.setViewControllers([drawVC], animated: true)
-                    dismiss(animated: true) {
-                        print("get here")
-                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                             let window = windowScene.windows.first else {
-                           return
-                        }
-                        
-                        let navController = UINavigationController(rootViewController: drawVC)
-                        navController.interactivePopGestureRecognizer?.isEnabled = false
-
-                            window.rootViewController = navController
-                            window.makeKeyAndVisible()
-                    }
+                dismiss(animated: true) { [weak self] in
+                                    guard let self = self else { return }
+                                    // Create a UUID for the new drawing
+                                    let draw_id = UUID()
+//                                        self.drawService.createDraw(
+//                                            draw_id: draw_id,
+//                                            angle_id: selectedAngle.angle_id!,
+//                                            draw_mode: mode.type
+//                                        )
+                                    
+                                    // Navigate to DrawingStepsViewController after dismissal
+                                    self.router?.navigate(
+                                        to: .drawingStepsViewController(draw_id),
+                                        animated: true
+                                    )
+                                }
+//                    let draw_id = UUID()
+//                    self.drawService.createDraw(
+//                        draw_id: draw_id,
+//                        angle_id: selectedAngle.angle_id!,
+//                        draw_mode: mode.type
+//                    )
+//                    let drawVC = DrawingStepsViewController(drawID: draw_id)
+//                    navigationController?.setViewControllers([drawVC], animated: true)
+//                    dismiss(animated: true) {
+//                        print("get here")
+//                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                             let window = windowScene.windows.first else {
+//                           return
+//                        }
+//                        
+//                        let navController = UINavigationController(rootViewController: drawVC)
+//                        navController.interactivePopGestureRecognizer?.isEnabled = false
+//
+//                            window.rootViewController = navController
+//                            window.makeKeyAndVisible()
+//                    }
+                
             }
         }
     }
 }
+
 extension UIViewController {
     var topmostPresentedViewController: UIViewController {
         if let presented = presentedViewController {

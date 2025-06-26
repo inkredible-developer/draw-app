@@ -1,5 +1,3 @@
-
-
 import UIKit
 
 struct DrawingStep {
@@ -41,6 +39,8 @@ class DrawingStepsViewController: UIViewController {
     var drawDetails : [Draw] = []
     private var currentIndex: Int = 0
     
+    private var tooltip: TooltipView?
+    
     init(drawID: UUID) {
         self.drawID = drawID
         print("drawID",drawID)
@@ -51,16 +51,14 @@ class DrawingStepsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func loadDraw() {
-        
-        drawDetails = drawService.getDrawById(draw_id: drawID)
-//        print("drawDetails",drawDetails)
-        currentIndex = Int(drawDetails[0].current_step - 1)
-        print("currentIndex",currentIndex)
-    }
+//    func loadDraw() {
+//        drawDetails = drawService.getDrawById(draw_id: drawID)
+//        currentIndex = Int(drawDetails[0].current_step - 1)
+//        print("currentIndex",currentIndex)
+//    }
     
     private var steps: [DrawingStep] = [
-        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don’t worry about perfection; just aim for a clean round shape", imageName: "step1"),
+        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
         DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),
         DrawingStep(title: "Split Face Horizontally", description: "Add eye and nose level.", imageName: "step3"),
         DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
@@ -72,32 +70,33 @@ class DrawingStepsViewController: UIViewController {
         DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
     ]
 
-    
-
     // UI Components
-    private let infoButton: UIButton = {
-        let button = UIButton(type: .infoLight)
+    private let infoButton = CustomIconButtonView(
+        iconName: "info",
+        iconColor: .white,
+        backgroundColor: UIColor(named: "Inkredible-DarkPurple") ?? .systemYellow,
+        iconScale: 0.5
+    )
+    
+    private let topButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Stop Drawing", for: .normal)
+        button.setTitleColor(UIColor(hex: "7D7BB3"), for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+        button.isEnabled = true
+        button.alpha = 1.0
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
-    private let topButton: UIButton = {
-        let button = UIButton(type: .system)
-             button.setTitle("Stop Drawing", for: .normal)
-             button.setTitleColor(UIColor(hex: "7D7BB3"), for: .normal)
-             button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17) // <-- Membuat lebih tebal
-             button.isEnabled = true
-             button.alpha = 1.0
-             button.translatesAutoresizingMaskIntoConstraints = false
-             return button
-    }()
     
-    private let cardView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.darkGray
-        view.layer.cornerRadius = 16
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    private lazy var finishButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Save", for: .normal)
+        button.setTitleColor(UIColor(named: "Inkredible-Green"), for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .bold)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(finishButtonTapped), for: .touchUpInside)
+        return button
     }()
 
     private let stepTitleLabel: UILabel = {
@@ -128,14 +127,14 @@ class DrawingStepsViewController: UIViewController {
 
     private let bottomContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hex: "C6C5FC")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
     private let buttonCardView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hex: "C6C5FC")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         view.layer.cornerRadius = 24
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -143,44 +142,44 @@ class DrawingStepsViewController: UIViewController {
 
     private let prevButton: UIButton = {
         let button = UIButton(type: .system)
-        
+
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         let image = UIImage(systemName: "chevron.left", withConfiguration: config)
         button.setImage(image, for: .normal)
-        button.tintColor = .black
-        
-        button.backgroundColor = UIColor(red: 225/255, green: 252/255, blue: 185/255, alpha: 1.0) // Warna E1FCB9
+        button.tintColor = UIColor(named: "Inkredible-DarkText")
+
+        button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
             button.widthAnchor.constraint(equalToConstant: 55),
             button.heightAnchor.constraint(equalToConstant: 55)
         ])
-        
+
         return button
     }()
 
     private let nextButton: UIButton = {
         let button = UIButton(type: .system)
-        
+
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         let image = UIImage(systemName: "chevron.right", withConfiguration: config)
         button.setImage(image, for: .normal)
-        button.tintColor = .black
-        
-        button.backgroundColor = UIColor(red: 225/255, green: 252/255, blue: 185/255, alpha: 1.0) // Warna E1FCB9
+        button.tintColor = UIColor(named: "Inkredible-DarkText")
+
+        button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
             button.widthAnchor.constraint(equalToConstant: 55),
             button.heightAnchor.constraint(equalToConstant: 55)
         ])
-        
+
         return button
     }()
-    
+
     private let stepProgressLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
@@ -192,24 +191,67 @@ class DrawingStepsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        loadDraw()
+//        loadDraw()
+        setupNavBarColor()
+        configureNavigationBar()
+        setupUI()
+        setupActions()
+        updateStep()
+        
+        // Show tooltip when view appears
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.showTooltip(withText: self.steps[self.currentIndex].description)
+        }
+    }
+    
+    private func setupNavBarColor() {
+        if #available(iOS 13.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .white
+            appearance.titleTextAttributes = [.foregroundColor: UIColor(named: "Inkredible-DarkPurple") ?? .black]
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            navigationController?.navigationBar.tintColor = UIColor(named: "Inkredible-Green") ?? .green
+        } else {
+            navigationController?.navigationBar.barTintColor = .white
+            navigationController?.navigationBar.tintColor = UIColor(named: "Inkredible-Green") ?? .green
+            navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor(named: "Inkredible-DarkPurple") ?? .black]
+        }
+    }
+    
+    private func configureNavigationBar() {
+        navigationItem.title = "Drawing With Reference"
+        navigationItem.hidesBackButton = true
+        
+        finishButton.setTitle(currentIndex == steps.count - 1 ? "Finish" : "Save", for: .normal)
+        
+        let saveItem = UIBarButtonItem(
+            customView: finishButton
+        )
+        
+        lazy var infoItem = UIBarButtonItem(customView: infoButton)
+        navigationItem.leftBarButtonItem = infoItem
+        
+        navigationItem.rightBarButtonItem = saveItem
+    }
+    
+    private func setupUI() {
+        infoButton.updateSize(width: 30)
+        infoButton.delegate = self
+        
         view.addSubview(infoButton)
         view.addSubview(topButton)
-        view.addSubview(cardView)
         view.addSubview(stepImageView)
         view.addSubview(bottomContainer)
+        
         bottomContainer.addSubview(buttonCardView)
         buttonCardView.addSubview(prevButton)
         buttonCardView.addSubview(nextButton)
         buttonCardView.addSubview(stepProgressLabel)
 
-        cardView.addSubview(stepTitleLabel)
-        cardView.addSubview(stepDescriptionLabel)
-
         setupConstraints()
-        setupActions()
-        updateStep()
-        topButton.addTarget(self, action: #selector(topButtonTapped), for: .touchUpInside)
     }
 
     private func setupConstraints() {
@@ -220,27 +262,13 @@ class DrawingStepsViewController: UIViewController {
             topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
             topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
 
-            cardView.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 20),
-            cardView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            cardView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
-            stepTitleLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
-            stepTitleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
-            stepTitleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
-
-            stepDescriptionLabel.topAnchor.constraint(equalTo: stepTitleLabel.bottomAnchor, constant: 8),
-            stepDescriptionLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
-            stepDescriptionLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
-            stepDescriptionLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
-
             stepImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stepImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
             stepImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
       
-
             bottomContainer.heightAnchor.constraint(equalToConstant: 158),
-              bottomContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-              bottomContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             buttonCardView.centerXAnchor.constraint(equalTo: bottomContainer.centerXAnchor),
@@ -267,16 +295,32 @@ class DrawingStepsViewController: UIViewController {
     private func setupActions() {
         prevButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
-        infoButton.addTarget(self, action: #selector(toggleInfo), for: .touchUpInside)
+        topButton.addTarget(self, action: #selector(topButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func finishButtonTapped() {
+        if currentIndex == steps.count - 1 {
+            // This is the last step - finish the experience
+            let homeVC = HomeViewController()
+            let nav = UINavigationController(rootViewController: homeVC)
+            homeVC.router = MainFlowRouter(navigationController: nav)
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.rootViewController = nav
+                window.makeKeyAndVisible()
+            }
+        } else {
+            // Save functionality
+//            let alert = UIAlertController(title: "Save Drawing", message: "Your drawing progress has been saved.", preferredStyle: .alert)
+//            alert.addAction(UIAlertAction(title: "OK", style: .default))
+//            present(alert, animated: true)
+            router?.presentDirectly(.photoCaptureSheetVIewController, animated: true)
+        }
     }
 
     @objc private func toggleInfo() {
-        let isHidden = cardView.isHidden
-        UIView.animate(withDuration: 0.25) {
-            self.cardView.alpha = isHidden ? 1 : 0
-        } completion: { _ in
-            self.cardView.isHidden.toggle()
-        }
+        toggleTooltip()
     }
 
     @objc private func prevTapped() {
@@ -285,18 +329,21 @@ class DrawingStepsViewController: UIViewController {
             let res = drawService.updateDrawStep(draw: drawDetails[0], draw_step: Int(drawDetails[0].current_step) - 1)
             if(res == true){
                 updateStep()
+                showTooltip(withText: steps[currentIndex].description)
             }
-            updateStep()
         }
     }
 
     @objc private func nextTapped() {
         if currentIndex < steps.count - 1 {
             currentIndex += 1
-            let res = drawService.updateDrawStep(draw: drawDetails[0], draw_step:  Int(drawDetails[0].current_step) + 1)
+            let res = drawService.updateDrawStep(draw: drawDetails[0], draw_step: Int(drawDetails[0].current_step) + 1)
             if(res == true){
                 updateStep()
+                showTooltip(withText: steps[currentIndex].description)
             }
+        } else {
+            showCompletionTooltip()
         }
     }
 
@@ -306,11 +353,97 @@ class DrawingStepsViewController: UIViewController {
         stepDescriptionLabel.text = step.description
         stepImageView.image = UIImage(named: step.imageName)
         stepProgressLabel.text = "Step \(currentIndex + 1) of \(steps.count)"
-        topButton.setTitle(currentIndex == steps.count - 1 ? "Finish" : "Stop Drawing", for: .normal)
-
+        
+        // Update navigation
+        let isLast = (currentIndex == steps.count - 1)
+        finishButton.setTitle(isLast ? "Finish" : "Save", for: .normal)
+        topButton.setTitle(isLast ? "Finish" : "Stop Drawing", for: .normal)
+        
         prevButton.isHidden = currentIndex == 0
         nextButton.isHidden = currentIndex == steps.count - 1
     }
+    
+    private func showCompletionTooltip() {
+        let tooltipView = TooltipView(text: "Great job! You've completed all the steps!") { [weak self] in
+            self?.dismiss(animated: true)
+        }
+
+        view.addSubview(tooltipView)
+        tooltipView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            tooltipView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            tooltipView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            tooltipView.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8)
+        ])
+    }
+    
+    @objc private func toggleTooltip() {
+        if let tip = tooltip {
+            // Hide & remove if already showing
+            UIView.animate(withDuration: 0.2, animations: {
+                tip.alpha = 0
+            }, completion: { _ in
+                tip.removeFromSuperview()
+                self.tooltip = nil
+            })
+        } else {
+            // Create & show if not showing
+            let text = steps[currentIndex].description
+            let tip = TooltipView(text: text)
+            tip.alpha = 0
+            tip.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(tip)
+            self.tooltip = tip
+
+            NSLayoutConstraint.activate([
+                tip.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 12),
+                tip.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                tip.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            ])
+
+            UIView.animate(withDuration: 0.2) {
+                tip.alpha = 1
+            }
+        }
+    }
+    
+    private func showTooltip(withText text: String, autoDismiss: Bool = true) {
+        tooltip?.removeFromSuperview()
+        
+        let tip = TooltipView(text: text) { [weak self] in
+            self?.tooltip = nil
+        }
+        
+        tip.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tip)
+        tooltip = tip
+        
+        NSLayoutConstraint.activate([
+            tip.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 20),
+            tip.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tip.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tip.heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
+        ])
+        
+        view.layoutIfNeeded()
+    
+        if autoDismiss {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self, weak tip] in
+                guard let tip = tip, tip == self?.tooltip else { return }
+                
+                UIView.animate(withDuration: 0.5, animations: {
+                    tip.alpha = 0
+                }, completion: { _ in
+                    if tip == self?.tooltip {
+                        tip.removeFromSuperview()
+                        self?.tooltip = nil
+                    }
+                })
+            }
+        }
+    }
+    
     @objc private func topButtonTapped() {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
@@ -327,5 +460,13 @@ class DrawingStepsViewController: UIViewController {
         window.rootViewController = nav
         window.makeKeyAndVisible()
     }
+}
 
+// MARK: - CustomIconButtonViewDelegate
+extension DrawingStepsViewController: CustomIconButtonViewDelegate {
+    func didTapCustomViewButton(_ button: CustomIconButtonView) {
+        if button === infoButton {
+            toggleTooltip()
+        }
+    }
 }

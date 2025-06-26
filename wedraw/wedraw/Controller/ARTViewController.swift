@@ -130,15 +130,15 @@ class ARTracingViewController: UIViewController {
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         let image = UIImage(systemName: "chevron.left", withConfiguration: config)
         button.setImage(image, for: .normal)
-        button.tintColor = .black
+        button.tintColor = UIColor(named: "Inkredible-DarkText")
 
         button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 48),
-            button.heightAnchor.constraint(equalToConstant: 48)
+            button.widthAnchor.constraint(equalToConstant: 55),
+            button.heightAnchor.constraint(equalToConstant: 55)
         ])
 
         return button
@@ -150,15 +150,15 @@ class ARTracingViewController: UIViewController {
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         let image = UIImage(systemName: "chevron.right", withConfiguration: config)
         button.setImage(image, for: .normal)
-        button.tintColor = .black
+        button.tintColor = UIColor(named: "Inkredible-DarkText")
 
         button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 48),
-            button.heightAnchor.constraint(equalToConstant: 48)
+            button.widthAnchor.constraint(equalToConstant: 55),
+            button.heightAnchor.constraint(equalToConstant: 55)
         ])
 
         return button
@@ -428,6 +428,7 @@ class ARTracingViewController: UIViewController {
         if currentIndex == steps.count - 1 {
             // This is the last step - finish the experience
 //            dismiss(animated: true)
+            router?.presentDirectly(.photoCaptureSheetVIewController, animated: true)
         } else {
             // Save functionality
             // You can implement saving functionality here
