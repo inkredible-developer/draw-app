@@ -15,6 +15,11 @@ struct PresetData {
     let z: Float
     let angle: CGFloat
 }
+struct DrawingStep {
+    let title: String
+    let description: String
+    let imageName: String
+}
 
 class InitialDataSeeder {
     static func seedDrawIfNeeded() {
@@ -61,6 +66,33 @@ class InitialDataSeeder {
 
         ]
         
+        var steps: [DrawingStep] = [
+            DrawingStep(
+                title: "Draw the Base Circle",
+                description: "Start with a simple circle, this will be the skull base. Don’t worry about perfection; just aim for a clean round shape",
+                imageName: "step1"
+            ),
+            DrawingStep(
+                title: "Draw Guide for Side",
+                description: "Draw vertical line for direction. Use center as anchor.",
+                imageName: "step2"
+            ),
+            DrawingStep(
+                title: "Split Face Horizontally",
+                description: "Add eye and nose level.",
+                imageName: "step3"
+            ),
+            DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
+            DrawingStep(title: "Draw Eye Line", description: "Mark horizontal eye level.", imageName: "step5"),
+            DrawingStep(title: "Mark Nose Line", description: "Place nose at 1/3 down from eyes to chin.", imageName: "step6"),
+            DrawingStep(title: "Define Jaw", description: "Sketch jaw shape to connect head and chin.", imageName: "step7"),
+            DrawingStep(title: "Add Ear Level", description: "Align ear from eye to nose level.", imageName: "step8"),
+            DrawingStep(title: "Draw Neck Guide", description: "Extend lines for neck from jaw.", imageName: "step9"),
+            DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
+        ]
+        
+        var imageNameSet : [String] = ["step1","step2","step3","step4","step5","step6","step7","step8","step9","step10"]
+        
         for data in initialPresetData {
             print("🆕 Seeding \(data.name) x:\(data.x) y:\(data.y) z:\(data.z) angle:\(data.angle)")
             let angle_id = UUID()
@@ -73,7 +105,14 @@ class InitialDataSeeder {
             angle.is_preset = true
             angle.icon_name = data.iconName
             angle.angle = data.angle
-            
+            for i in 1..<11 {  
+                let step_id = UUID()
+                let steps = Step(context: context)
+                steps.step_id = step_id
+                steps.angle_id = angle_id
+                steps.step_number = Int16(i)
+                steps.image = "\(data.name)_step\(i)"
+            }
         }
         
         CoreDataManager.shared.saveContext()

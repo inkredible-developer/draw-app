@@ -19,7 +19,8 @@ class StepRepository {
     
     func fetchStepsByAngleId(angle_id: UUID) -> [Step] {
         let request: NSFetchRequest<Step> = Step.fetchRequest()
-        request.predicate = NSPredicate(format: "angle_is == %@", angle_id as CVarArg)
+        request.predicate = NSPredicate(format: "angle_id == %@", angle_id as CVarArg)
+        request.sortDescriptors = [NSSortDescriptor(key: "step_number", ascending: true)]
         return (try? context.fetch(request)) ?? []
     }
     
