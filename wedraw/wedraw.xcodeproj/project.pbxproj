@@ -12,6 +12,7 @@
 		3FDAAB9D2E0568AB0034C2CF /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FDAAB9C2E0568AB0034C2CF /* ARKit.framework */; };
 		3FDAAB9F2E0568C00034C2CF /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FDAAB9E2E0568C00034C2CF /* SceneKit.framework */; };
 		3FDAABA12E0568CC0034C2CF /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FDAABA02E0568CC0034C2CF /* CoreImage.framework */; };
+		9B6690D52E0E573C0090E68A /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 9B6690D42E0E573C0090E68A /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 				3FDAABA12E0568CC0034C2CF /* CoreImage.framework in Frameworks */,
 				3FDAAB9A2E05683D0034C2CF /* TOCropViewController in Frameworks */,
 				3FDAAB982E05683D0034C2CF /* CropViewController in Frameworks */,
+				9B6690D52E0E573C0090E68A /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,6 +109,7 @@
 			packageProductDependencies = (
 				3FDAAB972E05683D0034C2CF /* CropViewController */,
 				3FDAAB992E05683D0034C2CF /* TOCropViewController */,
+				9B6690D42E0E573C0090E68A /* Lottie */,
 			);
 			productName = wedraw;
 			productReference = 3FDAAB762E0565490034C2CF /* wedraw.app */;
@@ -138,6 +141,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				3FDAAB962E05683D0034C2CF /* XCRemoteSwiftPackageReference "TOCropViewController" */,
+				9B6690D32E0E573C0090E68A /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FDAAB772E0565490034C2CF /* Products */;
@@ -177,7 +181,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5CRHA47J3Q;
+				DEVELOPMENT_TEAM = W7D3GH6GQF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -204,7 +208,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5CRHA47J3Q;
+				DEVELOPMENT_TEAM = W7D3GH6GQF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -377,6 +381,14 @@
 				minimumVersion = 2.7.4;
 			};
 		};
+		9B6690D32E0E573C0090E68A /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -389,6 +401,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3FDAAB962E05683D0034C2CF /* XCRemoteSwiftPackageReference "TOCropViewController" */;
 			productName = TOCropViewController;
+		};
+		9B6690D42E0E573C0090E68A /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B6690D32E0E573C0090E68A /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

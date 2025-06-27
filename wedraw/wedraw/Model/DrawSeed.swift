@@ -59,10 +59,10 @@ class InitialDataSeeder {
         }
         print("Float.pi/2",Float.pi/2)
         let initialPresetData :[PresetData] = [
-            PresetData(name: "Front", iconName: "preset_front", x: Float(0), y: Float(0), z: Float(0), angle: 2.05, angle_number: 1),
-            PresetData(name: "Side Right", iconName: "preset_side_right", x: Float(0), y: Float(0), z: -Float.pi/2, angle: 1.8, angle_number: 2),
-            PresetData(name: "Quarter", iconName: "preset_quarter", x: Float(0), y: Float(0), z: Float.pi/4, angle: 1.5707, angle_number: 3),
-            PresetData(name: "Side Left", iconName: "preset_side_left", x: Float(0), y: Float(0), z: Float.pi/2, angle: 1.35, angle_number: 4),
+            PresetData(name: "Front", iconName: "preset_front", x: -Float.pi/6, y: Float(0), z: Float(0), angle: 2.05, angle_number: 1),
+            PresetData(name: "Side Right", iconName: "preset_side_right", x: -Float.pi/6, y: Float(0), z: -Float.pi/2, angle: 1.8, angle_number: 2),
+            PresetData(name: "Quarter", iconName: "preset_quarter", x: -Float.pi/6, y: Float(0), z: Float.pi/4, angle: 1.5707, angle_number: 3),
+            PresetData(name: "Side Left", iconName: "preset_side_left", x: -Float.pi/6, y: Float(0), z: Float.pi/2, angle: 1.35, angle_number: 4),
             PresetData(name: "Top", iconName: "preset_top", x: Float.pi/4, y: Float(0), z: Float(0), angle: 1.1, angle_number: 5),
 
         ]

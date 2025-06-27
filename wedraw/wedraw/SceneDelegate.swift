@@ -43,9 +43,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
     private func setupMainInterface(in window: UIWindow) {
         InitialDataSeeder.seedPresetAngle()
+        let mainVC = HomeViewController()
+//        let mainVC = FinishedDrawingViewController()
+
+        
 //        InitialDataSeeder.seedDrawIfNeeded()
 //        let mainVC = SelectDrawingViewController()
-        let mainVC = HomeViewController()
 //        let mainVC = DrawingStepsViewController()
 //        let mainVC = DrawingStepsUsingCameraController()
 //        let mainVC = SetAngleViewController()

@@ -32,7 +32,7 @@ class SetAngleView: UIView {
         let label = UILabel()
         label.text = "3/4 Angle"
         label.textColor = .black
-        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize, weight: .semibold)
         return label
     }()
     
@@ -49,7 +49,7 @@ class SetAngleView: UIView {
         let button = UIButton()
         button.setTitle("Preset Angle", for: .normal)
         button.setTitleColor(UIColor(.white), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .subheadline).pointSize, weight: .regular)
         button.backgroundColor = .clear
         return button
     }()
@@ -58,7 +58,7 @@ class SetAngleView: UIView {
         let button = UIButton()
         button.setTitle("Choose", for: .normal)
         button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .semibold)
         button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 16
         return button
@@ -181,7 +181,7 @@ class SetAngleView: UIView {
     }
     
     private func setupSceneKit() {
-        let scene = SCNScene(named: "SceneKit Asset Catalog.scnassets/head_angle.scn")
+        let scene = SCNScene(named: "SceneKit Asset Catalog.scnassets/head.scn")
         
         // Find and store the model node (assuming it's the first child of root)
         if let rootNode = scene?.rootNode, let firstChild = rootNode.childNodes.first {
