@@ -8,9 +8,14 @@
 
 import UIKit
 
+class TaggedImagePickerController: UIImagePickerController {
+    var pickerTag: Int = 0
+}
+
 class PhotoCaptureSheetViewController: UIViewController {
     
 var router: MainFlowRouter?
+    var tracingImage: UIImage
 
     // MARK: - UI Elements
 
@@ -71,7 +76,8 @@ var router: MainFlowRouter?
 
 
     
-    init() {
+    init(tracingImage: UIImage) {
+    self.tracingImage = tracingImage
       super.init(nibName: nil, bundle: nil)
       modalPresentationStyle = .pageSheet
       if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
@@ -169,24 +175,23 @@ var router: MainFlowRouter?
     }
 
     @objc private func didTapTakePhoto() {
-        // Navigate to CameraTesterViewController
-        dismiss(animated: true) {
-            let cameraTesterVC = CameraTesterViewController()
-            cameraTesterVC.router = self.router
-            
-            if let router = self.router {
-                router.navigationController?.pushViewController(cameraTesterVC, animated: true)
-            } else {
-                // Find the current navigation controller and push
-                if let presentingVC = self.presentingViewController {
-                    if let navController = presentingVC as? UINavigationController {
-                        navController.pushViewController(cameraTesterVC, animated: true)
-                    } else if let navController = presentingVC.navigationController {
-                        navController.pushViewController(cameraTesterVC, animated: true)
-                    }
-                }
+        dismiss(animated: true) { [weak self] in
+            guard let self = self else { return }
+            // buat dan simpan coordinator di SceneDelegate
+            if let sceneDelegate = UIApplication.shared
+                 .connectedScenes
+                 .compactMap({ $0 as? UIWindowScene })
+                 .first?.delegate as? SceneDelegate,
+               let root = sceneDelegate.window?.rootViewController?.topmostPresentedViewController
+            {
+              sceneDelegate.photoCaptureCoordinator = PhotoCaptureCoordinator(
+                presentingViewController: root,
+                router: self.router,
+                tracingImage: self.tracingImage
+              )
+              sceneDelegate.photoCaptureCoordinator?.startCamera()
             }
-        }
+          }
     }
 }
 
@@ -194,4 +199,69 @@ extension PhotoCaptureSheetViewController: CustomIconButtonViewDelegate {
     func didTapCustomViewButton(_ button: CustomIconButtonView) {
         dismiss(animated: true)
     }
+}
+
+class PhotoCaptureCoordinator: NSObject,
+       UIImagePickerControllerDelegate, UINavigationControllerDelegate
+{
+  private weak var presentingViewController: UIViewController?
+  private let router: MainFlowRouter?
+  private let tracingImage: UIImage
+
+  init(presentingViewController: UIViewController,
+       router: MainFlowRouter?,
+       tracingImage: UIImage)
+  {
+    self.presentingViewController = presentingViewController
+    self.router = router
+    self.tracingImage = tracingImage
+    super.init()
+  }
+
+    func startCamera() {
+      let picker = TaggedImagePickerController()
+      picker.delegate = self
+      picker.sourceType = .camera
+      picker.pickerTag = 100
+
+      let overlay = UIView(frame: picker.view.frame)
+      let iv = UIImageView(image: tracingImage)
+      iv.contentMode = .scaleAspectFit
+      iv.alpha = 0.3
+      iv.frame = overlay.bounds
+      overlay.addSubview(iv)
+
+      let maxY = picker.view.bounds.height - 140
+      overlay.frame = CGRect(x: 0, y: 0,
+                             width: picker.view.bounds.width,
+                             height: maxY)
+      picker.cameraOverlayView = overlay
+      
+      picker.showsCameraControls = true
+      presentingViewController?.present(picker, animated: true)
+    }
+
+  func imagePickerController(
+    _ picker: UIImagePickerController,
+    didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+  ) {
+    picker.dismiss(animated: true)
+
+    guard let tagged = picker as? TaggedImagePickerController,
+          tagged.pickerTag == 100,
+          let userPhoto = info[.originalImage] as? UIImage
+    else { return }
+
+    router?.navigate(
+      to: .contourDetectionViewController(
+        tracingImage,
+        userPhoto
+          ),
+      animated: true
+    )
+  }
+
+  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    picker.dismiss(animated: true)
+  }
 }
