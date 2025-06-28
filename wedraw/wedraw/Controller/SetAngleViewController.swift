@@ -21,10 +21,14 @@ class SetAngleViewController: UIViewController {
     var router: MainFlowRouter?
     
     let angleService = AngleService()
+    let stepService = StepService()
     
     var allPresetAngle: [Angle] = []
     var selectedPresetIndex: Int = 2 // Default to quarter view
     var currentRotationAngles: SCNVector3 = SCNVector3(x: 0.3, y: -Float.pi/4, z: 0)
+    
+    private let modelNames = ["step1", "step2", "step3", "step4", "step5", "step6", "step7", "step8", "step9", "step10fix"]
+    private var currentModelIndex = 0
     
 
     // MARK: - Properties
@@ -130,6 +134,74 @@ class SetAngleViewController: UIViewController {
         }
     }
     
+    private let modelConfigs: [String: ModelConfig] = [
+        "head": ModelConfig(
+            zoomDistance: 2.0,
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/1.5, Float.pi/3, 0)
+        ),
+        "step1": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step2": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step3": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step4": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step5": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step6": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step7": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step8": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step9": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        ),
+        "step10fix": ModelConfig(
+            zoomDistance: 2.7,
+            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5 + Float.pi/6, Float.pi/3, 0)
+        )
+    ]
+    
 }
 
 // MARK: - SetAngleViewDelegate
@@ -155,8 +227,50 @@ extension SetAngleViewController: SetAngleViewDelegate {
     }
     
     func chooseButtonTapped() {
-        let selectedAngle = allPresetAngle[selectedPresetIndex]
-        router?.navigate(to: .selectDrawingViewController(selectedAngle: selectedAngle), animated: true)
+        
+        let current: SCNVector3 = getCurrentModelRotation()!
+        let (isPreset, matched) = checkIfUsingPreset()
+        var dataAngle: Angle!
+        if isPreset {
+            dataAngle = angleService.getAngleByName(angle_name: matched?.name ?? "")!
+            let getSteps : [Step] = stepService.getSteps(angle_id: dataAngle.angle_id!)
+            if getSteps.isEmpty {
+                Task {
+                    for i in 1...10 {
+                        print(i)
+                        await exportModelNamed(modelNames[i-1],rotation: current, angle_id: dataAngle.angle_id!, step_number: i)
+                    }
+                }
+            }
+            
+        } else {
+            let customAngle : [Angle] = angleService.getNonPresetAngle()
+            let newAngleId = UUID()
+            let angleName = "Custom \(customAngle.count + 1)"
+            angleService.createAngle(
+                angle_id: newAngleId,
+                angle_name: angleName,
+                x: Float(0),
+                y: Float(0),
+                z: Float(0),
+                angle_value: Double(0),
+                angle_number: Int16(customAngle.count + 6)
+            )
+            Task {
+                for i in 1...10 {
+                    print(i)
+                    await exportModelNamed(modelNames[i-1],rotation: current, angle_id: newAngleId, step_number: i)
+                }
+            }
+            dataAngle = angleService.getAngleByName(angle_name: angleName)!
+            
+        }
+        
+        router?.navigate(to: .selectDrawingViewController(selectedAngle: dataAngle), animated: true)
+    
+    }
+    func getCurrentModelRotation() -> SCNVector3? {
+        return setAngleView.modelNode?.eulerAngles
     }
     
     func presetAngleButtonTapped() {
@@ -252,6 +366,154 @@ extension SetAngleViewController: SetAngleViewDelegate {
         
         dismissWorkItem?.cancel()
         isToastVisible = false
+    }
+    func checkIfUsingPreset() -> (isPreset: Bool, matchedPreset: AnglePreset?) {
+        guard let currentRotation = getCurrentModelRotation() else {
+            return (false, nil)
+        }
+
+        for preset in cameraPresets {
+            let distance = sqrt(
+                pow(currentRotation.x - preset.rotationAngles.x, 2) +
+                pow(currentRotation.y - preset.rotationAngles.y, 2) +
+                pow(currentRotation.z - preset.rotationAngles.z, 2)
+            )
+            if distance < 0.1 {
+                return (true, preset)
+            }
+        }
+
+        return (false, nil)
+    }
+    
+    private func exportModelNamed(_ name: String, rotation: SCNVector3, angle_id: UUID, step_number: Int) async {
+        guard let scene = SCNScene(named: "SceneKit Asset Catalog.scnassets/\(name).scn") else {
+            return
+        }
+
+        let config = ModelConfig(
+            zoomDistance: 5.0,
+            position: SCNVector3Zero,
+            rotation: SCNVector3(rotation.x + Float.pi/6 - Float.pi/2, rotation.z, -rotation.y )
+        )
+
+        // Setup camera
+        let cameraNode = SCNNode()
+        cameraNode.camera = SCNCamera()
+        cameraNode.position = SCNVector3(0, 0, config.zoomDistance - 3.0)
+        scene.rootNode.addChildNode(cameraNode)
+
+        // Load and configure model
+        if let modelNode = scene.rootNode.childNodes.first {
+            modelNode.position = config.position
+            modelNode.eulerAngles = config.rotation
+            modelNode.scale = SCNVector3(1, 1, 1)
+            modelNode.enumerateChildNodes { child, _ in
+                child.geometry?.materials.forEach { $0.lightingModel = .constant }
+            }
+        }
+
+        // Add ambient and omni light
+        let ambientLight = SCNLight()
+        ambientLight.type = .ambient
+        ambientLight.intensity = 500
+        ambientLight.color = UIColor.white
+        let ambientNode = SCNNode()
+        ambientNode.light = ambientLight
+        scene.rootNode.addChildNode(ambientNode)
+
+        let omniLight = SCNLight()
+        omniLight.type = .omni
+        omniLight.intensity = 500
+        omniLight.color = UIColor.white
+        let omniNode = SCNNode()
+        omniNode.light = omniLight
+        omniNode.position = SCNVector3(5, 5, 10)
+        scene.rootNode.addChildNode(omniNode)
+
+        guard let device = MTLCreateSystemDefaultDevice(), let commandQueue = device.makeCommandQueue() else {
+            return
+        }
+
+        let renderer = SCNRenderer(device: device, options: nil)
+        renderer.scene = scene
+        renderer.pointOfView = cameraNode
+
+        let width = 1024
+        let height = 1024
+        let textureDesc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .bgra8Unorm_srgb,
+            width: width,
+            height: height,
+            mipmapped: false
+        )
+        textureDesc.usage = [.renderTarget, .shaderRead]
+        textureDesc.storageMode = .shared
+
+        guard let texture = device.makeTexture(descriptor: textureDesc) else {
+            return
+        }
+
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = texture
+        passDescriptor.colorAttachments[0].loadAction = .clear
+        passDescriptor.colorAttachments[0].storeAction = .store
+        passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
+
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+            return
+        }
+
+        renderer.render(
+            atTime: CACurrentMediaTime(),
+            viewport: CGRect(x: 0, y: 0, width: width, height: height),
+            commandBuffer: commandBuffer,
+            passDescriptor: passDescriptor
+        )
+        commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+
+        // Read pixels
+        var rawData = [UInt8](repeating: 0, count: width * height * 4)
+        texture.getBytes(&rawData, bytesPerRow: width * 4,
+                         from: MTLRegionMake2D(0, 0, width, height),
+                         mipmapLevel: 0)
+
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        guard let context = CGContext(
+            data: &rawData,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ),
+        let cgImage = context.makeImage() else {
+            return
+        }
+
+        let image = UIImage(cgImage: cgImage)
+        guard let pngData = image.pngData() else {
+            return
+        }
+
+        let fileName = "\(angle_id)_Export_\(name).png"
+        let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(fileName)
+        let step_id = UUID()
+        stepService.insertStep(
+            step_id: step_id,
+            angle_id: angle_id,
+            step_number: Int16(step_number),
+            image: fileName
+        )
+        
+        do {
+            try pngData.write(to: fileURL)
+        } catch {
+            print("Save failed: \(error)")
+        }
     }
 }
 #Preview {

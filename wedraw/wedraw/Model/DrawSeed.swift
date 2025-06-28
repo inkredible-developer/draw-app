@@ -80,14 +80,14 @@ class InitialDataSeeder {
             angle.icon_name = data.iconName
             angle.angle = data.angle
             angle.angle_number = Int16(data.angle_number)
-            for i in 1..<11 {
-                let step_id = UUID()
-                let steps = Step(context: context)
-                steps.step_id = step_id
-                steps.angle_id = angle_id
-                steps.step_number = Int16(i)
-                steps.image = "\(data.name)_step\(i)"
-            }
+//            for i in 1..<11 {
+//                let step_id = UUID()
+//                let steps = Step(context: context)
+//                steps.step_id = step_id
+//                steps.angle_id = angle_id
+//                steps.step_number = Int16(i)
+//                steps.image = "\(data.name)_step\(i)"
+//            }
         }
         
         CoreDataManager.shared.saveContext()

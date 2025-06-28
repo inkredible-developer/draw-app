@@ -55,7 +55,6 @@ class DrawingStepsViewController: UIViewController {
     func loadDraw() {
         
         drawDetails = drawService.getDrawById(draw_id: drawID)
-//        print("drawDetails",drawDetails)
         currentIndex = Int(drawDetails[0].current_step - 1)
         print("currentIndex",currentIndex)
         
@@ -421,7 +420,22 @@ class DrawingStepsViewController: UIViewController {
         let step = steps[currentIndex]
         stepTitleLabel.text = step.title
         stepDescriptionLabel.text = step.description
-        stepImageView.image = UIImage(named: step.imageName)
+//        if let data = try? Data(contentsOf: ),
+//           let image = UIImage(data: data) {
+//            let imageView = UIImageView(image: image)
+            
+//        let fileName = "SceneSnapshot_1751126135.901451.png"
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(step.imageName)
+
+        if FileManager.default.fileExists(atPath: fileURL.path),
+           let data = try? Data(contentsOf: fileURL),
+           let image = UIImage(data: data) {
+            
+            stepImageView.image = image
+        }
+            
+//        stepImageView.image = UIImage(named: step.imageName)
         stepProgressLabel.text = "Step \(currentIndex + 1) of \(steps.count)"
         
         // Update navigation

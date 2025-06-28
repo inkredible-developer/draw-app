@@ -14,8 +14,14 @@ class AngleService {
     func getPresetAngle() -> [Angle] {
         return repository.fetchAngleByPreset(isPreset: true)
     }
+    func getNonPresetAngle() -> [Angle] {
+        return repository.fetchAngleByPreset(isPreset: false)
+    }
     func getAngle(angle_id: UUID) -> [Angle] {
         return repository.getAngleById(id: angle_id)
+    }
+    func getAngleByName(angle_name: String) -> Angle? {
+        return repository.getAngleByName(name: angle_name)
     }
     func createAngle(angle_id: UUID, angle_name: String, x: Float, y: Float, z: Float, angle_value: Double, angle_number: Int16) {
         

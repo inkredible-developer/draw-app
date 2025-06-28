@@ -20,7 +20,7 @@ class AngleRepository {
     
     func fetchAngleByPreset(isPreset: Bool) -> [Angle] {
         let request: NSFetchRequest<Angle> = Angle.fetchRequest()
-        request.predicate = NSPredicate(format: "is_preset == %@", NSNumber(value: true))
+        request.predicate = NSPredicate(format: "is_preset == %@", NSNumber(value: isPreset))
         request.sortDescriptors = [NSSortDescriptor(key: "angle_number", ascending: true)]
 
         return (try? context.fetch(request)) ?? []
@@ -28,8 +28,16 @@ class AngleRepository {
     func getAngleById(id: UUID) -> [Angle] {
         let request: NSFetchRequest<Angle> = Angle.fetchRequest()
         request.predicate = NSPredicate(format: "angle_id == %@", id as CVarArg)
+        
 
         return (try? context.fetch(request)) ?? []
+    }
+    func getAngleByName(name: String) -> Angle? {
+        let request: NSFetchRequest<Angle> = Angle.fetchRequest()
+        request.predicate = NSPredicate(format: "angle_name == %@", name)
+        request.fetchLimit = 1
+
+        return try? context.fetch(request).first
     }
 
     func insertAngle(angle_id: UUID, angle_name: String,x:Float, y:Float, z:Float, angle_value: Double, angle_number: Int16 ) {
