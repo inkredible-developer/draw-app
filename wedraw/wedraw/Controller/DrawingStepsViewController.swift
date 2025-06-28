@@ -36,7 +36,9 @@ class DrawingStepsViewController: UIViewController {
     var drawDetails : [Draw] = []
     var dataSteps : [Step] = []
     private var currentIndex: Int = 0
-    var steps: [DrawingStep] = []
+//    var steps: [DrawingStep] = []
+    
+    private var tracingImage = UIImage(named: "traceng")
     
     private var tooltip: TooltipView?
     
@@ -50,69 +52,86 @@ class DrawingStepsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func loadDraw() {
-        
-        drawDetails = drawService.getDrawById(draw_id: drawID)
-        print("drawDetails",drawDetails)
-        currentIndex = Int(drawDetails[0].current_step - 1)
-        print("currentIndex",currentIndex)
-        
-        dataSteps = stepService.getSteps(angle_id: drawDetails[0].angle_id)
-                               
-        steps = [
-            DrawingStep(
-                title: "Draw the Base Circle",
-                description: "Draw a circle as the base of the head.",
-                imageName: dataSteps[0].image!
-            ),
-            DrawingStep(
-                title: "Draw Guide for Side",
-                description: "Add an oval next to the circle for the temple and ear area.",
-                imageName: dataSteps[1].image!
-            ),
-            DrawingStep(
-                title: "Split Face Horizontally",
-                description: "Draw a horizontal line in the middle of the circle and oval for the position of the eyebrow and upper ear.",
-                imageName: dataSteps[2].image!
-            ),
-            DrawingStep(
-                title: "Add Chin Box",
-                description: "Draw a vertical line in the circle to divide the face into left and right.",
-                imageName: dataSteps[3].image!
-            ),
-            DrawingStep(
-                title: "Draw Eye Line",
-                description: "Split the side oval in half with the vertical line to help draw the ear.",
-                imageName: dataSteps[4].image!
-            ),
-            DrawingStep(
-                title: "Mark Nose Line",
-                description: "Add a horizontal line below the circle to mark the position of the nose.",
-                imageName: dataSteps[5].image!
-            ),
-            DrawingStep(
-                title: "Define Jaw",
-                description: "Draw the ear between the eyebrow line and the nose line, inside the side oval.",
-                imageName: dataSteps[6].image!
-            ),
-            DrawingStep(
-                title: "Add Ear Level",
-                description: "Draw a line from under the oval towards the chin to form the jaw.",
-                imageName: dataSteps[7].image!
-            ),
-            DrawingStep(
-                title: "Draw Neck Guide",
-                description: "Continue the jaw line from under the ear to the chin.",
-                imageName: dataSteps[8].image!
-            ),
-            DrawingStep(
-                title: "Draw A Line to Make A Nose",
-                description: "draw the eyes, nose, and mouth in the appropriate places with the guide lines.",
-                imageName: dataSteps[9].image!
-            )
-        ]
-    }
-
+//    func loadDraw() {
+//        
+//        drawDetails = drawService.getDrawById(draw_id: drawID)
+////        print("drawDetails",drawDetails)
+//        currentIndex = Int(drawDetails[0].current_step - 1)
+//        print("currentIndex",currentIndex)
+//        
+//        dataSteps = stepService.getSteps(angle_id: drawDetails[0].angle_id)
+//        steps = [
+//            DrawingStep(
+//                title: "Draw the Base Circle",
+//                description: "Start with a simple circle, this will be the skull base. Don’t worry about perfection; just aim for a clean round shape",
+//                imageName: dataSteps[0].image!
+//            ),
+//            DrawingStep(
+//                title: "Draw Guide for Side",
+//                description: "Draw vertical line for direction. Use center as anchor.",
+//                imageName: dataSteps[1].image!
+//            ),
+//            DrawingStep(
+//                title: "Split Face Horizontally",
+//                description: "Add eye and nose level.",
+//                imageName: dataSteps[2].image!
+//            ),
+//            DrawingStep(
+//                title: "Add Chin Box",
+//                description: "Sketch box to shape the chin.",
+//                imageName: dataSteps[3].image!
+//            ),
+//            DrawingStep(
+//                title: "Draw Eye Line",
+//                description: "Mark horizontal eye level.",
+//                imageName: dataSteps[4].image!
+//            ),
+//            DrawingStep(
+//                title: "Mark Nose Line",
+//                description: "Place nose at 1/3 down from eyes to chin.",
+//                imageName: dataSteps[5].image!
+//            ),
+//            DrawingStep(
+//                title: "Define Jaw",
+//                description: "Sketch jaw shape to connect head and chin.",
+//                imageName: dataSteps[6].image!
+//            ),
+//            DrawingStep(
+//                title: "Add Ear Level",
+//                description: "Align ear from eye to nose level.",
+//                imageName: dataSteps[7].image!
+//            ),
+//            DrawingStep(
+//                title: "Draw Neck Guide",
+//                description: "Extend lines for neck from jaw.",
+//                imageName: dataSteps[8].image!
+//            ),
+//            DrawingStep(
+//                title: "Draw A Line to Make A Nose",
+//                description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)",
+//                imageName: dataSteps[9].image!
+//            )
+//        ]
+//        print("steps",steps)
+//    }
+//    func loadDraw() {
+//        drawDetails = drawService.getDrawById(draw_id: drawID)
+//        currentIndex = Int(drawDetails[0].current_step - 1)
+//        print("currentIndex",currentIndex)
+//    }
+    
+    private var steps: [DrawingStep] = [
+        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
+        DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),
+        DrawingStep(title: "Split Face Horizontally", description: "Add eye and nose level.", imageName: "step3"),
+        DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
+        DrawingStep(title: "Draw Eye Line", description: "Mark horizontal eye level.", imageName: "step5"),
+        DrawingStep(title: "Mark Nose Line", description: "Place nose at 1/3 down from eyes to chin.", imageName: "step6"),
+        DrawingStep(title: "Define Jaw", description: "Sketch jaw shape to connect head and chin.", imageName: "step7"),
+        DrawingStep(title: "Add Ear Level", description: "Align ear from eye to nose level.", imageName: "step8"),
+        DrawingStep(title: "Draw Neck Guide", description: "Extend lines for neck from jaw.", imageName: "step9"),
+        DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
+    ]
 
     // UI Components
     private let infoButton = CustomIconButtonView(
@@ -122,16 +141,16 @@ class DrawingStepsViewController: UIViewController {
         iconScale: 0.5
     )
     
-    private let topButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Stop Drawing", for: .normal)
-        button.setTitleColor(UIColor(hex: "7D7BB3"), for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
-        button.isEnabled = true
-        button.alpha = 1.0
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+//    private let topButton: UIButton = {
+//        let button = UIButton(type: .system)
+//        button.setTitle("Stop Drawing", for: .normal)
+//        button.setTitleColor(UIColor(hex: "7D7BB3"), for: .normal)
+//        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+//        button.isEnabled = true
+//        button.alpha = 1.0
+//        button.translatesAutoresizingMaskIntoConstraints = false
+//        return button
+//    }()
     
     private lazy var finishButton: UIButton = {
         let button = UIButton(type: .system)
@@ -286,7 +305,7 @@ class DrawingStepsViewController: UIViewController {
         infoButton.delegate = self
         
         view.addSubview(infoButton)
-        view.addSubview(topButton)
+//        view.addSubview(topButton)
         view.addSubview(stepImageView)
         view.addSubview(bottomContainer)
         
@@ -302,9 +321,9 @@ class DrawingStepsViewController: UIViewController {
         NSLayoutConstraint.activate([
             infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             infoButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-
-            topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
-            topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+//
+//            topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
+//            topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
 
             stepImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stepImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
@@ -339,27 +358,28 @@ class DrawingStepsViewController: UIViewController {
     private func setupActions() {
         prevButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
-        topButton.addTarget(self, action: #selector(topButtonTapped), for: .touchUpInside)
+//        topButton.addTarget(self, action: #selector(topButtonTapped), for: .touchUpInside)
     }
     
     @objc private func finishButtonTapped() {
         if currentIndex == steps.count - 1 {
-            // This is the last step - finish the experience
-            let homeVC = HomeViewController()
-            let nav = UINavigationController(rootViewController: homeVC)
-            homeVC.router = MainFlowRouter(navigationController: nav)
-            
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first {
-                window.rootViewController = nav
-                window.makeKeyAndVisible()
+            // This is the last step - go to DrawingStepsUsingCameraController
+//            let nextVC = DrawingStepsUsingCameraController()
+            let nextVC = CameraTesterViewController()
+            if let router = router {
+                router.navigationController?.pushViewController(nextVC, animated: true)
+            } else {
+                navigationController?.pushViewController(nextVC, animated: true)
             }
         } else {
             // Save functionality
 //            let alert = UIAlertController(title: "Save Drawing", message: "Your drawing progress has been saved.", preferredStyle: .alert)
 //            alert.addAction(UIAlertAction(title: "OK", style: .default))
 //            present(alert, animated: true)
-            router?.presentDirectly(.photoCaptureSheetVIewController, animated: true)
+            router?.presentDirectly(
+                .photoCaptureSheetViewController( self.tracingImage ?? UIImage(named: "traceng")!),
+                  animated: true
+                )
         }
     }
 
@@ -401,7 +421,7 @@ class DrawingStepsViewController: UIViewController {
         // Update navigation
         let isLast = (currentIndex == steps.count - 1)
         finishButton.setTitle(isLast ? "Finish" : "Save", for: .normal)
-        topButton.setTitle(isLast ? "Finish" : "Stop Drawing", for: .normal)
+//        topButton.setTitle(isLast ? "Finish" : "Stop Drawing", for: .normal)
         
         prevButton.isHidden = currentIndex == 0
         nextButton.isHidden = currentIndex == steps.count - 1
@@ -488,22 +508,22 @@ class DrawingStepsViewController: UIViewController {
         }
     }
     
-    @objc private func topButtonTapped() {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            return
-        }
-
-        // Create your destination view controller
-        let homeVC = HomeViewController()
-        let nav = UINavigationController(rootViewController: homeVC)
-        nav.interactivePopGestureRecognizer?.isEnabled = false
-        homeVC.router = MainFlowRouter(navigationController: nav)
-
-        // Set as new root
-        window.rootViewController = nav
-        window.makeKeyAndVisible()
-    }
+//    @objc private func topButtonTapped() {
+//        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//              let window = windowScene.windows.first else {
+//            return
+//        }
+//
+//        // Create your destination view controller
+//        let homeVC = HomeViewController()
+//        let nav = UINavigationController(rootViewController: homeVC)
+//        nav.interactivePopGestureRecognizer?.isEnabled = false
+//        homeVC.router = MainFlowRouter(navigationController: nav)
+//
+//        // Set as new root
+//        window.rootViewController = nav
+//        window.makeKeyAndVisible()
+//    }
 }
 
 // MARK: - CustomIconButtonViewDelegate

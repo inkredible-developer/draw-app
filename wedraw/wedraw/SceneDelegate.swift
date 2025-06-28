@@ -11,7 +11,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     var router: MainFlowRouter?
-    var cameraCoordinator: CameraCoordinator? 
+    var cameraCoordinator: CameraCoordinator?
+    var photoCaptureCoordinator: PhotoCaptureCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -44,7 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func setupMainInterface(in window: UIWindow) {
         InitialDataSeeder.seedPresetAngle()
         let mainVC = HomeViewController()
-//        let mainVC = FinishedDrawingViewController()
+//        let mainVC = CameraTesterViewController()
 
         
 //        InitialDataSeeder.seedDrawIfNeeded()
