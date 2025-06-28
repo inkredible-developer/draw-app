@@ -428,13 +428,17 @@ class ARTracingViewController: UIViewController {
         if currentIndex == steps.count - 1 {
             // This is the last step - finish the experience
 //            dismiss(animated: true)
-            router?.presentDirectly(.photoCaptureSheetVIewController, animated: true)
+//            router?.presentDirectly(.photoCaptureSheetViewController, animated: true)
         } else {
             // Save functionality
             // You can implement saving functionality here
 //            let alert = UIAlertController(title: "Save Drawing", message: "Your drawing progress has been saved.", preferredStyle: .alert)
 //            alert.addAction(UIAlertAction(title: "OK", style: <#UIAlertAction.Style#>, for: .default))
 //            present(alert, animated: true)
+            router?.presentDirectly(
+                .photoCaptureSheetViewController( self.tracingImage),
+                  animated: true
+                )
         }
     }
 
@@ -1388,3 +1392,58 @@ class OpacitySliderView: UIView {
       return img
     }
 }
+//
+//extension ARTracingViewController: PhotoCaptureSheetDelegate,
+//                                   UIImagePickerControllerDelegate,
+//                                   UINavigationControllerDelegate {
+//
+//  func photoCaptureSheetDidRequestPhoto(_ sheet: PhotoCaptureSheetViewController) {
+//    presentCameraOverlay()
+//  }
+//
+//  private func presentCameraOverlay() {
+//    let picker = TaggedImagePickerController()
+//    picker.delegate   = self
+//    picker.sourceType = .camera
+//    picker.pickerTag  = 100
+//
+//    // langsung pakai tracingImage (bukan Optional binding)
+//    let overlay = UIView(frame: picker.view.frame)
+//    let iv = UIImageView(image: tracingImage)
+//    iv.contentMode = .scaleAspectFit
+//    iv.alpha       = 0.3
+//    iv.frame       = overlay.bounds
+//    overlay.addSubview(iv)
+//
+//    picker.cameraOverlayView   = overlay
+//    picker.showsCameraControls = true
+//    present(picker, animated: true)
+//  }
+//
+//  // MARK: – UIImagePickerControllerDelegate
+//  func imagePickerController(_ picker: UIImagePickerController,
+//                             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+//    picker.dismiss(animated: true)
+//
+//    // cast dulu ke TaggedImagePickerController
+//    guard let tagged = picker as? TaggedImagePickerController,
+//          tagged.pickerTag == 100,
+//          let userPhoto = info[.originalImage] as? UIImage else {
+//      return
+//    }
+//
+//    let contourVC = ContourDetectionViewController()
+//    contourVC.referenceImage    = tracingImage
+//    contourVC.userDrawingImage  = userPhoto
+//    navigationController?.pushViewController(contourVC, animated: true)
+//  }
+//
+//  func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+//    picker.dismiss(animated: true)
+//  }
+//
+//  func photoCaptureSheetDidSkip(_ sheet: PhotoCaptureSheetViewController) {
+//    // misal:
+//    // navigationController?.popViewController(animated: true)
+//  }
+//}
