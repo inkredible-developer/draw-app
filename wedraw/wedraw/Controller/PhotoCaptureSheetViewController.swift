@@ -14,7 +14,7 @@ class TaggedImagePickerController: UIImagePickerController {
 
 class PhotoCaptureSheetViewController: UIViewController {
     
-var router: MainFlowRouter?
+    var router: MainFlowRouter?
     var tracingImage: UIImage
 
     // MARK: - UI Elements
@@ -155,7 +155,23 @@ var router: MainFlowRouter?
     }
 
     @objc private func didTapSkip() {
-        dismiss(animated: true)
+        // Navigate to home
+        dismiss(animated: true){
+            if let router = self.router {
+                router.navigateToRoot(animated: true)
+            } else {
+                // Manual navigation to home
+                let homeVC = HomeViewController()
+                let nav = UINavigationController(rootViewController: homeVC)
+                homeVC.router = MainFlowRouter(navigationController: nav)
+                
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first {
+                    window.rootViewController = nav
+                    window.makeKeyAndVisible()
+                }
+            }
+        }
     }
 
     @objc private func didTapTakePhoto() {
@@ -249,3 +265,4 @@ class PhotoCaptureCoordinator: NSObject,
     picker.dismiss(animated: true)
   }
 }
+

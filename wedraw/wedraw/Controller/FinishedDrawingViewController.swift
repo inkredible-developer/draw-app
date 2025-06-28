@@ -9,7 +9,9 @@ import UIKit
 
 class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelegate {
     var router: MainFlowRouter?
+    var drawID: UUID?
     private let finishedDrawingView = FinishedDrawingView()
+    private let drawService = DrawService()
     
     override func loadView() {
         view = finishedDrawingView
@@ -41,9 +43,50 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
     }
     
     private func saveProgress() {
-        // TODO: Add save progress logic here
-        // This can include saving to Core Data, uploading to server, etc.
-        print("Saving progress...")
+        // Save the drawing as finished using insertDraw logic
+        guard let drawID = drawID else {
+            print("❌ No drawID available for saving")
+            return
+        }
+        
+        // Get the current draw details
+        let drawDetails = drawService.getDrawById(draw_id: drawID)
+        guard let draw = drawDetails.first else {
+            print("❌ No draw found with ID: \(drawID)")
+            return
+        }
+        
+        // Calculate similarity score (you can implement your own logic here)
+        let similarityScore = calculateSimilarityScore()
+        
+        // Generate finished image path or data
+        let finishedImagePath = generateFinishedImagePath()
+        
+        // Use the repository to insert/update the finished draw
+        let repository = DrawRepository()
+        repository.insertDraw(
+            draw_id: drawID,
+            angle_id: draw.angle_id,
+            current_step: Int(draw.current_step),
+            similarity_score: similarityScore,
+            finished_image: finishedImagePath,
+            is_finished: true,
+            draw_mode: draw.draw_mode
+        )
+        
+        print("✅ Drawing saved as finished with ID: \(drawID), similarity score: \(similarityScore)")
+    }
+    
+    private func calculateSimilarityScore() -> Int {
+        // TODO: Implement your similarity calculation logic here
+        // For now, return a random score between 60-95
+        return Int.random(in: 60...95)
+    }
+    
+    private func generateFinishedImagePath() -> String? {
+        // TODO: Implement logic to save the finished drawing image
+        // For now, return a placeholder path
+        return "finished_drawing_\(drawID?.uuidString ?? UUID().uuidString).jpg"
     }
     
     private func navigateToHome() {

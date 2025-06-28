@@ -224,42 +224,57 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     @objc func didTapDrawCard(draw: Draw) {
         print("draw data",draw)
         print("draw card tapped")
-        var drawVC = UIViewController()
-        if draw.draw_mode == "reference" {
-            drawVC = DrawingStepsViewController(drawID: draw.draw_id)
-        }else{
-//            drawVC = DrawingStepsUsingCameraController()
-            // Create the coordinator BEFORE dismissing the sheet
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let sceneDelegate = windowScene.delegate as? SceneDelegate,
-               let rootVC = windowScene.windows.first?.rootViewController {
-                
-                // Store coordinator in SceneDelegate to keep it alive
-                sceneDelegate.cameraCoordinator = CameraCoordinator(
-                    presentingViewController: rootVC,
-                    router: self.router,
-                    onImageCropped: { [weak sceneDelegate] image in
-                        guard let tracingImage = UIImage(named: "traceng") else { return }
-                        
-                        // Navigate to AR tracing screen with the cropped image
-                        self.router?.navigate(
-                            to: .arTracingViewController(image, tracingImage,drawId: draw.draw_id),
-                            animated: true
-                        )
-                        
-                        // Clear reference when done
-                        sceneDelegate?.cameraCoordinator = nil
+        
+        // Check if the draw is finished
+        if draw.is_finished {
+            // Navigate to ListFinishedDrawingViewController for finished draws
+            let listFinishedVC = ListFinishedDrawingViewController()
+            listFinishedVC.router = self.router
+            listFinishedVC.drawData = draw // Pass the draw data
+            
+            if let router = router {
+                router.navigationController?.pushViewController(listFinishedVC, animated: true)
+            } else {
+                navigationController?.pushViewController(listFinishedVC, animated: true)
+            }
+        } else {
+            // Handle unfinished draws with existing logic
+            var drawVC = UIViewController()
+            if draw.draw_mode == "reference" {
+                drawVC = DrawingStepsViewController(drawID: draw.draw_id)
+            } else {
+                // Create the coordinator BEFORE dismissing the sheet
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let sceneDelegate = windowScene.delegate as? SceneDelegate,
+                   let rootVC = windowScene.windows.first?.rootViewController {
+                    
+                    // Store coordinator in SceneDelegate to keep it alive
+                    sceneDelegate.cameraCoordinator = CameraCoordinator(
+                        presentingViewController: rootVC,
+                        router: self.router,
+                        onImageCropped: { [weak sceneDelegate] image in
+                            guard let tracingImage = UIImage(named: "traceng") else { return }
+                            
+                            // Navigate to AR tracing screen with the cropped image
+                            self.router?.navigate(
+                                to: .arTracingViewController(image, tracingImage,drawId: draw.draw_id),
+                                animated: true
+                            )
+                            
+                            // Clear reference when done
+                            sceneDelegate?.cameraCoordinator = nil
+                        }
+                    )
+                    
+                    // Then dismiss
+                    dismiss(animated: true) {
+                        // Start camera after dismiss animation completes
+                        sceneDelegate.cameraCoordinator?.startCamera()
                     }
-                )
-                
-                // Then dismiss
-                dismiss(animated: true) {
-                    // Start camera after dismiss animation completes
-                    sceneDelegate.cameraCoordinator?.startCamera()
                 }
             }
+            navigationController?.setViewControllers([drawVC], animated: true)
         }
-        navigationController?.setViewControllers([drawVC], animated: true)
     }
     
 }

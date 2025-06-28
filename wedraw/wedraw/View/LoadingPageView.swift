@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Lottie
+//import Lottie
 
 class LoadingPageView: UIView {
     

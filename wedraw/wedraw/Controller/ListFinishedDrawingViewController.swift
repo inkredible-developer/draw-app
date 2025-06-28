@@ -9,6 +9,9 @@ import UIKit
 
 class ListFinishedDrawingViewController: UIViewController {
     var router: MainFlowRouter?
+    var drawData: Draw?
+    private let drawService = DrawService()
+    private var finishedDraws: [DrawWithAngle] = []
 
     private let listFinishedDrawingView = ListFinishedDrawingView()
 
@@ -16,7 +19,8 @@ class ListFinishedDrawingViewController: UIViewController {
         super.viewDidLoad()
         setupNavigationBar()
         listFinishedDrawingView.delegate = self
-
+        loadFinishedDraws()
+        loadDrawData()
         updateDetailForSelectedIndex()
     }
     
@@ -29,9 +33,10 @@ class ListFinishedDrawingViewController: UIViewController {
         backBarButton.tintColor = UIColor(named: "Inkredible-DarkPurple")
         navigationItem.leftBarButtonItem = backBarButton
         
-        let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonTapped))
-        doneButton.tintColor = UIColor(named: "Inkredible-DarkPurple")
-        navigationItem.rightBarButtonItem = doneButton
+        // Commented out Done button
+        // let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonTapped))
+        // doneButton.tintColor = UIColor(named: "Inkredible-DarkPurple")
+        // navigationItem.rightBarButtonItem = doneButton
     }
 
     @objc private func backButtonTapped() {
@@ -39,23 +44,18 @@ class ListFinishedDrawingViewController: UIViewController {
     }
     
     @objc private func doneButtonTapped() {
-        // Save work logic can be added here
         saveWork()
         navigateToHome()
     }
     
     private func saveWork() {
-        // TODO: Add save work logic here
-        // This can include saving to Core Data, uploading to server, etc.
         print("Saving work...")
     }
     
     private func navigateToHome() {
-        // Navigate to home using router if available, otherwise manually
         if let router = router {
             router.navigateToRoot(animated: true)
         } else {
-            // Manual navigation to home
             let homeVC = HomeViewController()
             let nav = UINavigationController(rootViewController: homeVC)
             homeVC.router = MainFlowRouter(navigationController: nav)
@@ -67,12 +67,83 @@ class ListFinishedDrawingViewController: UIViewController {
             }
         }
     }
+    
+    private func loadFinishedDraws() {
+        // Load all finished drawings from Core Data
+        finishedDraws = drawService.getFinishedDraws()
+        print("✅ Loaded \(finishedDraws.count) finished drawings from Core Data")
+        
+        updateGalleryWithFinishedDraws()
+    }
+    
+    private func updateGalleryWithFinishedDraws() {
+        // Convert finished draws to images for the gallery
+        let galleryImages = finishedDraws.compactMap { drawWithAngle -> UIImage? in
+            // Try to load image from finished_image path, or use default image
+            if let finishedImagePath = drawWithAngle.draw.finished_image {
+                // Load image from path (you'll need to implement this based on how you store images)
+                // return UIImage(contentsOfFile: finishedImagePath)
+                return UIImage(named: "upl_1") // Placeholder for now
+            } else {
+                return UIImage(named: "upl_1") // Default image
+            }
+        }
+        
+        // Update the gallery images in the view
+        listFinishedDrawingView.updateGalleryImages(galleryImages)
+    }
+    
+    private func loadDrawData() {
+        guard let draw = drawData else {
+            print("❌ No draw data available")
+            return
+        }
+        
+        // Find the index of the current draw in the finished draws array
+        if let index = finishedDraws.firstIndex(where: { $0.draw.draw_id == draw.draw_id }) {
+            listFinishedDrawingView.selectedIndex = index
+            listFinishedDrawingView.galleryCollectionView.reloadData()
+        }
+        
+        // Update the view with actual draw data
+        listFinishedDrawingView.similarityValue = Int(draw.similarity_score)
+        
+        // Update other labels with actual data
+        updateLabels(with: draw)
+    }
+    
+    private func updateLabels(with draw: Draw) {
+        // Update similarity value
+        listFinishedDrawingView.similarityValue = Int(draw.similarity_score)
+        
+        // Update creation date (you can format this as needed)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .full
+        // For now, use current date since we don't have creation date in the model
+        listFinishedDrawingView.createdOnValueLabel.text = dateFormatter.string(from: Date())
+        
+        // Update uploaded time (you can format this as needed)
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeStyle = .short
+        listFinishedDrawingView.uploadedTimeValueLabel.text = timeFormatter.string(from: Date())
+        
+        // Update main image if you have finished_image path
+        if let finishedImagePath = draw.finished_image {
+            // Load image from path (you'll need to implement this based on how you store images)
+            // listFinishedDrawingView.imageView.image = UIImage(contentsOfFile: finishedImagePath)
+        }
+    }
 
     private func updateDetailForSelectedIndex() {
-        listFinishedDrawingView.similarityValue = 25 + listFinishedDrawingView.selectedIndex * 10
+        // Get the selected finished draw
+        guard listFinishedDrawingView.selectedIndex < finishedDraws.count else { return }
+        let selectedDraw = finishedDraws[listFinishedDrawingView.selectedIndex]
         
-        //update logicnya
+        // Update similarity value with actual data
+        listFinishedDrawingView.similarityValue = Int(selectedDraw.draw.similarity_score)
         
+        // Update other details for the selected drawing
+        updateLabels(with: selectedDraw.draw)
     }
 }
 
