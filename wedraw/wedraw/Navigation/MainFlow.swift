@@ -15,6 +15,7 @@ enum MainFlow: NavigationDestination, Equatable {
     case drawingStepsViewController(UUID)
     case setAngleViewController
     case photoCaptureSheetVIewController
+    case cameraTesterViewController
     
     var title: String {
         switch self {
@@ -32,6 +33,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return "Drawing Steps"
         case .photoCaptureSheetVIewController:
             return "Photo Capture"
+        case .cameraTesterViewController:
+            return "Camera Tester"
         }
     }
     
@@ -53,6 +56,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return SetAngleViewController()
         case .photoCaptureSheetVIewController:
             return PhotoCaptureSheetViewController()
+        case .cameraTesterViewController:
+            return CameraTesterViewController()
         }
     }
     
@@ -101,6 +106,12 @@ enum MainFlow: NavigationDestination, Equatable {
                     vc.router = typedRouter
                 }
                 return vc
+            case .cameraTesterViewController:
+                let vc = CameraTesterViewController()
+                if let typedRouter = router as? MainFlowRouter {
+                    vc.router = typedRouter
+                }
+                return vc
             }
         }
     
@@ -117,6 +128,8 @@ enum MainFlow: NavigationDestination, Equatable {
         case (.drawingStepsViewController(let lhsMode), .drawingStepsViewController(let rhsMode)):
             return lhsMode == rhsMode
         case (.photoCaptureSheetVIewController, .photoCaptureSheetVIewController):
+            return true
+        case (.cameraTesterViewController, .cameraTesterViewController):
             return true
         default:
             return false

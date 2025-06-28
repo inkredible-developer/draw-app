@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol FinishedDrawingViewDelegate: AnyObject {
+    func finishedDrawingViewDidTapDone(_ view: FinishedDrawingView)
+}
+
 class FinishedDrawingView: UIView {
+    weak var delegate: FinishedDrawingViewDelegate?
+    
     let imageView = UIImageView()
     let bottomContainerView = UIView()
     let similarityTitleLabel = UILabel()
