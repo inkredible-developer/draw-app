@@ -12,73 +12,143 @@ class ModelViewerViewController: UIViewController {
     private let sceneView = SCNView()
     private let backButton = UIButton(type: .system)
     private let nextButton = UIButton(type: .system)
+    private var originalModelScale: SCNVector3?
 
-    private let modelNames = ["head", "step1", "step2", "step3", "step4", "step5", "step6", "step7", "step8", "step9", "step10fix2"]
-    private var currentModelIndex = 8
+    private let modelNames = ["head", "step1", "step2", "step3", "step4", "step5", "step6", "step7", "step8", "step9", "step10fix"]
+    private var currentModelIndex = 0
     private var currentModelNode: SCNNode?
     private var displayLink: CADisplayLink?
 
+//    private let modelConfigs: [String: ModelConfig] = [
+//        "head": ModelConfig(
+//            zoomDistance: 2.0,
+//            position: SCNVector3(0, 0, 0),
+//            rotation: SCNVector3(-Float.pi/1.6, Float.pi/3, 0)
+//        ),
+//        "step1": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step2": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step3": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step4": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step5": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+////        "kerangkaa": ModelConfig(
+////            zoomDistance: 2.7,
+////            position: SCNVector3(0.1, 0, 0),
+////            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+////        ),
+//        "step6": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step7": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step8": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step9": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+//        "step10fix": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
+////        "step10": ModelConfig(
+////            zoomDistance: 4.8,
+////            position: SCNVector3(0.1, 0, 0),
+////            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+////        )
+//    ]
+    
+    
     private let modelConfigs: [String: ModelConfig] = [
         "head": ModelConfig(
             zoomDistance: 2.0,
             position: SCNVector3(0, 0, 0),
-            rotation: SCNVector3(-Float.pi/1.6, Float.pi/3, 0)
+            rotation: SCNVector3(-Float.pi/1.5,0, 0)
         ),
         "step1": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
         "step2": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
         "step3": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
         "step4": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
         "step5": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
+//        "kerangkaa": ModelConfig(
+//            zoomDistance: 2.7,
+//            position: SCNVector3(0.1, 0, 0),
+//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+//        ),
         "step6": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
         "step7": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
         "step8": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
         "step9": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
         ),
-        "step10fix2": ModelConfig(
+        "step10fix": ModelConfig(
             zoomDistance: 2.7,
-            position: SCNVector3(0.1, 0, 0),
-            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
-        ),
-//        "step10": ModelConfig(
-//            zoomDistance: 4.8,
-//            position: SCNVector3(0.1, 0, 0),
-//            rotation: SCNVector3(-Float.pi/2, Float.pi/3, 0)
-//        )
+            position: SCNVector3(0, 0, 0),
+            rotation: SCNVector3(-Float.pi/2,0, 0)
+        )
     ]
 
     override func viewDidLoad() {
@@ -182,12 +252,55 @@ class ModelViewerViewController: UIViewController {
         cameraNode.position = SCNVector3(0, 0, config.zoomDistance)
         scene.rootNode.addChildNode(cameraNode)
         sceneView.pointOfView = cameraNode
+        
+        
+        // Setup camera
+//        let cameraNode = SCNNode()
+//        cameraNode.camera = SCNCamera()
+//        cameraNode.camera?.usesOrthographicProjection = true // Flat projection (optional)
+//        cameraNode.camera?.orthographicScale = 1.5 // Adjust based on model size
+//        cameraNode.position = SCNVector3(x: 0, y: 0, z: 10)
+//        scene.rootNode.addChildNode(cameraNode)
+//        sceneView.pointOfView = cameraNode
+
+        // Center and scale model
+        if let modelNode = scene.rootNode.childNodes.first {
+            modelNode.position = SCNVector3Zero
+            modelNode.eulerAngles = config.rotation
+            currentModelNode = modelNode
+            
+            originalModelScale = modelNode.scale
+
+            // Auto-fit model in view (zoom effect)
+//            let (minVec, maxVec) = modelNode.boundingBox
+//            let size = SCNVector3(
+//                x: maxVec.x - minVec.x,
+//                y: maxVec.y - minVec.y,
+//                z: maxVec.z - minVec.z
+//            )
+//            let maxDimension = max(size.x, max(size.y, size.z))
+            let zoomScale = 1
+            modelNode.scale = SCNVector3(zoomScale, zoomScale, zoomScale)
+
+
+            modelNode.enumerateChildNodes { child, _ in
+                child.geometry?.materials.forEach { material in
+                    material.lightingModel = .constant
+                }
+            }
+        }
+
 
         // Set model position/rotation
         if let modelNode = scene.rootNode.childNodes.first {
             modelNode.position = config.position
             modelNode.eulerAngles = config.rotation
             currentModelNode = modelNode
+            modelNode.enumerateChildNodes { child, _ in
+                child.geometry?.materials.forEach { material in
+                    material.lightingModel = .constant // disables lighting influence
+                }
+            }
         }
     }
 
@@ -235,6 +348,11 @@ class ModelViewerViewController: UIViewController {
                 print("❌ Metal unavailable or scene missing")
                 return
             }
+            scene.rootNode.enumerateChildNodes { (node, _) in
+                node.light?.castsShadow = false
+            }
+
+        
             if scene.rootNode.childNodes.allSatisfy({ $0.light == nil }) {
 //                let lightNode = SCNNode()
 //                let light = SCNLight()
@@ -267,14 +385,29 @@ class ModelViewerViewController: UIViewController {
 
             let renderer = SCNRenderer(device: device, options: nil)
             renderer.scene = scene
-            renderer.pointOfView = pointOfView
+//            renderer.pointOfView = pointOfView
 
+            let exportCamera = SCNNode()
+            exportCamera.camera = SCNCamera()
+            exportCamera.position = SCNVector3(0, 0, (pointOfView.position.z - 1.0)) // move closer by 1.0
+            renderer.pointOfView = exportCamera
+//            let scale = UIScreen.main.scale
+//            let width = Int(sceneView.bounds.width * scale)
+//            let height = Int(sceneView.bounds.height * scale)
+
+            let viewSize = sceneView.bounds.size
             let scale = UIScreen.main.scale
-            let width = Int(sceneView.bounds.width * scale)
-            let height = Int(sceneView.bounds.height * scale)
-
+            let minLength = min(viewSize.width, viewSize.height)
+            let dimension = Int(minLength * scale)
+//        
+//            let width = dimension
+//            let height = dimension
+        
+            let width = 1024
+            let height = 1024
+        
             let textureDesc = MTLTextureDescriptor.texture2DDescriptor(
-                pixelFormat: .bgra8Unorm,
+                pixelFormat: .bgra8Unorm_srgb,
                 width: width,
                 height: height,
                 mipmapped: false
@@ -297,7 +430,10 @@ class ModelViewerViewController: UIViewController {
                 print("❌ Failed to create command buffer")
                 return
             }
-
+//            if let modelNode = currentModelNode {
+//                let zoomScale = 1.5
+//                modelNode.scale = SCNVector3(zoomScale, zoomScale, zoomScale)
+//            }
             renderer.render(
                 atTime: CACurrentMediaTime(),
                 viewport: CGRect(x: 0, y: 0, width: width, height: height),
@@ -350,7 +486,14 @@ class ModelViewerViewController: UIViewController {
             let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
             activityVC.popoverPresentationController?.sourceView = self.view
             present(activityVC, animated: true, completion: nil)
-        }
+        
+//            if let modelNode = currentModelNode, let originalScale = originalModelScale {
+//                modelNode.scale = originalScale
+//            }
+            scene.rootNode.childNodes
+                .filter { $0.light != nil }
+                .forEach { $0.removeFromParentNode() }
+            }
 
     deinit {
         displayLink?.invalidate()
