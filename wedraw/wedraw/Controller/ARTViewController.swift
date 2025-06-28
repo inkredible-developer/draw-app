@@ -494,23 +494,41 @@ class ARTracingViewController: UIViewController {
 //    }
     
     @objc private func finishButtonTapped() {
-        // Close AR experience or save depending on current step
         if currentIndex == steps.count - 1 {
-            // This is the last step - finish the experience
-//            dismiss(animated: true)
-//            router?.presentDirectly(.photoCaptureSheetViewController, animated: true)
+            // This is the last step - go to CameraTesterViewController
+            let nextVC = CameraTesterViewController()
+            if let router = router {
+                router.navigationController?.pushViewController(nextVC, animated: true)
+            } else {
+                navigationController?.pushViewController(nextVC, animated: true)
+            }
         } else {
-            // Save functionality
-            // You can implement saving functionality here
-//            let alert = UIAlertController(title: "Save Drawing", message: "Your drawing progress has been saved.", preferredStyle: .alert)
-//            alert.addAction(UIAlertAction(title: "OK", style: <#UIAlertAction.Style#>, for: .default))
-//            present(alert, animated: true)
+            // Save functionality - shows photo capture sheet
             router?.presentDirectly(
-                .photoCaptureSheetViewController( self.tracingImage),
+                .photoCaptureSheetViewController( self.tracingImage ?? UIImage(named: "traceng")!),
                   animated: true
                 )
         }
     }
+    
+//    @objc private func finishButtonTapped() {
+//        // Close AR experience or save depending on current step
+//        if currentIndex == steps.count - 1 {
+//            // This is the last step - finish the experience
+//            dismiss(animated: true)
+//            router?.presentDirectly(.photoCaptureSheetViewController, animated: true)
+//        } else {
+//            // Save functionality
+//            // You can implement saving functionality here
+//            let alert = UIAlertController(title: "Save Drawing", message: "Your drawing progress has been saved.", preferredStyle: .alert)
+//            alert.addAction(UIAlertAction(title: "OK", style: <#UIAlertAction.Style#>, for: .default))
+//            present(alert, animated: true)
+//            router?.presentDirectly(
+//                .photoCaptureSheetViewController( self.tracingImage),
+//                  animated: true
+//                )
+//        }
+//    }
 
     private func prepareImages() {
         guard let anchorImage = anchorImage else {

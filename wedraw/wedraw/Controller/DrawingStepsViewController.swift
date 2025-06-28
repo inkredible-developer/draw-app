@@ -114,11 +114,11 @@ class DrawingStepsViewController: UIViewController {
 //        ]
 //        print("steps",steps)
 //    }
-//    func loadDraw() {
-//        drawDetails = drawService.getDrawById(draw_id: drawID)
-//        currentIndex = Int(drawDetails[0].current_step - 1)
-//        print("currentIndex",currentIndex)
-//    }
+    func loadDraw() {
+        drawDetails = drawService.getDrawById(draw_id: drawID)
+        currentIndex = Int(drawDetails[0].current_step - 1)
+        print("currentIndex",currentIndex)
+    }
     
     private var steps: [DrawingStep] = [
         DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
@@ -399,6 +399,7 @@ class DrawingStepsViewController: UIViewController {
     }
 
     @objc private func nextTapped() {
+
         if currentIndex < steps.count - 1 {
             currentIndex += 1
             let res = drawService.updateDrawStep(draw: drawDetails[0], draw_step: Int(drawDetails[0].current_step) + 1)

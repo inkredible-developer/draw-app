@@ -38,6 +38,7 @@ enum MainFlow: NavigationDestination, Equatable {
             return "Contour Detection"
         case .cameraTesterViewController:
             return "Camera Tester"
+        }
     }
     
     func createViewController() -> UIViewController {
@@ -58,72 +59,73 @@ enum MainFlow: NavigationDestination, Equatable {
             return SetAngleViewController()
         case .photoCaptureSheetViewController(let uiImage):
             return PhotoCaptureSheetViewController(tracingImage: uiImage)
-        case .photoCaptureSheetViewController(let uiImage):
-            return PhotoCaptureSheetViewController(tracingImage: uiImage)
+            //        case .photoCaptureSheetViewController(let uiImage):
+            //            return PhotoCaptureSheetViewController(tracingImage: uiImage)
         case .contourDetectionViewController(let referenceImage, let userPhoto):
             return ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto)
         case .cameraTesterViewController:
             return CameraTesterViewController()
-    
-    func createViewControllerWithRouter<T: NavigationDestination>(_ router: Router<T>) -> UIViewController {
-            switch self {
-            case .homeViewController:
-                let vc = SelectDrawingViewController()
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .selectDrawingViewController(let selectedAngle):
-                let vc = SelectDrawingViewController()
-                vc.selectedAngle = selectedAngle
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .tutorialSheetViewController(let drawingMode, let angle):
-                let vc = TutorialSheetViewController(mode: drawingMode, angle: angle)
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .arTracingViewController(let image, let referenceImage, let drawId):
-                let vc = ARTracingViewController(anchorImage: image, tracingImage: referenceImage, drawId: drawId)
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .setAngleViewController:
-                let vc = SetAngleViewController()
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .drawingStepsViewController(let id):
-                let vc = DrawingStepsViewController(drawID: id)
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .photoCaptureSheetViewController(let uiImage):
-                let vc = PhotoCaptureSheetViewController(tracingImage: uiImage)
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .contourDetectionViewController(let referenceImage, let userPhoto):
-                let vc = ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto)
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            case .cameraTesterViewController:
-                let vc = CameraTesterViewController()
-                if let typedRouter = router as? MainFlowRouter {
-                    vc.router = typedRouter
-                }
-                return vc
-            }
         }
+    }
+    func createViewControllerWithRouter<T: NavigationDestination>(_ router: Router<T>) -> UIViewController {
+        switch self {
+        case .homeViewController:
+            let vc = SelectDrawingViewController()
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .selectDrawingViewController(let selectedAngle):
+            let vc = SelectDrawingViewController()
+            vc.selectedAngle = selectedAngle
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .tutorialSheetViewController(let drawingMode, let angle):
+            let vc = TutorialSheetViewController(mode: drawingMode, angle: angle)
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .arTracingViewController(let image, let referenceImage, let drawId):
+            let vc = ARTracingViewController(anchorImage: image, tracingImage: referenceImage, drawId: drawId)
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .setAngleViewController:
+            let vc = SetAngleViewController()
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .drawingStepsViewController(let id):
+            let vc = DrawingStepsViewController(drawID: id)
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .photoCaptureSheetViewController(let uiImage):
+            let vc = PhotoCaptureSheetViewController(tracingImage: uiImage)
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .contourDetectionViewController(let referenceImage, let userPhoto):
+            let vc = ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto)
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .cameraTesterViewController:
+            let vc = CameraTesterViewController()
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        }
+    }
     
     static func == (lhs: MainFlow, rhs: MainFlow) -> Bool {
         switch (lhs, rhs) {
@@ -147,6 +149,10 @@ enum MainFlow: NavigationDestination, Equatable {
             return lhsMode == rhsMode
         case (.cameraTesterViewController, .cameraTesterViewController):
             return true
+        default:
+            return false
+        }
+    }
 }
 
 typealias MainFlowRouter = Router<MainFlow>

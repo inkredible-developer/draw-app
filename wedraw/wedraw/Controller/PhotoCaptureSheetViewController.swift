@@ -14,7 +14,7 @@ class TaggedImagePickerController: UIImagePickerController {
 
 class PhotoCaptureSheetViewController: UIViewController {
     
-var router: MainFlowRouter?
+    var router: MainFlowRouter?
     var tracingImage: UIImage
 
     // MARK: - UI Elements
