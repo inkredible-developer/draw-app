@@ -59,8 +59,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return SetAngleViewController()
         case .photoCaptureSheetViewController(let uiImage):
             return PhotoCaptureSheetViewController(tracingImage: uiImage)
-            //        case .photoCaptureSheetViewController(let uiImage):
-            //            return PhotoCaptureSheetViewController(tracingImage: uiImage)
+//        case .photoCaptureSheetViewController(let uiImage):
+//            return PhotoCaptureSheetViewController(tracingImage: uiImage)
         case .contourDetectionViewController(let referenceImage, let userPhoto):
             return ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto)
         case .cameraTesterViewController:
@@ -126,7 +126,6 @@ enum MainFlow: NavigationDestination, Equatable {
             return vc
         }
     }
-    
     static func == (lhs: MainFlow, rhs: MainFlow) -> Bool {
         switch (lhs, rhs) {
         case (.homeViewController, .homeViewController):
@@ -139,10 +138,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return true
         case (.drawingStepsViewController(let lhsMode), .drawingStepsViewController(let rhsMode)):
             return lhsMode == rhsMode
-        case (.photoCaptureSheetViewController(let lhsMode), .photoCaptureSheetViewController(let rhsMode)):
-            return lhsMode == rhsMode
-        case (.contourDetectionViewController(let lhsMode), .contourDetectionViewController(let rhsMode)):
-            return lhsMode == rhsMode
+        case (.arTracingViewController, .arTracingViewController):
+            return true
         case (.photoCaptureSheetViewController(let lhsMode), .photoCaptureSheetViewController(let rhsMode)):
             return lhsMode == rhsMode
         case (.contourDetectionViewController(let lhsMode), .contourDetectionViewController(let rhsMode)):
