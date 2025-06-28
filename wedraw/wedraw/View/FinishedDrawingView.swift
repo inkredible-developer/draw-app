@@ -65,7 +65,6 @@ class FinishedDrawingView: UIView {
         similarityTitleLabel.text = "Similarity towards reference image"
         similarityTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .semibold)
 
-//        similarityTitleLabel.font = UIFontMetrics(forTextStyle: .title3).scaledFont(for: UIFont.systemFont(ofSize: 20, weight: .semibold))
         similarityTitleLabel.adjustsFontForContentSizeCategory = true
         similarityTitleLabel.textColor = .white
         similarityTitleLabel.textAlignment = .center
@@ -73,7 +72,6 @@ class FinishedDrawingView: UIView {
         similarityValueLabel.text = "78%"
         similarityValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .largeTitle).pointSize, weight: .bold)
 
-//        similarityValueLabel.font = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: UIFont.systemFont(ofSize: 34, weight: .bold))
         similarityValueLabel.textColor = UIColor(named: "Inkredible-Green") ?? .systemGreen
         similarityValueLabel.textAlignment = .center
         
@@ -87,21 +85,17 @@ class FinishedDrawingView: UIView {
         
         createdOnTitleLabel.text = "Created on"
         createdOnTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
-//        createdOnTitleLabel.font = UIFontMetrics(forTextStyle: .callout).scaledFont(for: UIFont.systemFont(ofSize: 16, weight: .regular))
         createdOnTitleLabel.textColor = .white
         createdOnValueLabel.text = "Thursday, 22 May 2025"
         createdOnValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
-//        createdOnTitleLabel.font = UIFontMetrics(forTextStyle: .callout).scaledFont(for: UIFont.systemFont(ofSize: 16, weight: .regular))
         createdOnValueLabel.textColor = .black
         
         uploadedTimeTitleLabel.text = "Uploaded Time"
         uploadedTimeTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
-//        uploadedTimeTitleLabel.font = UIFontMetrics(forTextStyle: .callout).scaledFont(for: UIFont.systemFont(ofSize: 16, weight: .regular))
-
         uploadedTimeTitleLabel.textColor = .white
+        
         uploadedTimeValueLabel.text = "12.35"
-        uploadedTimeTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
-//        uploadedTimeTitleLabel.font = UIFontMetrics(forTextStyle: .callout).scaledFont(for: UIFont.systemFont(ofSize: 16, weight: .regular))
+        uploadedTimeValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
         uploadedTimeValueLabel.textColor = .black
         
         bottomContainerView.addSubview(similarityBackgroundView)

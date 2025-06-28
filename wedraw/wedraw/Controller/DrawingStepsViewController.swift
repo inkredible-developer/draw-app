@@ -63,7 +63,7 @@ class DrawingStepsViewController: UIViewController {
         steps = [
             DrawingStep(
                 title: "Draw the Base Circle",
-                description: "Start with a simple circle, this will be the skull base. Don’t worry about perfection; just aim for a clean round shape",
+                description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape",
                 imageName: dataSteps[0].image!
             ),
             DrawingStep(
@@ -363,29 +363,20 @@ class DrawingStepsViewController: UIViewController {
     
     @objc private func finishButtonTapped() {
         if currentIndex == steps.count - 1 {
-            // This is the last step - go to DrawingStepsUsingCameraController
-//            let nextVC = DrawingStepsUsingCameraController()
+            // This is the last step - go to CameraTesterViewController
             let nextVC = CameraTesterViewController()
+            nextVC.drawID = drawID // Pass drawID to CameraTesterViewController
             if let router = router {
                 router.navigationController?.pushViewController(nextVC, animated: true)
             } else {
                 navigationController?.pushViewController(nextVC, animated: true)
             }
         } else {
-            if let router = router {
-                router.navigateToRoot(animated: true)
-            } else {
-                // Manual navigation to home
-                let homeVC = HomeViewController()
-                let nav = UINavigationController(rootViewController: homeVC)
-                homeVC.router = MainFlowRouter(navigationController: nav)
-                
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first {
-                    window.rootViewController = nav
-                    window.makeKeyAndVisible()
-                }
-            }
+            // Save functionality
+            router?.presentDirectly(
+                .photoCaptureSheetViewController( self.tracingImage ?? UIImage(named: "traceng")!),
+                  animated: true
+                )
         }
     }
 

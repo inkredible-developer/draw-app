@@ -24,7 +24,7 @@ class ListFinishedDrawingView: UIView {
     let uploadedTimeValueLabel = UILabel()
     let similarityBackgroundView = UIView()
     
-    let galleryImages = Array(repeating: UIImage(named: "upl_1"), count: 10)
+    var galleryImages: [UIImage] = Array(repeating: UIImage(named: "upl_1")!, count: 10)
     var selectedIndex: Int = 0
     
     lazy var galleryCollectionView: UICollectionView = {
@@ -192,6 +192,15 @@ class ListFinishedDrawingView: UIView {
             let cellWidth: CGFloat = 40
             let sideInset = max((galleryCollectionView.bounds.width - cellWidth) / 2, 0)
             layout.sectionInset = UIEdgeInsets(top: 0, left: sideInset, bottom: 0, right: sideInset)
+        }
+    }
+    
+    func updateGalleryImages(_ images: [UIImage]) {
+        galleryImages = images
+        galleryCollectionView.reloadData()
+        
+        if !images.isEmpty && selectedIndex < images.count {
+            imageView.image = images[selectedIndex]
         }
     }
 }

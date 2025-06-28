@@ -265,3 +265,4 @@ class PhotoCaptureCoordinator: NSObject,
     picker.dismiss(animated: true)
   }
 }
+

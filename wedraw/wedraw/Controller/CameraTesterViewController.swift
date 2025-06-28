@@ -2,6 +2,7 @@ import UIKit
 
 class CameraTesterViewController: UIViewController, CameraTesterViewDelegate {
     var router: MainFlowRouter?
+    var drawID: UUID?
     private let cameraTesterView = CameraTesterView()
     private var loadingView: LoadingPageView?
     
@@ -38,6 +39,7 @@ class CameraTesterViewController: UIViewController, CameraTesterViewDelegate {
             self.loadingView?.removeFromSuperview()
             let finishedVC = FinishedDrawingViewController()
             finishedVC.router = self.router
+            finishedVC.drawID = self.drawID
             
             // Wrap in navigation controller to get navigation bar
             let navController = UINavigationController(rootViewController: finishedVC)
