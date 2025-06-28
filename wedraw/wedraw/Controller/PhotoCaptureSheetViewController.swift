@@ -149,12 +149,44 @@ var router: MainFlowRouter?
     }
 
     @objc private func didTapSkip() {
-        dismiss(animated: true)
+        // Navigate to home
+        dismiss(animated: true){
+            if let router = self.router {
+                router.navigateToRoot(animated: true)
+            } else {
+                // Manual navigation to home
+                let homeVC = HomeViewController()
+                let nav = UINavigationController(rootViewController: homeVC)
+                homeVC.router = MainFlowRouter(navigationController: nav)
+                
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first {
+                    window.rootViewController = nav
+                    window.makeKeyAndVisible()
+                }
+            }
+        }
     }
 
     @objc private func didTapTakePhoto() {
-        // TODO: panggil kamera / simpan progress
-        dismiss(animated: true)
+        // Navigate to CameraTesterViewController
+        dismiss(animated: true) {
+            let cameraTesterVC = CameraTesterViewController()
+            cameraTesterVC.router = self.router
+            
+            if let router = self.router {
+                router.navigationController?.pushViewController(cameraTesterVC, animated: true)
+            } else {
+                // Find the current navigation controller and push
+                if let presentingVC = self.presentingViewController {
+                    if let navController = presentingVC as? UINavigationController {
+                        navController.pushViewController(cameraTesterVC, animated: true)
+                    } else if let navController = presentingVC.navigationController {
+                        navController.pushViewController(cameraTesterVC, animated: true)
+                    }
+                }
+            }
+        }
     }
 }
 
