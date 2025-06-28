@@ -254,7 +254,7 @@ class DrawingStepsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-//        loadDraw()
+        loadDraw()
         setupNavBarColor()
         configureNavigationBar()
         setupUI()
@@ -363,15 +363,13 @@ class DrawingStepsViewController: UIViewController {
     
     @objc private func finishButtonTapped() {
         if currentIndex == steps.count - 1 {
-            // This is the last step - finish the experience
-            let homeVC = HomeViewController()
-            let nav = UINavigationController(rootViewController: homeVC)
-            homeVC.router = MainFlowRouter(navigationController: nav)
-            
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first {
-                window.rootViewController = nav
-                window.makeKeyAndVisible()
+            // This is the last step - go to DrawingStepsUsingCameraController
+//            let nextVC = DrawingStepsUsingCameraController()
+            let nextVC = CameraTesterViewController()
+            if let router = router {
+                router.navigationController?.pushViewController(nextVC, animated: true)
+            } else {
+                navigationController?.pushViewController(nextVC, animated: true)
             }
         } else {
             // Save functionality

@@ -10,8 +10,8 @@ import UIKit
 class HomeView: UIView {
     
     private var data: DrawData?
-    private var finishedDraw: [Draw] = []
-    private var unfinsihedDraw: [Draw] = []
+    private var finishedDraw: [DrawWithAngle] = []
+    private var unfinsihedDraw: [DrawWithAngle] = []
     
     
     weak var controller: HomeViewController?

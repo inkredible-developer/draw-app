@@ -67,16 +67,10 @@ extension SelectDrawingViewController : CustomButtonDelegate {
 //           return
 //        }
     
-//        let draw_id = UUID()
-        
-//        drawService?.createDraw(
-//            draw_id: draw_id,
-//            angle_id: angleID,
-//            draw_mode: "reference"
-//        )
+
         let mode = DrawingMode.allCases[carousel.selectedIndex]
         print("mode",mode)
-        router?.presentDirectly(.tutorialSheetViewController(mode), animated: true)
+        router?.presentDirectly(.tutorialSheetViewController(mode,selectedAngle!), animated: true)
     }
 }
 

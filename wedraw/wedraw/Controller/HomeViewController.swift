@@ -9,14 +9,14 @@ import UIKit
 
 
 struct DrawData {
-    let unfineshedDraws: [Draw]
-    let fineshedDraws: [Draw]
+    let unfineshedDraws: [DrawWithAngle]
+    let fineshedDraws: [DrawWithAngle]
 }
 class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     var router: MainFlowRouter?
     let drawService = DrawService()
-    var unfineshedDraws: [Draw] = []
-    var fineshedDraws: [Draw] = []
+    var unfineshedDraws: [DrawWithAngle] = []
+    var fineshedDraws: [DrawWithAngle] = []
     var allDraws: [Draw] = []
     
     
@@ -38,64 +38,64 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     func loadDraw() {
         allDraws = drawService.getDraws()
         print("=== Loaded \(allDraws.count) total Draws ===")
-        for draw in allDraws {
-            let drawId = draw.draw_id
-            let angleId = draw.angle_id
-            let currentStep = draw.current_step
-            let similarityScore = draw.similarity_score
-            let finishedImage = draw.finished_image ?? "No Image"
-            let isFinished = draw.is_finished
-
-            print("""
-            🔹 Draw ID: \(drawId)
-               - Angle ID: \(angleId)
-               - Current Step: \(currentStep)
-               - Similarity Score: \(similarityScore)
-               - Is Finished: \(isFinished)
-               - Finished Image: \(finishedImage)
-            """)
-        }
+//        for draw in allDraws {
+//            let drawId = draw.draw_id
+//            let angleId = draw.angle_id
+//            let currentStep = draw.current_step
+//            let similarityScore = draw.similarity_score
+//            let finishedImage = draw.finished_image ?? "No Image"
+//            let isFinished = draw.is_finished
+//
+//            print("""
+//            🔹 Draw ID: \(drawId)
+//               - Angle ID: \(angleId)
+//               - Current Step: \(currentStep)
+//               - Similarity Score: \(similarityScore)
+//               - Is Finished: \(isFinished)
+//               - Finished Image: \(finishedImage)
+//            """)
+//        }
         
         unfineshedDraws = drawService.getUnfinishedDraws()
         print("=== Loaded \(unfineshedDraws.count) Unfinished Draws ===")
-        for draw in unfineshedDraws {
-            let drawId = draw.draw_id
-            let angleId = draw.angle_id
-            let currentStep = draw.current_step
-            let similarityScore = draw.similarity_score
-            let finishedImage = draw.finished_image ?? "No Image"
-            let isFinished = draw.is_finished
-
-            print("""
-            🔹 Draw ID: \(drawId)
-               - Angle ID: \(angleId)
-               - Current Step: \(currentStep)
-               - Similarity Score: \(similarityScore)
-               - Is Finished: \(isFinished)
-               - Finished Image: \(finishedImage)
-            """)
-        }
-        
+//        for draw in unfineshedDraws {
+//            let drawId = draw.draw_id
+//            let angleId = draw.angle_id
+//            let currentStep = draw.current_step
+//            let similarityScore = draw.similarity_score
+//            let finishedImage = draw.finished_image ?? "No Image"
+//            let isFinished = draw.is_finished
+//
+//            print("""
+//            🔹 Draw ID: \(drawId)
+//               - Angle ID: \(angleId)
+//               - Current Step: \(currentStep)
+//               - Similarity Score: \(similarityScore)
+//               - Is Finished: \(isFinished)
+//               - Finished Image: \(finishedImage)
+//            """)
+//        }
+//        
         
         fineshedDraws = drawService.getFinishedDraws()
-        print("=== Loaded \(fineshedDraws.count) FinishedDraws ===")
-        for draw in fineshedDraws {
-            let drawId = draw.draw_id
-            let angleId = draw.angle_id
-            let currentStep = draw.current_step
-            let similarityScore = draw.similarity_score
-            let finishedImage = draw.finished_image ?? "No Image"
-            let isFinished = draw.is_finished
-
-            print("""
-            🔹 Draw ID: \(drawId)
-               - Angle ID: \(angleId)
-               - Current Step: \(currentStep)
-               - Similarity Score: \(similarityScore)
-               - Is Finished: \(isFinished)
-               - Finished Image: \(finishedImage)
-            """)
-        }
+//        print("=== Loaded \(fineshedDraws.count) FinishedDraws ===")
+//        for draw in fineshedDraws {
+//            let drawId = draw.draw_id
+//            let angleId = draw.angle_id
+//            let currentStep = draw.current_step
+//            let similarityScore = draw.similarity_score
+//            let finishedImage = draw.finished_image ?? "No Image"
+//            let isFinished = draw.is_finished
+//
+//            print("""
+//            🔹 Draw ID: \(drawId)
+//               - Angle ID: \(angleId)
+//               - Current Step: \(currentStep)
+//               - Similarity Score: \(similarityScore)
+//               - Is Finished: \(isFinished)
+//               - Finished Image: \(finishedImage)
+//            """)
+//        }
     }
     
     let test: UILabel = {
@@ -164,7 +164,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         
         if !availability {
            let overlay = UIView()
-           overlay.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+            overlay.backgroundColor = UIColor.gray.withAlphaComponent(0.6)
            overlay.translatesAutoresizingMaskIntoConstraints = false
            overlay.layer.cornerRadius = 20
            overlay.clipsToBounds = true
@@ -229,6 +229,35 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
             drawVC = DrawingStepsViewController(drawID: draw.draw_id)
         }else{
 //            drawVC = DrawingStepsUsingCameraController()
+            // Create the coordinator BEFORE dismissing the sheet
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let sceneDelegate = windowScene.delegate as? SceneDelegate,
+               let rootVC = windowScene.windows.first?.rootViewController {
+                
+                // Store coordinator in SceneDelegate to keep it alive
+                sceneDelegate.cameraCoordinator = CameraCoordinator(
+                    presentingViewController: rootVC,
+                    router: self.router,
+                    onImageCropped: { [weak sceneDelegate] image in
+                        guard let tracingImage = UIImage(named: "traceng") else { return }
+                        
+                        // Navigate to AR tracing screen with the cropped image
+                        self.router?.navigate(
+                            to: .arTracingViewController(image, tracingImage,drawId: draw.draw_id),
+                            animated: true
+                        )
+                        
+                        // Clear reference when done
+                        sceneDelegate?.cameraCoordinator = nil
+                    }
+                )
+                
+                // Then dismiss
+                dismiss(animated: true) {
+                    // Start camera after dismiss animation completes
+                    sceneDelegate.cameraCoordinator?.startCamera()
+                }
+            }
         }
         navigationController?.setViewControllers([drawVC], animated: true)
     }

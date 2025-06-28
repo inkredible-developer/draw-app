@@ -15,11 +15,11 @@ class DrawService {
         return repository.fetchAllDraws()
     }
     
-    func getFinishedDraws() -> [Draw] {
+    func getFinishedDraws() -> [DrawWithAngle] {
         return repository.fetchDraws(isFinished: true)
     }
 
-    func getUnfinishedDraws() -> [Draw] {
+    func getUnfinishedDraws() -> [DrawWithAngle] {
         return repository.fetchDraws(isFinished: false)
     }
     func getDrawById(draw_id: UUID) -> [Draw] {

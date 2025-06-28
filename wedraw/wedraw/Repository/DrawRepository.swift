@@ -9,6 +9,11 @@
 import Foundation
 import CoreData
 
+struct DrawWithAngle {
+    let draw: Draw
+    let angle: Angle
+}
+
 class DrawRepository {
     private let context = CoreDataManager.shared.context
     let request: NSFetchRequest<Draw> = Draw.fetchRequest()
@@ -18,10 +23,27 @@ class DrawRepository {
         return (try? context.fetch(request)) ?? []
     }
     
-    func fetchDraws(isFinished: Bool) -> [Draw] {
+    func fetchDraws(isFinished: Bool) -> [DrawWithAngle] {
         let request: NSFetchRequest<Draw> = Draw.fetchRequest()
+        let angleRequest: NSFetchRequest<Angle> = Angle.fetchRequest()
+        
         request.predicate = NSPredicate(format: "is_finished == %@", NSNumber(value: isFinished))
-        return (try? context.fetch(request)) ?? []
+        guard
+               let draws = try? context.fetch(request),
+               let angles = try? context.fetch(angleRequest)
+           else {
+               return []
+           }
+        
+        let angleDict = Dictionary(uniqueKeysWithValues: angles.map { ($0.angle_id, $0) })
+        var mergedResults: [DrawWithAngle] = []
+        for draw in draws {
+            if let matchingAngle = angleDict[draw.angle_id] {
+                mergedResults.append(DrawWithAngle(draw: draw, angle: matchingAngle))
+            }
+        }
+
+        return mergedResults
     }
     
     func getDrawById(id: UUID) -> [Draw] {

@@ -41,22 +41,23 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     private var playerReadyObserver: NSKeyValueObservation?
 
     private let mode: DrawingMode
-//    private let selectedAngle: Angle?
+    private let selectedAngle: Angle?
     
     // MARK: - Image Properties
     private var anchorImage: UIImage?
 
-  init(mode: DrawingMode) {
-    self.mode = mode
-    super.init(nibName: nil, bundle: nil)
-    modalPresentationStyle = .pageSheet
-    if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
-      let customDetent = UISheetPresentationController.Detent.custom { ctx in
-        ctx.maximumDetentValue * 0.85
-      }
-      sheet.detents = [customDetent]
-      sheet.prefersGrabberVisible = true
-    }
+    init(mode: DrawingMode, angle: Angle) {
+        self.mode = mode
+        self.selectedAngle = angle
+        super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .pageSheet
+        if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
+          let customDetent = UISheetPresentationController.Detent.custom { ctx in
+            ctx.maximumDetentValue * 0.85
+          }
+          sheet.detents = [customDetent]
+          sheet.prefersGrabberVisible = true
+        }
   }
   required init?(coder: NSCoder) { fatalError() }
 
@@ -321,6 +322,12 @@ extension TutorialSheetViewController: CustomIconButtonViewDelegate {
 extension TutorialSheetViewController: CustomButtonDelegate {
     func customButtonDidTap(_ button: CustomButton) {
         if button === actionButton {
+            let draw_id = UUID()
+            self.drawService.createDraw(
+                draw_id: draw_id,
+                angle_id: selectedAngle!.angle_id!,
+                draw_mode: mode.type
+            )
             if mode == .liveAR {
                 // Create the coordinator BEFORE dismissing the sheet
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -336,7 +343,7 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                             
                             // Navigate to AR tracing screen with the cropped image
                             self.router?.navigate(
-                                to: .arTracingViewController(image, tracingImage),
+                                to: .arTracingViewController(image, tracingImage, drawId: draw_id),
                                 animated: true
                             )
                             
@@ -352,44 +359,21 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                     }
                 }
             } else {
-                dismiss(animated: true) { [weak self] in
-                                    guard let self = self else { return }
-                                    // Create a UUID for the new drawing
-                                    let draw_id = UUID()
-//                                        self.drawService.createDraw(
-//                                            draw_id: draw_id,
-//                                            angle_id: selectedAngle.angle_id!,
-//                                            draw_mode: mode.type
-//                                        )
-                                    
-                                    // Navigate to DrawingStepsViewController after dismissal
-                                    self.router?.navigate(
-                                        to: .drawingStepsViewController(draw_id),
-                                        animated: true
-                                    )
-                                }
-//                    let draw_id = UUID()
-//                    self.drawService.createDraw(
-//                        draw_id: draw_id,
-//                        angle_id: selectedAngle.angle_id!,
-//                        draw_mode: mode.type
-//                    )
-//                    let drawVC = DrawingStepsViewController(drawID: draw_id)
-//                    navigationController?.setViewControllers([drawVC], animated: true)
-//                    dismiss(animated: true) {
-//                        print("get here")
-//                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//                             let window = windowScene.windows.first else {
-//                           return
-//                        }
-//                        
-//                        let navController = UINavigationController(rootViewController: drawVC)
-//                        navController.interactivePopGestureRecognizer?.isEnabled = false
-//
-//                            window.rootViewController = navController
-//                            window.makeKeyAndVisible()
-//                    }
-                
+                    let drawVC = DrawingStepsViewController(drawID: draw_id)
+                    navigationController?.setViewControllers([drawVC], animated: true)
+                    dismiss(animated: true) {
+                        print("get here")
+                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                             let window = windowScene.windows.first else {
+                           return
+                        }
+                        
+                        let navController = UINavigationController(rootViewController: drawVC)
+                        navController.interactivePopGestureRecognizer?.isEnabled = false
+
+                            window.rootViewController = navController
+                            window.makeKeyAndVisible()
+                    }
             }
         }
     }
