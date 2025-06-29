@@ -95,18 +95,20 @@ class DrawRepository {
         }
     }
     
-    func updateFinishedStatus(draw_id: UUID, isFinished: Bool, finishedImage: String?) {
+    func updateFinishedStatus(draw_id: UUID, similarity_score: Int, finishedImage: String?){
         let request: NSFetchRequest<Draw> = Draw.fetchRequest()
         request.predicate = NSPredicate(format: "draw_id == %@", draw_id as CVarArg)
         request.fetchLimit = 1
 
         do {
             if let draw = try context.fetch(request).first {
-                draw.is_finished = isFinished
+                draw.is_finished = true
+                draw.similarity_score = Int16(similarity_score)
                 draw.finished_image = finishedImage
                 CoreDataManager.shared.saveContext()
             } else {
                 print("❌ Draw with id \(draw_id) not found.")
+                
             }
         } catch {
             print("❌ Failed to update finished status: \(error)")

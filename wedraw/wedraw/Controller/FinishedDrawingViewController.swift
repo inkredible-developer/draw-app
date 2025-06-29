@@ -31,11 +31,25 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
     }
     
     override func loadView() {
-        finishedDrawingView = FinishedDrawingView(
-            resultImage: userPhoto,
-            similarityValue: similarityScore ?? 0
+//        print("open this load view")
+//        let drawDetail = drawService.getDrawById(draw_id: drawID!)
+//        if drawDetail[0].is_finished == false {
             
-        )
+            finishedDrawingView = FinishedDrawingView(
+                resultImage: userPhoto,
+                similarityValue: similarityScore ?? 0
+                
+            )
+//        }else{
+//            print("drawDetail[0].finished_image",drawDetail[0].finished_image)
+//            let fileURL = getDocumentsDirectory().appendingPathComponent(drawDetail[0].finished_image!)
+//            let photo = UIImage(contentsOfFile: fileURL.path)
+//            finishedDrawingView = FinishedDrawingView(
+//                resultImage: photo!,
+//                similarityValue: similarityScore ?? 0
+//                
+//            )
+//        }
         view = finishedDrawingView
     }
     
@@ -81,25 +95,26 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
             return
         }
         
-        // Calculate similarity score (you can implement your own logic here)
-//        let similarityScore = calculateSimilarityScore()
-        
-        // Generate finished image path or data
         let finishedImagePath = generateFinishedImagePath()
+        let fileURL = getDocumentsDirectory().appendingPathComponent(finishedImagePath!)
+        // Convert the image to PNG data
+        guard let imageData = userPhoto.pngData() else {
+            print("❌ Failed to convert image to PNG")
+            return
+        }
+
+        do {
+            try imageData.write(to: fileURL)
+            print("✅ Image saved at \(fileURL.path)")
+        } catch {
+            print("❌ Failed to save image: \(error.localizedDescription)")
+            return
+        }
         
-        // Use the repository to insert/update the finished draw
-        let repository = DrawRepository()
-        repository.insertDraw(
-            draw_id: drawID,
-            angle_id: draw.angle_id,
-            current_step: Int(draw.current_step),
-            similarity_score: similarityScore ?? 9999,
-            finished_image: finishedImagePath,
-            is_finished: true,
-            draw_mode: draw.draw_mode
-        )
-        
-//        print("✅ Drawing saved as finished with ID: \(drawID), similarity score: \(similarityScore )")
+        let save = drawService.setFinishedDraw(draw_id: drawID, similarity_score: similarityScore!, finished_image: finishedImagePath!)
+    }
+    private func getDocumentsDirectory() -> URL {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
     private func calculateSimilarityScore() -> Int {

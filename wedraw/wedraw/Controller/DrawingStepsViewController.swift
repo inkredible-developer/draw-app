@@ -37,6 +37,7 @@ class DrawingStepsViewController: UIViewController {
     var dataSteps : [Step] = []
     private var currentIndex: Int = 0
     var steps: [DrawingStep] = []
+    var currentImage : UIImage?
     
     private var tracingImage = UIImage(named: "traceng")
     
@@ -179,6 +180,13 @@ class DrawingStepsViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.maximumZoomScale = 4.0
+        scrollView.minimumZoomScale = 1.0
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
 
     private let stepImageView: UIImageView = {
         let imageView = UIImageView()
@@ -251,8 +259,10 @@ class DrawingStepsViewController: UIViewController {
     }()
 
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         view.backgroundColor = .white
+        scrollView.delegate = self
         loadDraw()
         setupNavBarColor()
         configureNavigationBar()
@@ -305,7 +315,9 @@ class DrawingStepsViewController: UIViewController {
         
         view.addSubview(infoButton)
 //        view.addSubview(topButton)
-        view.addSubview(stepImageView)
+//        view.addSubview(stepImageView)
+        view.addSubview(scrollView)
+        scrollView.addSubview(stepImageView)
         view.addSubview(bottomContainer)
         
         bottomContainer.addSubview(buttonCardView)
@@ -323,10 +335,20 @@ class DrawingStepsViewController: UIViewController {
 //
 //            topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
 //            topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            scrollView.topAnchor.constraint(equalTo:  view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            scrollView.bottomAnchor.constraint(equalTo: bottomContainer.topAnchor, constant: 16),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+            scrollView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+//            scrollView.heightAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-            stepImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            stepImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-            stepImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stepImageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stepImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stepImageView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stepImageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stepImageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            stepImageView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+
       
             bottomContainer.heightAnchor.constraint(equalToConstant: 158),
             bottomContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -364,7 +386,7 @@ class DrawingStepsViewController: UIViewController {
         if currentIndex == steps.count - 1 {
             
             router?.presentDirectly(
-                .photoCaptureSheetViewController( UIImage(named: self.steps[steps.count - 1].imageName) ?? self.tracingImage!, self.drawID, true),
+                .photoCaptureSheetViewController( currentImage!, self.drawID, true),
                 animated: true
             )
             
@@ -452,8 +474,9 @@ class DrawingStepsViewController: UIViewController {
         if FileManager.default.fileExists(atPath: fileURL.path),
            let data = try? Data(contentsOf: fileURL),
            let image = UIImage(data: data) {
-            
+            currentImage = image
             stepImageView.image = image
+            scrollView.setZoomScale(1.0, animated: false)
         }
             
 //        stepImageView.image = UIImage(named: step.imageName)
@@ -573,5 +596,10 @@ extension DrawingStepsViewController: CustomIconButtonViewDelegate {
         if button === infoButton {
             toggleTooltip()
         }
+    }
+}
+extension DrawingStepsViewController: UIScrollViewDelegate {
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return stepImageView
     }
 }

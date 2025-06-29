@@ -375,7 +375,10 @@ class ListFinishedDrawingView: UIView {
         let drawing = finishedDrawings[index]
         
         // Update the imageView later
-        imageView.image = UIImage(named: "upl_1") // Placeholder image
+        let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(drawing.draw.finished_image!)
+        let photo = UIImage(contentsOfFile: fileURL.path)
+        imageView.image = photo
+//        imageView.image = UIImage(named: "upl_1") // Placeholder image
         similarityValue = Int(drawing.draw.similarity_score)
         
         //created_at cek lagi
@@ -465,7 +468,7 @@ class GalleryCell: UICollectionViewCell {
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
-
-#Preview {
-    ListFinishedDrawingView()
-}
+//
+//#Preview {
+//    ListFinishedDrawingView()
+//}
