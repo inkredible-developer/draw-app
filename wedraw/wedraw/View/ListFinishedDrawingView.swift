@@ -302,7 +302,7 @@ class ListFinishedDrawingView: UIView {
         
         // Load the new drawing data
         loadDrawing(at: selectedIndex)
-        galleryCollectionView.reloadData()
+        updateGallerySelection()
         
         // Animate the transition
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
@@ -336,8 +336,10 @@ class ListFinishedDrawingView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         if let layout = galleryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            // Calculate center inset to keep selected item centered
             let cellWidth: CGFloat = 40
-            let sideInset = max((galleryCollectionView.bounds.width - cellWidth) / 2, 0)
+            let selectedCellWidth = cellWidth * 1.2 // Account for selected cell being larger
+            let sideInset = max((galleryCollectionView.bounds.width - selectedCellWidth) / 2, 0)
             layout.sectionInset = UIEdgeInsets(top: 0, left: sideInset, bottom: 0, right: sideInset)
         }
     }
@@ -357,6 +359,7 @@ class ListFinishedDrawingView: UIView {
         if !drawings.isEmpty {
 //            print("updateFinishedDrawings: Loading initial drawing at index \(selectedIndex)")
             loadDrawing(at: selectedIndex)
+            updateGallerySelection()
         } else {
             print("updateFinishedDrawings: No drawings to load")
         }
@@ -388,24 +391,48 @@ class ListFinishedDrawingView: UIView {
         delegate?.listFinishedDrawingView(self, didSelectImageAt: index)
 //        print("loadDrawing: Drawing loaded successfully")
     }
+    
+    // MARK: - Gallery Centering Methods
+    
+    private func centerSelectedItem() {
+        guard selectedIndex >= 0 && selectedIndex < finishedDrawings.count else { return }
+        
+        let indexPath = IndexPath(item: selectedIndex, section: 0)
+        galleryCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+    }
+    
+    private func updateGallerySelection() {
+        galleryCollectionView.reloadData()
+        centerSelectedItem()
+    }
 }
 
 extension ListFinishedDrawingView: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return galleryImages.count
+        return finishedDrawings.count
     }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GalleryCell", for: indexPath) as! GalleryCell
         cell.imageView.image = galleryImages[indexPath.item]
-        cell.layer.borderWidth = (indexPath.item == selectedIndex) ? 2 : 0
-        cell.layer.borderColor = (indexPath.item == selectedIndex) ? UIColor.systemPurple.cgColor : UIColor.clear.cgColor
+        
+        // Update cell appearance based on selection
+        let isSelected = indexPath.item == selectedIndex
+        cell.layer.borderWidth = isSelected ? 3 : 0
+        cell.layer.borderColor = isSelected ? UIColor.systemPurple.cgColor : UIColor.clear.cgColor
+        
+        // Make selected cell larger
+        let scale: CGFloat = isSelected ? 1.2 : 1.0
+        cell.transform = CGAffineTransform(scaleX: scale, y: scale)
+        
         return cell
     }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedIndex = indexPath.item
         imageView.image = galleryImages[selectedIndex]
         delegate?.listFinishedDrawingView(self, didSelectImageAt: selectedIndex)
-        collectionView.reloadData()
+        updateGallerySelection()
     }
 }
 
