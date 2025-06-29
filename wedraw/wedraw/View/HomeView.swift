@@ -11,7 +11,7 @@ class HomeView: UIView {
     
     private var data: DrawData?
     private var finishedDraw: [DrawWithAngle] = []
-    private var unfinsihedDraw: [DrawWithAngle] = []
+    private var unfinishedDraw: [DrawWithAngle] = []
     
     
     weak var controller: HomeViewController?
@@ -53,6 +53,19 @@ class HomeView: UIView {
     
     var learnMoreButton: UIButton {
         return threeDObjectView.learnMoreButton
+    }
+    
+    func updateData(with drawData: DrawData) {
+        // Update the data
+        self.unfinishedDraw = drawData.unfinishedDraws
+        self.finishedDraw = drawData.finishedDraws
+        self.data = drawData
+        
+        // Refresh the segmentedCardView with new data
+        segmentedCardView.configure(with: drawData)
+        
+        // Force layout update
+        setNeedsLayout()
     }
     
 //

@@ -37,17 +37,54 @@ class FinishedDrawingView: UIView {
         }
     }
     
-    override init(frame: CGRect) {
+    private var resultImage: UIImage
+    private var createdDate: Date
+    private var uploadedTime: String
+    
+    init(frame: CGRect = .zero, resultImage: UIImage, similarityValue: Int, createdDate: Date = Date(), uploadedTime: String = "") {
+        self.resultImage = resultImage
+        self.createdDate = createdDate
+        
+        // Format current time if not provided
+        if uploadedTime.isEmpty {
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateFormat = "HH:mm"
+            self.uploadedTime = timeFormatter.string(from: Date())
+        } else {
+            self.uploadedTime = uploadedTime
+        }
+        
         super.init(frame: frame)
+        self.similarityValue = similarityValue
         setupView()
         setupConstraints()
+        configureWithValues()
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupView()
-        setupConstraints()
+        fatalError("init(coder:) has not been implemented")
     }
+    
+    private func configureWithValues() {
+            // Set image
+            imageView.image = resultImage
+            
+            // Set similarity value
+            similarityValueLabel.text = "\(similarityValue)%"
+            if similarityValue <= 30 {
+                similarityValueLabel.textColor = UIColor(named: "Inkredible-LightRed") ?? .systemRed
+            } else {
+                similarityValueLabel.textColor = UIColor(named: "Inkredible-Green") ?? .systemGreen
+            }
+            
+            // Format and set date
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "EEEE, dd MMMM yyyy"
+            createdOnValueLabel.text = dateFormatter.string(from: createdDate)
+            
+            // Set uploaded time
+            uploadedTimeValueLabel.text = uploadedTime
+        }
     
     private func setupView() {
         backgroundColor = .white
@@ -69,7 +106,6 @@ class FinishedDrawingView: UIView {
         similarityTitleLabel.textColor = .white
         similarityTitleLabel.textAlignment = .center
         
-        similarityValueLabel.text = "78%"
         similarityValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .largeTitle).pointSize, weight: .bold)
 
         similarityValueLabel.textColor = UIColor(named: "Inkredible-Green") ?? .systemGreen
@@ -82,11 +118,8 @@ class FinishedDrawingView: UIView {
         divider.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         divider2.backgroundColor = UIColor.white.withAlphaComponent(0.3)
 
-        
-        createdOnTitleLabel.text = "Created on"
         createdOnTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
         createdOnTitleLabel.textColor = .white
-        createdOnValueLabel.text = "Thursday, 22 May 2025"
         createdOnValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
         createdOnValueLabel.textColor = .black
         
@@ -94,7 +127,6 @@ class FinishedDrawingView: UIView {
         uploadedTimeTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
         uploadedTimeTitleLabel.textColor = .white
         
-        uploadedTimeValueLabel.text = "12.35"
         uploadedTimeValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
         uploadedTimeValueLabel.textColor = .black
         
@@ -175,6 +207,6 @@ class FinishedDrawingView: UIView {
 
 
 
-#Preview {
-    FinishedDrawingView()
-}
+//#Preview {
+//    FinishedDrawingView()
+//}

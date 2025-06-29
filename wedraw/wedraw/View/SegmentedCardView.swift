@@ -130,7 +130,7 @@ class SegmentedCardView: UIView {
     private func loadCards(forSegment index: Int) {
         cardStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        let items = index == 0 ? allDraws?.fineshedDraws : allDraws?.unfineshedDraws
+        let items = index == 0 ? allDraws?.finishedDraws : allDraws?.unfinishedDraws
         let segmentTitle = segmentedControl.titleForSegment(at: index) ?? "Draw"
         let capitalized = segmentTitle.prefix(1).capitalized + segmentTitle.dropFirst()
         emptyStateLabel.text = "Your \(capitalized) is Empty"

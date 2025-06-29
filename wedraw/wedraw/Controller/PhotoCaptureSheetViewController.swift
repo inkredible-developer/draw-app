@@ -16,6 +16,8 @@ class PhotoCaptureSheetViewController: UIViewController {
     
     var router: MainFlowRouter?
     var tracingImage: UIImage
+    var drawId: UUID
+    var isFinished: Bool
 
     // MARK: - UI Elements
 
@@ -76,8 +78,10 @@ class PhotoCaptureSheetViewController: UIViewController {
 
 
     
-    init(tracingImage: UIImage) {
+    init(tracingImage: UIImage, drawId: UUID, isFinished: Bool) {
     self.tracingImage = tracingImage
+    self.drawId = drawId
+        self.isFinished = isFinished
       super.init(nibName: nil, bundle: nil)
       modalPresentationStyle = .pageSheet
       if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
@@ -95,9 +99,24 @@ class PhotoCaptureSheetViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .clear
         setupLayout()
+        updateUITexts()
         closeButton.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
         skipButton.addTarget(self, action: #selector(didTapSkip), for: .touchUpInside)
         takePhotoButton.addTarget(self, action: #selector(didTapTakePhoto), for: .touchUpInside)
+    }
+    
+    private func updateUITexts() {
+        if isFinished {
+            titleLabel.text = "Snap a Photo of Your Final Drawing!"
+            descriptionLabel.text = "Your photo will be saved to showcase your completed masterpiece"
+            skipButton.setAttributedTitle(NSAttributedString(string: "Skip", attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .semibold)]), for: .normal)
+            takePhotoButton.setAttributedTitle(NSAttributedString(string: "Take Photo", attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .semibold)]), for: .normal)
+        } else {
+            titleLabel.text = "Save Your Drawing Progress?"
+            descriptionLabel.text = "It looks like you haven’t completed all the steps. Still want to save your progress for later?"
+            skipButton.setAttributedTitle(NSAttributedString(string: "Cancel", attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .semibold)]), for: .normal)
+            takePhotoButton.setAttributedTitle(NSAttributedString(string: "Save", attributes: [.font: UIFont.systemFont(ofSize: 17, weight: .semibold)]), for: .normal)
+        }
     }
 
     private func setupLayout() {
@@ -155,43 +174,70 @@ class PhotoCaptureSheetViewController: UIViewController {
     }
 
     @objc private func didTapSkip() {
-        // Navigate to home
-        dismiss(animated: true){
-            if let router = self.router {
-                router.navigateToRoot(animated: true)
-            } else {
-                // Manual navigation to home
-                let homeVC = HomeViewController()
-                let nav = UINavigationController(rootViewController: homeVC)
-                homeVC.router = MainFlowRouter(navigationController: nav)
-                
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first {
-                    window.rootViewController = nav
-                    window.makeKeyAndVisible()
+        if(isFinished){
+            dismiss(animated: true) { [weak self] in
+                guard let self = self else { return }
+                if let router = self.router {
+                    router.navigateToRoot(animated: true)
+                } else {
+                    // Manual navigation to home
+                    let homeVC = HomeViewController()
+                    let nav = UINavigationController(rootViewController: homeVC)
+                    homeVC.router = MainFlowRouter(navigationController: nav)
+                    
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let window = windowScene.windows.first {
+                        window.rootViewController = nav
+                        window.makeKeyAndVisible()
+                    }
                 }
             }
+        } else {
+            dismiss(animated: true)
         }
     }
 
     @objc private func didTapTakePhoto() {
-        dismiss(animated: true) { [weak self] in
-            guard let self = self else { return }
-            // buat dan simpan coordinator di SceneDelegate
-            if let sceneDelegate = UIApplication.shared
-                 .connectedScenes
-                 .compactMap({ $0 as? UIWindowScene })
-                 .first?.delegate as? SceneDelegate,
-               let root = sceneDelegate.window?.rootViewController?.topmostPresentedViewController
-            {
-              sceneDelegate.photoCaptureCoordinator = PhotoCaptureCoordinator(
-                presentingViewController: root,
-                router: self.router,
-                tracingImage: self.tracingImage
-              )
-              sceneDelegate.photoCaptureCoordinator?.startCamera()
+        if(isFinished){
+            dismiss(animated: true) { [weak self] in
+                guard let self = self else { return }
+                // buat dan simpan coordinator di SceneDelegate
+                if let sceneDelegate = UIApplication.shared
+                     .connectedScenes
+                     .compactMap({ $0 as? UIWindowScene })
+                     .first?.delegate as? SceneDelegate,
+                   let root = sceneDelegate.window?.rootViewController?.topmostPresentedViewController
+                {
+                  sceneDelegate.photoCaptureCoordinator = PhotoCaptureCoordinator(
+                    presentingViewController: root,
+                    router: self.router,
+                    tracingImage: self.tracingImage,
+                    drawId: self.drawId
+                  )
+                  sceneDelegate.photoCaptureCoordinator?.startCamera()
+                }
+              }
+        } else {
+            dismiss(animated: true) { [weak self] in
+                guard let self = self else { return }
+                if let router = self.router {
+                    
+                    router.navigateToRoot(animated: true)
+                } else {
+                    // Manual navigation to home
+                    let homeVC = HomeViewController()
+                    let nav = UINavigationController(rootViewController: homeVC)
+                    homeVC.router = MainFlowRouter(navigationController: nav)
+                    
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let window = windowScene.windows.first {
+                        window.rootViewController = nav
+                        window.makeKeyAndVisible()
+                    }
+                }
             }
-          }
+        }
+        
     }
 }
 
@@ -207,14 +253,18 @@ class PhotoCaptureCoordinator: NSObject,
   private weak var presentingViewController: UIViewController?
   private let router: MainFlowRouter?
   private let tracingImage: UIImage
+    private let drawId: UUID
 
   init(presentingViewController: UIViewController,
        router: MainFlowRouter?,
-       tracingImage: UIImage)
+       tracingImage: UIImage,
+       drawId: UUID
+  )
   {
     self.presentingViewController = presentingViewController
     self.router = router
     self.tracingImage = tracingImage
+      self.drawId = drawId
     super.init()
   }
 
@@ -255,7 +305,8 @@ class PhotoCaptureCoordinator: NSObject,
     router?.navigate(
       to: .contourDetectionViewController(
         tracingImage,
-        userPhoto
+        userPhoto,
+        drawId
           ),
       animated: true
     )

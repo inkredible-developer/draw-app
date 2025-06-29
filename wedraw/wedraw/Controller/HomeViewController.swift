@@ -7,11 +7,11 @@
 
 import UIKit
 
-
 struct DrawData {
-    let unfineshedDraws: [DrawWithAngle]
-    let fineshedDraws: [DrawWithAngle]
+    let unfinishedDraws: [DrawWithAngle]
+    let finishedDraws: [DrawWithAngle]
 }
+
 class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     var router: MainFlowRouter?
     let drawService = DrawService()
@@ -19,83 +19,63 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     var fineshedDraws: [DrawWithAngle] = []
     var allDraws: [Draw] = []
     
-    
     private var homeView: HomeView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Initialize view and load data first
+        loadDraw()
+        initializeHomeView()
+        // Setup content after view is initialized
+        setupContent()
+        homeView.learnMoreButton.addTarget(self, action: #selector(infoButtonTapped), for: UIControl.Event.touchUpInside)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Hide navigation bar when view appears
+        router?.navigationController?.setNavigationBarHidden(true, animated: animated)
+
+        // Always reload data when the view appears
         loadDraw()
         
-        let allDrawData = DrawData(unfineshedDraws: unfineshedDraws, fineshedDraws: fineshedDraws)
+        // Update UI with fresh data if homeView exists
+        if homeView != nil {
+            let allDrawData = DrawData(unfinishedDraws: unfineshedDraws, finishedDraws: fineshedDraws)
+            homeView.updateData(with: allDrawData)
+        }
+        
+        // Debug print to verify data is being refreshed
+        print("⚠️ HomeVC viewWillAppear - Loaded \(unfineshedDraws.count) unfinished, \(fineshedDraws.count) finished")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // When navigating away, allow the next screen to show its navigation bar if needed
+        router?.navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
+    private func initializeHomeView() {
+        let allDrawData = DrawData(unfinishedDraws: unfineshedDraws, finishedDraws: fineshedDraws)
         homeView = HomeView(frame: .zero, with: allDrawData)
         homeView.segmentedCardDelegate = self
         self.view = homeView
-        
-        setupContent()
-        homeView.learnMoreButton.addTarget(self, action: #selector(infoButtonTapped),for: UIControl.Event.touchUpInside)
+    }
+    
+    private func updateHomeView() {
+        let allDrawData = DrawData(unfinishedDraws: unfineshedDraws, finishedDraws: fineshedDraws)
+        homeView.updateData(with: allDrawData)
     }
     
     func loadDraw() {
         allDraws = drawService.getDraws()
         print("=== Loaded \(allDraws.count) total Draws ===")
-//        for draw in allDraws {
-//            let drawId = draw.draw_id
-//            let angleId = draw.angle_id
-//            let currentStep = draw.current_step
-//            let similarityScore = draw.similarity_score
-//            let finishedImage = draw.finished_image ?? "No Image"
-//            let isFinished = draw.is_finished
-//
-//            print("""
-//            🔹 Draw ID: \(drawId)
-//               - Angle ID: \(angleId)
-//               - Current Step: \(currentStep)
-//               - Similarity Score: \(similarityScore)
-//               - Is Finished: \(isFinished)
-//               - Finished Image: \(finishedImage)
-//            """)
-//        }
         
         unfineshedDraws = drawService.getUnfinishedDraws()
         print("=== Loaded \(unfineshedDraws.count) Unfinished Draws ===")
-//        for draw in unfineshedDraws {
-//            let drawId = draw.draw_id
-//            let angleId = draw.angle_id
-//            let currentStep = draw.current_step
-//            let similarityScore = draw.similarity_score
-//            let finishedImage = draw.finished_image ?? "No Image"
-//            let isFinished = draw.is_finished
-//
-//            print("""
-//            🔹 Draw ID: \(drawId)
-//               - Angle ID: \(angleId)
-//               - Current Step: \(currentStep)
-//               - Similarity Score: \(similarityScore)
-//               - Is Finished: \(isFinished)
-//               - Finished Image: \(finishedImage)
-//            """)
-//        }
-//        
         
         fineshedDraws = drawService.getFinishedDraws()
-//        print("=== Loaded \(fineshedDraws.count) FinishedDraws ===")
-//        for draw in fineshedDraws {
-//            let drawId = draw.draw_id
-//            let angleId = draw.angle_id
-//            let currentStep = draw.current_step
-//            let similarityScore = draw.similarity_score
-//            let finishedImage = draw.finished_image ?? "No Image"
-//            let isFinished = draw.is_finished
-//
-//            print("""
-//            🔹 Draw ID: \(drawId)
-//               - Angle ID: \(angleId)
-//               - Current Step: \(currentStep)
-//               - Similarity Score: \(similarityScore)
-//               - Is Finished: \(isFinished)
-//               - Finished Image: \(finishedImage)
-//            """)
-//        }
     }
     
     let test: UILabel = {
@@ -128,7 +108,6 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         let card = UIView()
         card.layer.cornerRadius = 20
 
-//        card.layer.borderColor = UIColor(red: 0.77, green: 0.72, blue: 0.99, alpha: 1).cgColor // light purple
         card.layer.borderColor = UIColor(named: "Inkredible-LightPurple")?.cgColor
         card.layer.borderWidth = 1.5
         card.backgroundColor = .white
@@ -138,11 +117,9 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     
         let label = UILabel()
         label.text = title
-//        label.font = .systemFont(ofSize: 13, weight: .medium)
         label.font = UIFont.preferredFont(forTextStyle: .caption2)
         label.textColor = .white
 
-//        label.backgroundColor = UIColor(red: 0.56, green: 0.52, blue: 0.88, alpha: 1) // deep purple
         label.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         label.textAlignment = .center
         label.layer.cornerRadius = 12
@@ -210,8 +187,6 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         let infoVC = LoomishDetailViewController()
         infoVC.modalPresentationStyle = .formSheet
         if let sheet = infoVC.sheetPresentationController {
-
-//            sheet.detents = [.large()]
             sheet.detents = [.medium()]
         }
         present(infoVC, animated: true, completion: nil)
@@ -276,5 +251,4 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
             navigationController?.setViewControllers([drawVC], animated: true)
         }
     }
-    
 }
