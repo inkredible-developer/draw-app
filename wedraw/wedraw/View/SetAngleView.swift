@@ -38,7 +38,7 @@ class SetAngleView: UIView {
     
     let cameraCoordinateLabel: UILabel = {
         let label = UILabel()
-        label.text = "Model: (x: 0, y: 0, z: 0)"
+//        label.text = "Model: (x: 0, y: 0, z: 0)"
         label.textColor = .darkGray
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textAlignment = .center

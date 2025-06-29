@@ -29,7 +29,7 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
         finishButton.tintColor = UIColor(named: "Inkredible-DarkPurple")
         navigationItem.rightBarButtonItem = finishButton
     }
-    
+
     @objc private func finishButtonTapped() {
         // Save progress logic can be added here
         saveProgress()
