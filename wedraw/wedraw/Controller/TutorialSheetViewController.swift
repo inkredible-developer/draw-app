@@ -359,21 +359,31 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                     }
                 }
             } else {
-                    let drawVC = DrawingStepsViewController(drawID: draw_id)
-                    navigationController?.setViewControllers([drawVC], animated: true)
-                    dismiss(animated: true) {
-                        print("get here")
-                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                             let window = windowScene.windows.first else {
-                           return
-                        }
-                        
-                        let navController = UINavigationController(rootViewController: drawVC)
-                        navController.interactivePopGestureRecognizer?.isEnabled = false
-
-                            window.rootViewController = navController
-                            window.makeKeyAndVisible()
-                    }
+                
+                dismiss(animated: true) {
+                    
+                    
+                    self.router?.navigate(
+                        to: .drawingStepsViewController(draw_id),
+                        animated: true
+                    )
+                }
+                
+//                    let drawVC = DrawingStepsViewController(drawID: draw_id)
+//                    navigationController?.setViewControllers([drawVC], animated: true)
+//                    dismiss(animated: true) {
+//                        print("get here")
+//                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                             let window = windowScene.windows.first else {
+//                           return
+//                        }
+//                        
+//                        let navController = UINavigationController(rootViewController: drawVC)
+//                        navController.interactivePopGestureRecognizer?.isEnabled = false
+//
+//                            window.rootViewController = navController
+//                            window.makeKeyAndVisible()
+//                    }
             }
         }
     }

@@ -45,6 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func setupMainInterface(in window: UIWindow) {
         InitialDataSeeder.seedPresetAngle()
         let mainVC = HomeViewController()
+//        let mainVC = CameraModePickerViewController()
 //        let mainVC = PhotoCaptureSheetViewController(tracingImage: UIImage(named: "tracingImage")!)
 
         

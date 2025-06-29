@@ -16,7 +16,7 @@ class ARTracingViewController: UIViewController {
     var router: MainFlowRouter?
     private var anchorImage: UIImage?
     private var tracingImage: UIImage
-    private var drawId: UUID
+    var drawId: UUID
     
     
     var drawService = DrawService()
@@ -443,9 +443,13 @@ class ARTracingViewController: UIViewController {
     
     private func createTracingNode() -> SCNNode {
         // Get current step image
-        var currentStepImage = tracingImage
+        let step = steps[currentIndex]
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(steps[currentIndex].imageName)
+        let fileURL = documentsURL.appendingPathComponent(step.imageName)
+        
+        // Default to tracingImage if file doesn't exist
+        var currentStepImage = tracingImage
+        
         if FileManager.default.fileExists(atPath: fileURL.path),
            let data = try? Data(contentsOf: fileURL),
            let image = UIImage(data: data) {
@@ -503,19 +507,28 @@ class ARTracingViewController: UIViewController {
     
     @objc private func finishButtonTapped() {
         if currentIndex == steps.count - 1 {
-            // This is the last step - go to CameraTesterViewController
-            let nextVC = CameraTesterViewController()
-            if let router = router {
-                router.navigationController?.pushViewController(nextVC, animated: true)
-            } else {
-                navigationController?.pushViewController(nextVC, animated: true)
-            }
-        } else {
-            // Save functionality - shows photo capture sheet
             router?.presentDirectly(
-                .photoCaptureSheetViewController( self.tracingImage ?? UIImage(named: "traceng")!),
+                .photoCaptureSheetViewController( UIImage(named: self.steps[steps.count - 1].imageName) ?? self.tracingImage, self.drawId, true),
                   animated: true
                 )
+            // This is the last step - go to CameraTesterViewController
+//            let nextVC = CameraTesterViewController()
+//            if let router = router {
+//                router.navigationController?.pushViewController(nextVC, animated: true)
+//            } else {
+//                navigationController?.pushViewController(nextVC, animated: true)
+//            }
+        } else {
+            router?.presentDirectly(
+                .photoCaptureSheetViewController( self.tracingImage, self.drawId, false),
+                  animated: true
+                )
+            // Save functionality - shows photo capture sheet
+//            router?.presentDirectly(
+//                .photoCaptureSheetViewController( self.tracingImage),
+//                  animated: true
+//                )
+
         }
     }
     
@@ -538,31 +551,31 @@ class ARTracingViewController: UIViewController {
 //        }
 //    }
 
-    private func prepareImages() {
-        guard let anchorImage = anchorImage else {
-            print("Error: Missing anchor image")
-            return
-        }
-
-        let anchorAspect = anchorImage.size.width / anchorImage.size.height
-        let tracingAspect = tracingImage.size.width / tracingImage.size.height
-
-        if abs(anchorAspect - tracingAspect) > 0.05 {
-            let size = CGSize(
-                width: tracingImage.size.height * anchorAspect,
-                height: tracingImage.size.height
-            )
-
-            UIGraphicsBeginImageContextWithOptions(size, false, tracingImage.scale)
-            tracingImage.draw(in: CGRect(origin: .zero, size: size))
-            if let resizedImage = UIGraphicsGetImageFromCurrentImageContext() {
-                self.tracingImage = resizedImage
-            }
-            UIGraphicsEndImageContext()
-
-            print("Images normalized: Anchor aspect \(anchorAspect), Tracing aspect now \(anchorAspect)")
-        }
-    }
+//    private func prepareImages() {
+//        guard let anchorImage = anchorImage else {
+//            print("Error: Missing anchor image")
+//            return
+//        }
+//
+//        let anchorAspect = anchorImage.size.width / anchorImage.size.height
+//        let tracingAspect = tracingImage.size.width / tracingImage.size.height
+//
+//        if abs(anchorAspect - tracingAspect) > 0.05 {
+//            let size = CGSize(
+//                width: tracingImage.size.height * anchorAspect,
+//                height: tracingImage.size.height
+//            )
+//
+//            UIGraphicsBeginImageContextWithOptions(size, false, tracingImage.scale)
+//            tracingImage.draw(in: CGRect(origin: .zero, size: size))
+//            if let resizedImage = UIGraphicsGetImageFromCurrentImageContext() {
+//                self.tracingImage = resizedImage
+//            }
+//            UIGraphicsEndImageContext()
+//
+//            print("Images normalized: Anchor aspect \(anchorAspect), Tracing aspect now \(anchorAspect)")
+//        }
+//    }
 
     private func placeTracingNodeInWorldSpace() {
         guard tracingNode == nil, worldAnchorNode == nil else { return }
@@ -917,16 +930,24 @@ class ARTracingViewController: UIViewController {
 
 
     private func updateTracingImageForCurrentStep() {
-        // Update the tracing image based on the current step
+        // Get the current step
+        let step = steps[currentIndex]
         
+        // Get path to image in documents directory
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(steps[currentIndex].imageName)
+        let fileURL = documentsURL.appendingPathComponent(step.imageName)
+        
+        // Check if file exists and load it
         if FileManager.default.fileExists(atPath: fileURL.path),
-            let data = try? Data(contentsOf: fileURL),
-            let newImage = UIImage(data: data) {
+           let data = try? Data(contentsOf: fileURL),
+           let image = UIImage(data: data) {
+            
+            // Replace the tracing image in the existing node
             if let tracingNode = self.tracingNode, let plane = tracingNode.geometry as? SCNPlane {
-                plane.firstMaterial?.diffuse.contents = newImage
+                plane.firstMaterial?.diffuse.contents = image
             }
+        } else {
+            print("Image not found at path: \(fileURL.path)")
         }
         
 //        if let newImage = UIImage(named: steps[currentIndex].imageName) {

@@ -35,16 +35,16 @@ class CameraTesterViewController: UIViewController, CameraTesterViewDelegate {
         ])
         
         // After delay, present FinishedDrawingViewController as full-screen modal
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.loadingView?.removeFromSuperview()
-            let finishedVC = FinishedDrawingViewController()
-            finishedVC.router = self.router
-            finishedVC.drawID = self.drawID
-            
-            // Wrap in navigation controller to get navigation bar
-            let navController = UINavigationController(rootViewController: finishedVC)
-            navController.modalPresentationStyle = .fullScreen
-            self.present(navController, animated: true)
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+//            self.loadingView?.removeFromSuperview()
+//            let finishedVC = FinishedDrawingViewController()
+//            finishedVC.router = self.router
+//            finishedVC.drawID = self.drawID
+//            
+//            // Wrap in navigation controller to get navigation bar
+//            let navController = UINavigationController(rootViewController: finishedVC)
+//            navController.modalPresentationStyle = .fullScreen
+//            self.present(navController, animated: true)
+//        }
     }
 } 
