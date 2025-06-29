@@ -12,6 +12,7 @@ import CoreData
 struct DrawWithAngle {
     let draw: Draw
     let angle: Angle
+    let lastStep: Step
 }
 
 class DrawRepository {
@@ -26,20 +27,24 @@ class DrawRepository {
     func fetchDraws(isFinished: Bool) -> [DrawWithAngle] {
         let request: NSFetchRequest<Draw> = Draw.fetchRequest()
         let angleRequest: NSFetchRequest<Angle> = Angle.fetchRequest()
+        let stepRequest: NSFetchRequest<Step> = Step.fetchRequest()
         
         request.predicate = NSPredicate(format: "is_finished == %@", NSNumber(value: isFinished))
+        stepRequest.predicate = NSPredicate(format: "step_number == %@", NSNumber(value: 10))
         guard
-               let draws = try? context.fetch(request),
-               let angles = try? context.fetch(angleRequest)
-           else {
-               return []
-           }
+           let draws = try? context.fetch(request),
+           let angles = try? context.fetch(angleRequest),
+           let steps = try? context.fetch(stepRequest)
+       else {
+           return []
+       }
         
         let angleDict = Dictionary(uniqueKeysWithValues: angles.map { ($0.angle_id, $0) })
+        let stepDict = Dictionary(uniqueKeysWithValues: steps.map { ($0.angle_id, $0) })
         var mergedResults: [DrawWithAngle] = []
         for draw in draws {
-            if let matchingAngle = angleDict[draw.angle_id] {
-                mergedResults.append(DrawWithAngle(draw: draw, angle: matchingAngle))
+            if let matchingAngle = angleDict[draw.angle_id], let matchingStep = stepDict[draw.angle_id] {
+                mergedResults.append(DrawWithAngle(draw: draw, angle: matchingAngle, lastStep: matchingStep))
             }
         }
 

@@ -38,64 +38,12 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     func loadDraw() {
         allDraws = drawService.getDraws()
         print("=== Loaded \(allDraws.count) total Draws ===")
-//        for draw in allDraws {
-//            let drawId = draw.draw_id
-//            let angleId = draw.angle_id
-//            let currentStep = draw.current_step
-//            let similarityScore = draw.similarity_score
-//            let finishedImage = draw.finished_image ?? "No Image"
-//            let isFinished = draw.is_finished
-//
-//            print("""
-//            🔹 Draw ID: \(drawId)
-//               - Angle ID: \(angleId)
-//               - Current Step: \(currentStep)
-//               - Similarity Score: \(similarityScore)
-//               - Is Finished: \(isFinished)
-//               - Finished Image: \(finishedImage)
-//            """)
-//        }
-        
+
         unfineshedDraws = drawService.getUnfinishedDraws()
         print("=== Loaded \(unfineshedDraws.count) Unfinished Draws ===")
-//        for draw in unfineshedDraws {
-//            let drawId = draw.draw_id
-//            let angleId = draw.angle_id
-//            let currentStep = draw.current_step
-//            let similarityScore = draw.similarity_score
-//            let finishedImage = draw.finished_image ?? "No Image"
-//            let isFinished = draw.is_finished
-//
-//            print("""
-//            🔹 Draw ID: \(drawId)
-//               - Angle ID: \(angleId)
-//               - Current Step: \(currentStep)
-//               - Similarity Score: \(similarityScore)
-//               - Is Finished: \(isFinished)
-//               - Finished Image: \(finishedImage)
-//            """)
-//        }
-//        
         
         fineshedDraws = drawService.getFinishedDraws()
-//        print("=== Loaded \(fineshedDraws.count) FinishedDraws ===")
-//        for draw in fineshedDraws {
-//            let drawId = draw.draw_id
-//            let angleId = draw.angle_id
-//            let currentStep = draw.current_step
-//            let similarityScore = draw.similarity_score
-//            let finishedImage = draw.finished_image ?? "No Image"
-//            let isFinished = draw.is_finished
-//
-//            print("""
-//            🔹 Draw ID: \(drawId)
-//               - Angle ID: \(angleId)
-//               - Current Step: \(currentStep)
-//               - Similarity Score: \(similarityScore)
-//               - Is Finished: \(isFinished)
-//               - Finished Image: \(finishedImage)
-//            """)
-//        }
+        print("=== Loaded \(fineshedDraws.count) Unfinished Draws ===")
     }
     
     let test: UILabel = {
