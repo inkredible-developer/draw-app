@@ -215,9 +215,13 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
             }
         } else {
             // Handle unfinished draws with existing logic
-            var drawVC = UIViewController()
+//            var drawVC = UIViewController()
             if draw.draw_mode == "reference" {
-                drawVC = DrawingStepsViewController(drawID: draw.draw_id)
+//                drawVC = DrawingStepsViewController(drawID: draw.draw_id)
+                self.router?.navigate(
+                    to: .drawingStepsViewController(draw.draw_id),
+                    animated: true
+                )
             } else {
                 // Create the coordinator BEFORE dismissing the sheet
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -249,7 +253,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
                     }
                 }
             }
-            navigationController?.setViewControllers([drawVC], animated: true)
+//            navigationController?.setViewControllers([drawVC], animated: true)
         }
     }
 }
