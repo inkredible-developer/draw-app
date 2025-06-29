@@ -455,6 +455,7 @@ class ARTracingViewController: UIViewController {
            let image = UIImage(data: data) {
             currentStepImage = image
         }
+//        let currentStepImage = UIImage(named: steps[currentIndex].imageName) ?? tracingImage
 
         let width: CGFloat = 0.25
         let aspectRatio = currentStepImage.size.height / currentStepImage.size.width
@@ -948,6 +949,15 @@ class ARTracingViewController: UIViewController {
         } else {
             print("Image not found at path: \(fileURL.path)")
         }
+        
+//        if let newImage = UIImage(named: steps[currentIndex].imageName) {
+//            // Replace the tracing image in the existing node
+//            if let tracingNode = self.tracingNode, let plane = tracingNode.geometry as? SCNPlane {
+//                plane.firstMaterial?.diffuse.contents = newImage
+//            }
+//        }
+        
+        
     }
     
     @objc private func toggleTooltip() {

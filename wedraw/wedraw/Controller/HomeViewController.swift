@@ -76,6 +76,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         print("=== Loaded \(unfineshedDraws.count) Unfinished Draws ===")
         
         fineshedDraws = drawService.getFinishedDraws()
+        print("=== Loaded \(fineshedDraws.count) Unfinished Draws ===")
     }
     
     let test: UILabel = {

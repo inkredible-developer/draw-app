@@ -74,6 +74,7 @@ class ListFinishedDrawingViewController: UIViewController {
         print("✅ Loaded \(finishedDraws.count) finished drawings from Core Data")
         
         updateGalleryWithFinishedDraws()
+        listFinishedDrawingView.updateFinishedDrawings(finishedDraws)
     }
     
     private func updateGalleryWithFinishedDraws() {
