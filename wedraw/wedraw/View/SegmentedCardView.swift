@@ -151,10 +151,9 @@ class SegmentedCardView: UIView {
             let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let fileURL = documentsURL.appendingPathComponent(draw.lastStep.image!)
             if FileManager.default.fileExists(atPath: fileURL.path),
-               let data = try? Data(contentsOf: fileURL),
-               let image = UIImage(data: data) {
-                
-                sketch = image
+                let data = try? Data(contentsOf: fileURL),
+                let image = UIImage(data: data) {
+                sketch = zoomImage(image, scale: 0.22)
             }
                 
             
@@ -172,6 +171,20 @@ class SegmentedCardView: UIView {
             cardStackView.addArrangedSubview(card)
         }
     }
+    func zoomImage(_ image: UIImage, scale: CGFloat) -> UIImage? {
+        let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+
+        // Use screen scale to avoid blurriness
+        let screenScale = UIScreen.main.scale
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, screenScale)
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+        let zoomedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return zoomedImage
+    }
+
     @objc private func drawCardTapped(_ sender: UITapGestureRecognizer) {
         guard let tag = sender.view?.tag,
         let draw = drawMap[tag] else { return }
@@ -205,7 +218,7 @@ class SegmentedCardView: UIView {
         // Sketch Image as Background
         let sketchImageView = UIImageView(image: sketch)
         sketchImageView.translatesAutoresizingMaskIntoConstraints = false
-        sketchImageView.contentMode = .scaleAspectFill
+        sketchImageView.contentMode = .center
         sketchImageView.clipsToBounds = true
         sketchImageView.layer.borderColor = UIColor.lightGray.cgColor
         sketchImageView.layer.borderWidth = 2.0
