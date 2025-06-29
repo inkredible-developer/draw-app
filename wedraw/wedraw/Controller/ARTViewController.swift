@@ -443,7 +443,15 @@ class ARTracingViewController: UIViewController {
     
     private func createTracingNode() -> SCNNode {
         // Get current step image
-        let currentStepImage = UIImage(named: steps[currentIndex].imageName) ?? tracingImage
+        var currentStepImage = tracingImage
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(steps[currentIndex].imageName)
+        if FileManager.default.fileExists(atPath: fileURL.path),
+           let data = try? Data(contentsOf: fileURL),
+           let image = UIImage(data: data) {
+            currentStepImage = image
+        }
+//        let currentStepImage = UIImage(named: steps[currentIndex].imageName) ?? tracingImage
 
         let width: CGFloat = 0.25
         let aspectRatio = currentStepImage.size.height / currentStepImage.size.width
@@ -910,12 +918,25 @@ class ARTracingViewController: UIViewController {
 
     private func updateTracingImageForCurrentStep() {
         // Update the tracing image based on the current step
-        if let newImage = UIImage(named: steps[currentIndex].imageName) {
-            // Replace the tracing image in the existing node
+        
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(steps[currentIndex].imageName)
+        if FileManager.default.fileExists(atPath: fileURL.path),
+            let data = try? Data(contentsOf: fileURL),
+            let newImage = UIImage(data: data) {
             if let tracingNode = self.tracingNode, let plane = tracingNode.geometry as? SCNPlane {
                 plane.firstMaterial?.diffuse.contents = newImage
             }
         }
+        
+//        if let newImage = UIImage(named: steps[currentIndex].imageName) {
+//            // Replace the tracing image in the existing node
+//            if let tracingNode = self.tracingNode, let plane = tracingNode.geometry as? SCNPlane {
+//                plane.firstMaterial?.diffuse.contents = newImage
+//            }
+//        }
+        
+        
     }
     
     @objc private func toggleTooltip() {
