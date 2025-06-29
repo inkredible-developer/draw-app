@@ -26,12 +26,18 @@ class ListFinishedDrawingView: UIView {
     
     var galleryImages: [UIImage] = Array(repeating: UIImage(named: "upl_1")!, count: 10)
     var selectedIndex: Int = 0
+    var finishedDrawings: [DrawWithAngle] = []
+    
+    // Gesture properties
+    private var panGesture: UIPanGestureRecognizer!
+    private var initialTouchPoint: CGPoint = .zero
+    private var hasTriggeredGesture = false
     
     lazy var galleryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 8
-        layout.itemSize = CGSize(width: 40, height: 54)
+        layout.itemSize = CGSize(width: 40, height: 53)
         layout.sectionInset = .zero
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsHorizontalScrollIndicator = false
@@ -73,14 +79,16 @@ class ListFinishedDrawingView: UIView {
     
     private func setupView() {
         backgroundColor = .white
-        imageView.contentMode = .scaleAspectFill
+        
+        // Configure imageView
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         imageView.image = UIImage(named: "upl_1")
         addSubview(imageView)
         
         addSubview(galleryCollectionView)
         
-        bottomContainerView.backgroundColor = UIColor(named: "Inkredible-DarkPurple") ?? .systemPurple
+        bottomContainerView.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         bottomContainerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         bottomContainerView.layer.masksToBounds = true
         bottomContainerView.layer.cornerRadius = 12
@@ -103,7 +111,7 @@ class ListFinishedDrawingView: UIView {
         similarityValueLabel.text = "78%"
         similarityValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .semibold)
 
-        similarityValueLabel.textColor = UIColor(named: "Inkredible-Green") ?? .systemGreen
+        similarityValueLabel.textColor = UIColor(named: "Inkredible-Green")
         
         
         divider.backgroundColor = UIColor.white.withAlphaComponent(0.3)
@@ -127,6 +135,8 @@ class ListFinishedDrawingView: UIView {
         bottomContainerView.addSubview(similarityBackgroundView)
         
         [detailContainerLabel, similarityTitleLabel, similarityBackgroundView, similarityValueLabel, divider, createdOnTitleLabel, createdOnValueLabel, uploadedTimeTitleLabel, uploadedTimeValueLabel].forEach { bottomContainerView.addSubview($0) }
+        
+        setupPanGesture()
     }
     
     private func setupConstraints() {
@@ -148,7 +158,14 @@ class ListFinishedDrawingView: UIView {
             galleryCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             galleryCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             galleryCollectionView.heightAnchor.constraint(equalToConstant: 54),
+            
+            // ImageView constraints
             imageView.topAnchor.constraint(equalTo: galleryCollectionView.bottomAnchor, constant: 8),
+            imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor),
+            imageView.heightAnchor.constraint(equalToConstant: 510),
+
             
             // Bottom container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -186,6 +203,136 @@ class ListFinishedDrawingView: UIView {
         ])
     }
     
+    private func setupPanGesture() {
+        panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        panGesture.delegate = self
+        panGesture.maximumNumberOfTouches = 1
+        panGesture.minimumNumberOfTouches = 1
+        imageView.addGestureRecognizer(panGesture)
+        imageView.isUserInteractionEnabled = true
+//        print("Pan gesture setup complete")
+    }
+    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: imageView)
+        
+        switch gesture.state {
+        case .began:
+            initialTouchPoint = gesture.location(in: imageView)
+            hasTriggeredGesture = false
+//            print("Pan gesture began at: \(initialTouchPoint)")
+            
+        case .changed:
+            // Only trigger once per gesture
+            if !hasTriggeredGesture {
+                // Check if horizontal movement is significant
+                if abs(translation.x) > abs(translation.y) && abs(translation.x) > 100 {
+                    hasTriggeredGesture = true
+//                    print("Horizontal swipe detected: \(translation.x)")
+                    
+                    if translation.x > 0 {
+                        // Swipe right - go to previous drawing
+                        if selectedIndex > 0 {
+                            selectedIndex -= 1
+//                            print("Going to previous drawing: \(selectedIndex)")
+                            performSlideTransition(direction: .right)
+                        } else {
+//                            print("Already at first drawing")
+                            // Add bounce animation
+                            performBounceAnimation()
+                        }
+                    } else {
+                        // Swipe left - go to next drawing
+                        if selectedIndex < finishedDrawings.count - 1 {
+                            selectedIndex += 1
+//                            print("Going to next drawing: \(selectedIndex)")
+                            performSlideTransition(direction: .left)
+                        } else {
+//                            print("Already at last drawing")
+                            // Add bounce animation
+                            performBounceAnimation()
+                        }
+                    }
+                }
+            }
+            
+        case .ended, .cancelled:
+            hasTriggeredGesture = false
+//            print("Pan gesture ended")
+            
+        default:
+            break
+        }
+    }
+    
+    private enum SlideDirection {
+        case left, right
+    }
+    
+    private func performSlideTransition(direction: SlideDirection) {
+        // Store current image
+        let currentImage = imageView.image
+        
+        // Create a temporary image view for the transition
+        let tempImageView = UIImageView()
+        tempImageView.contentMode = imageView.contentMode
+        tempImageView.clipsToBounds = imageView.clipsToBounds
+        tempImageView.image = currentImage
+        tempImageView.frame = imageView.frame
+        addSubview(tempImageView)
+        
+        // Set up the new image view position
+        let screenWidth = bounds.width
+        let startX: CGFloat
+        let endX: CGFloat
+        
+        switch direction {
+        case .left:
+            // New image slides in from right
+            startX = screenWidth
+            endX = -screenWidth
+        case .right:
+            // New image slides in from left
+            startX = -screenWidth
+            endX = screenWidth
+        }
+        
+        // Position the new image view off-screen
+        imageView.frame.origin.x = startX
+        
+        // Load the new drawing data
+        loadDrawing(at: selectedIndex)
+        galleryCollectionView.reloadData()
+        
+        // Animate the transition
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+            // Slide current image out
+            tempImageView.frame.origin.x = endX
+            // Slide new image in
+            self.imageView.frame.origin.x = 0
+        }) { _ in
+            // Clean up
+            tempImageView.removeFromSuperview()
+            // Reset imageView frame to use constraints
+            self.imageView.frame = self.imageView.frame
+        }
+    }
+    
+    private func performBounceAnimation() {
+        // Create a subtle bounce animation
+        UIView.animate(withDuration: 0.1, animations: {
+            self.imageView.transform = CGAffineTransform(translationX: 10, y: 0)
+        }) { _ in
+            UIView.animate(withDuration: 0.1, animations: {
+                self.imageView.transform = CGAffineTransform(translationX: -10, y: 0)
+            }) { _ in
+                UIView.animate(withDuration: 0.1, animations: {
+                    self.imageView.transform = .identity
+                })
+            }
+        }
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         if let layout = galleryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
@@ -202,6 +349,44 @@ class ListFinishedDrawingView: UIView {
         if !images.isEmpty && selectedIndex < images.count {
             imageView.image = images[selectedIndex]
         }
+    }
+    
+    func updateFinishedDrawings(_ drawings: [DrawWithAngle]) {
+//        print("updateFinishedDrawings: Received \(drawings.count) drawings")
+        finishedDrawings = drawings
+        if !drawings.isEmpty {
+//            print("updateFinishedDrawings: Loading initial drawing at index \(selectedIndex)")
+            loadDrawing(at: selectedIndex)
+        } else {
+            print("updateFinishedDrawings: No drawings to load")
+        }
+    }
+    
+    private func loadDrawing(at index: Int) {
+        guard index >= 0 && index < finishedDrawings.count else { 
+            print("loadDrawing: Invalid index \(index), count: \(finishedDrawings.count)")
+            return 
+        }
+        
+//        print("loadDrawing: Loading drawing at index \(index)")
+        let drawing = finishedDrawings[index]
+        
+        // Update the imageView later
+        imageView.image = UIImage(named: "upl_1") // Placeholder image
+        similarityValue = Int(drawing.draw.similarity_score)
+        
+        //created_at cek lagi
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        createdOnValueLabel.text = formatter.string(from: Date())
+        
+        // Update uploaded time
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeStyle = .short
+        uploadedTimeValueLabel.text = timeFormatter.string(from: Date())
+        
+        delegate?.listFinishedDrawingView(self, didSelectImageAt: index)
+//        print("loadDrawing: Drawing loaded successfully")
     }
 }
 
@@ -224,6 +409,16 @@ extension ListFinishedDrawingView: UICollectionViewDataSource, UICollectionViewD
     }
 }
 
+extension ListFinishedDrawingView: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        return touch.view == imageView
+    }
+}
+
 class GalleryCell: UICollectionViewCell {
     let imageView = UIImageView()
     override init(frame: CGRect) {
@@ -231,7 +426,8 @@ class GalleryCell: UICollectionViewCell {
         contentView.addSubview(imageView)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 8
+        imageView.layer.cornerRadius = 5
+        contentView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
