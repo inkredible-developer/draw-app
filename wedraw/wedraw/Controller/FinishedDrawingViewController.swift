@@ -68,7 +68,7 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
         navigationItem.hidesBackButton = true
 
     }
-    
+
     @objc private func finishButtonTapped() {
         // Save progress logic can be added here
         saveProgress()

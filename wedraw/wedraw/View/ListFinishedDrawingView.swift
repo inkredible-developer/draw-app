@@ -166,7 +166,7 @@ class ListFinishedDrawingView: UIView {
             imageView.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor),
             imageView.heightAnchor.constraint(equalToConstant: 510),
 
-            
+
             // Bottom container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),

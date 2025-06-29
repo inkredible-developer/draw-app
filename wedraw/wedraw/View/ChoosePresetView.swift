@@ -11,8 +11,17 @@ class ChoosePresetPickerView: UIView {
     private var presetViews: [UIImageView] = []
     private let presetCount = 5
     private var currentIndex: Int?
+    private var selectedPresetIndex: Int = 0 // Track the selected preset (default to front view)
     private var isCircularMode = false
     private var hasUserInteracted = false
+    
+//    private var backgroundView: UIView = {
+//        let view = UIView()
+//        view.backgroundColor = UIColor.black.withAlphaComponent(0.05) // 20% opacity
+//        view.layer.cornerRadius = 25
+//        view.isHidden = true
+//        return view
+//    }()
 
     private var player: AVAudioPlayer?
     private let hapticFeedback = UIImpactFeedbackGenerator(style: .light)
@@ -34,16 +43,28 @@ class ChoosePresetPickerView: UIView {
     }
 
     private func setupPresets() {
+        // Add background view first (so it's behind the icons)
+//        addSubview(backgroundView)
+//        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        
         let presetIcons = ["preset_front", "preset_side_right", "preset_quarter", "preset_side_left", "preset_top"]
         for i in 0..<presetCount {
             let presetView = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
             presetView.layer.cornerRadius = 25
-            presetView.backgroundColor = .darkGray
+            presetView.backgroundColor = UIColor(named: "Inkredible-onBoarding-Back")
             presetView.contentMode = .scaleAspectFit
             presetView.image = UIImage(named: presetIcons[i])
             presetView.layer.borderWidth = 2
             presetView.layer.borderColor = UIColor.clear.cgColor
             presetView.isUserInteractionEnabled = false
+            
+            // Set initial opacity - front view (index 0) is default selected
+            if i == 0 {
+                presetView.alpha = 1.0 // High opacity for default selected
+            } else {
+                presetView.alpha = 0.4 // Lower opacity for others
+            }
+            
             addSubview(presetView)
             presetViews.append(presetView)
         }
@@ -52,11 +73,15 @@ class ChoosePresetPickerView: UIView {
     
     private func layoutPresetsHorizontally() {
         let spacing: CGFloat = 70
-        let totalWidth = CGFloat(presetCount - 1) * spacing
-        let startX = bounds.midX - totalWidth / 2
+        let centerX = bounds.midX
         let y = bounds.midY
+        
+        // Hide background in horizontal mode
+//        backgroundView.isHidden = true
+        
         for (index, preset) in presetViews.enumerated() {
-            let x = startX + CGFloat(index) * spacing
+            // Start from center (index 0) and extend to the right
+            let x = centerX + CGFloat(index) * spacing
             UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
                 preset.center = CGPoint(x: x, y: y)
                 preset.frame.size = CGSize(width: 35, height: 35)
@@ -66,12 +91,80 @@ class ChoosePresetPickerView: UIView {
     }
     
     private func layoutPresetsCircular() {
-        let radius: CGFloat = 120
+        guard let superview = superview else { return }
+        // Find the top anchor of the bottom container in superview coordinates
+        let bottomContainerTopY = frame.maxY // Default fallback
+        if let setAngleView = superview as? UIView, let bottomContainer = setAngleView.subviews.first(where: { $0.accessibilityIdentifier == "bottomContainerView" }) {
+            // If bottomContainerView is accessible, use its frame
+            let converted = bottomContainer.convert(bottomContainer.bounds, to: self)
+            // Use the y of the top edge
+            let y = converted.minY
+            // Calculate radius so the arc's bottom is at y
+            let center = CGPoint(x: bounds.midX, y: y)
+            let radius = y
+            // Show half circle background
+//            backgroundView.isHidden = false
+//            backgroundView.layer.cornerRadius = radius
+            // Position background as large half circle
+            let backgroundSize: CGFloat = radius * 2
+//            backgroundView.frame = CGRect(
+//                x: center.x - radius,
+//                y: y - backgroundSize,
+//                width: backgroundSize,
+//                height: backgroundSize
+//            )
+            // Create large soft half circle mask
+            let maskLayer = CAShapeLayer()
+            let path = UIBezierPath()
+            path.addArc(withCenter: CGPoint(x: radius, y: backgroundSize),
+                       radius: radius,
+                       startAngle: CGFloat.pi,
+                       endAngle: 0,
+                       clockwise: true)
+            path.addLine(to: CGPoint(x: radius, y: backgroundSize))
+            path.close()
+            maskLayer.path = path.cgPath
+//            backgroundView.layer.mask = maskLayer
+            // Place icons along the arc
+            for (index, preset) in presetViews.enumerated() {
+                let angle = CGFloat.pi + (CGFloat(index) / CGFloat(presetCount - 1) * CGFloat.pi)
+                let x = center.x + cos(angle) * radius * 0.8 // Slightly inside the arc
+                let yIcon = y + sin(angle) * radius * 0.8 - radius
+                UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+                    preset.center = CGPoint(x: x, y: yIcon)
+                    preset.frame.size = CGSize(width: 50, height: 50)
+                    preset.layer.cornerRadius = 25
+                }, completion: nil)
+            }
+            return
+        }
+        // Fallback: use previous centered arc
+        let radius: CGFloat = 180
         let center = CGPoint(x: bounds.midX, y: bounds.midY)
+//        backgroundView.isHidden = false
+//        backgroundView.layer.cornerRadius = radius
+        let backgroundSize: CGFloat = radius * 2
+//        backgroundView.frame = CGRect(
+//            x: center.x - radius,
+//            y: center.y - radius,
+//            width: backgroundSize,
+//            height: backgroundSize
+//        )
+        let maskLayer = CAShapeLayer()
+        let path = UIBezierPath()
+        path.addArc(withCenter: CGPoint(x: radius, y: radius),
+                   radius: radius,
+                   startAngle: CGFloat.pi,
+                   endAngle: 0,
+                   clockwise: true)
+        path.addLine(to: CGPoint(x: radius, y: radius))
+        path.close()
+        maskLayer.path = path.cgPath
+//        backgroundView.layer.mask = maskLayer
         for (index, preset) in presetViews.enumerated() {
             let angle = CGFloat.pi + (CGFloat(index) / CGFloat(presetCount - 1) * CGFloat.pi)
-            let x = center.x + cos(angle) * radius
-            let y = center.y + sin(angle) * radius
+            let x = center.x + cos(angle) * radius * 0.8
+            let y = center.y + sin(angle) * radius * 0.8
             UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
                 preset.center = CGPoint(x: x, y: y)
                 preset.frame.size = CGSize(width: 50, height: 50)
@@ -133,13 +226,16 @@ class ChoosePresetPickerView: UIView {
     }
 
     private func activatePreset(at index: Int) {
+        selectedPresetIndex = index // Track the selected preset
         for (i, preset) in presetViews.enumerated() {
             if i == index {
                 preset.backgroundColor = .black
                 preset.layer.borderColor = UIColor.white.cgColor
+                preset.alpha = 1.0 // High opacity for selected
             } else {
                 preset.backgroundColor = .darkGray
                 preset.layer.borderColor = UIColor.clear.cgColor
+                preset.alpha = 0.4 // Lower opacity for unselected
             }
         }
         hapticFeedback.impactOccurred()
@@ -160,10 +256,15 @@ class ChoosePresetPickerView: UIView {
         hasUserInteracted = false
         isCircularMode = false
         currentIndex = nil
+        
+        // Remove mask from background view
+//        backgroundView.layer.mask = nil
+        
         layoutPresetsHorizontally()
-        for preset in presetViews {
+        for (index, preset) in presetViews.enumerated() {
             preset.backgroundColor = .darkGray
             preset.layer.borderColor = UIColor.clear.cgColor
+            preset.alpha = (index == selectedPresetIndex) ? 1.0 : 0.4
         }
     }
 

@@ -42,7 +42,7 @@ class ListFinishedDrawingViewController: UIViewController {
     @objc private func backButtonTapped() {
         navigationController?.popViewController(animated: true)
     }
-    
+
     @objc private func doneButtonTapped() {
         saveWork()
         navigateToHome()
