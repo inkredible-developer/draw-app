@@ -372,10 +372,15 @@ class DrawingStepsViewController: UIViewController {
             }
         } else {
             // Save functionality
-            router?.presentDirectly(
-                .photoCaptureSheetViewController( self.tracingImage ?? UIImage(named: "traceng")!),
-                  animated: true
-                )
+            let homeVC = HomeViewController()
+            let nav = UINavigationController(rootViewController: homeVC)
+            homeVC.router = MainFlowRouter(navigationController: nav)
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.rootViewController = nav
+                window.makeKeyAndVisible()
+            }
         }
     }
 
