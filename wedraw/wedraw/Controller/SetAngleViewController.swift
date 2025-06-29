@@ -27,7 +27,7 @@ class SetAngleViewController: UIViewController {
     var selectedPresetIndex: Int = 2 // Default to quarter view
     var currentRotationAngles: SCNVector3 = SCNVector3(x: 0.3, y: -Float.pi/4, z: 0)
     
-    private let modelNames = ["step1", "step2", "step3", "step4", "step5", "step6", "step7", "step8", "step9", "step10fix"]
+    private let modelNames = ["step1", "step2", "step3", "step4", "step5", "step6", "step7", "step8", "step9", "step10"]
     private var currentModelIndex = 0
     
 
