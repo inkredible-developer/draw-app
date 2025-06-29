@@ -12,12 +12,20 @@ import Accelerate
 final class ContourDetectionViewController: UIViewController {
     
     var router: MainFlowRouter?
-    var referenceImage: UIImage
-    var userDrawingImage: UIImage
+    private let referenceImage: UIImage
+    private let userDrawingImage: UIImage
+    private let drawId: UUID
     
-    init(referenceImage: UIImage, userDrawingImage: UIImage) {
+    private let loadingView = LoadingPageView()
+    
+    init(
+        referenceImage: UIImage,
+        userDrawingImage: UIImage,
+        drawId: UUID,
+    ) {
         self.referenceImage = referenceImage
         self.userDrawingImage = userDrawingImage
+        self.drawId = drawId
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -27,123 +35,136 @@ final class ContourDetectionViewController: UIViewController {
     
 
   // MARK: – UI Components
-  private let scrollView = UIScrollView()
-  private let contentView = UIView()
-  
-  private let referenceImageView: UIImageView = {
-    let iv = UIImageView()
-    iv.contentMode = .scaleAspectFit
-    iv.translatesAutoresizingMaskIntoConstraints = false
-    return iv
-  }()
-  private let referenceOverlay = UIView()
-  
-  private let userImageView: UIImageView = {
-    let iv = UIImageView()
-    iv.contentMode = .scaleAspectFit
-    iv.translatesAutoresizingMaskIntoConstraints = false
-    return iv
-  }()
-  private let userOverlay = UIView()
-  
-  private let resultLabel: UILabel = {
-    let l = UILabel()
-    l.font = .boldSystemFont(ofSize: 18)
-    l.textColor = .label
-    l.textAlignment = .center
-    l.numberOfLines = 0
-    l.translatesAutoresizingMaskIntoConstraints = false
-    return l
-  }()
-  
-  private let activityIndicator: UIActivityIndicatorView = {
-    let a = UIActivityIndicatorView(style: .large)
-    a.translatesAutoresizingMaskIntoConstraints = false
-    return a
-  }()
-  
-  // MARK: – Internal state
-  private var referenceContours: [VNContour] = []
-  private var userContours: [VNContour] = []
-  
+//  private let scrollView = UIScrollView()
+//  private let contentView = UIView()
+//  
+//  private let referenceImageView: UIImageView = {
+//    let iv = UIImageView()
+//    iv.contentMode = .scaleAspectFit
+//    iv.translatesAutoresizingMaskIntoConstraints = false
+//    return iv
+//  }()
+//  private let referenceOverlay = UIView()
+//  
+//  private let userImageView: UIImageView = {
+//    let iv = UIImageView()
+//    iv.contentMode = .scaleAspectFit
+//    iv.translatesAutoresizingMaskIntoConstraints = false
+//    return iv
+//  }()
+//  private let userOverlay = UIView()
+//  
+//  private let resultLabel: UILabel = {
+//    let l = UILabel()
+//    l.font = .boldSystemFont(ofSize: 18)
+//    l.textColor = .label
+//    l.textAlignment = .center
+//    l.numberOfLines = 0
+//    l.translatesAutoresizingMaskIntoConstraints = false
+//    return l
+//  }()
+//  
+//  private let activityIndicator: UIActivityIndicatorView = {
+//    let a = UIActivityIndicatorView(style: .large)
+//    a.translatesAutoresizingMaskIntoConstraints = false
+//    return a
+//  }()
+//  
+//  // MARK: – Internal state
+//  private var referenceContours: [VNContour] = []
+//  private var userContours: [VNContour] = []
+//  
   // MARK: – Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .systemBackground
+    view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
     title = "Comparing Contours"
-    setupLayout()
+//    setupLayout()
+      setupLoadingUI()
     startComparison()
   }
+    
+    override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            // Hide navigation bar
+            router?.navigationController?.setNavigationBarHidden(true, animated: animated)
+        }
   
-  // MARK: – Layout
-  private func setupLayout() {
-    scrollView.translatesAutoresizingMaskIntoConstraints = false
-    contentView.translatesAutoresizingMaskIntoConstraints = false
-    view.addSubview(scrollView)
-    scrollView.addSubview(contentView)
-    
-    [referenceImageView, userImageView, resultLabel, activityIndicator].forEach {
-      contentView.addSubview($0)
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+//        router?.navigationController?.setNavigationBarHidden(true, animated: true)
     }
-    // Overlays
-    referenceOverlay.translatesAutoresizingMaskIntoConstraints = false
-    userOverlay.translatesAutoresizingMaskIntoConstraints = false
-    referenceImageView.addSubview(referenceOverlay)
-    userImageView.addSubview(userOverlay)
     
-    NSLayoutConstraint.activate([
-      // scrollView full
-      scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-      scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-      scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-      scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-      // contentView inside scrollView
-      contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-      contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-      contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-      contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-      contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-      
-      // referenceImageView
-      referenceImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-      referenceImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-      referenceImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-      referenceImageView.heightAnchor.constraint(equalTo: referenceImageView.widthAnchor),
-      // overlay full
-      referenceOverlay.topAnchor.constraint(equalTo: referenceImageView.topAnchor),
-      referenceOverlay.leadingAnchor.constraint(equalTo: referenceImageView.leadingAnchor),
-      referenceOverlay.trailingAnchor.constraint(equalTo: referenceImageView.trailingAnchor),
-      referenceOverlay.bottomAnchor.constraint(equalTo: referenceImageView.bottomAnchor),
-      
-      // userImageView
-      userImageView.topAnchor.constraint(equalTo: referenceImageView.bottomAnchor, constant: 16),
-      userImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-      userImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-      userImageView.heightAnchor.constraint(equalTo: userImageView.widthAnchor),
-      // overlay full
-      userOverlay.topAnchor.constraint(equalTo: userImageView.topAnchor),
-      userOverlay.leadingAnchor.constraint(equalTo: userImageView.leadingAnchor),
-      userOverlay.trailingAnchor.constraint(equalTo: userImageView.trailingAnchor),
-      userOverlay.bottomAnchor.constraint(equalTo: userImageView.bottomAnchor),
-      
-      // resultLabel
-      resultLabel.topAnchor.constraint(equalTo: userImageView.bottomAnchor, constant: 24),
-      resultLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-      resultLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-      resultLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
-      
-      // activityIndicator centered
-      activityIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-      activityIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-    ])
     
-    referenceImageView.image = referenceImage
-    userImageView.image = userDrawingImage
-  }
+  // MARK: – Layout
+//  private func setupLayout() {
+//    scrollView.translatesAutoresizingMaskIntoConstraints = false
+//    contentView.translatesAutoresizingMaskIntoConstraints = false
+//    view.addSubview(scrollView)
+//    scrollView.addSubview(contentView)
+//    
+//    [referenceImageView, userImageView, resultLabel, activityIndicator].forEach {
+//      contentView.addSubview($0)
+//    }
+//    // Overlays
+//    referenceOverlay.translatesAutoresizingMaskIntoConstraints = false
+//    userOverlay.translatesAutoresizingMaskIntoConstraints = false
+//    referenceImageView.addSubview(referenceOverlay)
+//    userImageView.addSubview(userOverlay)
+//    
+//    NSLayoutConstraint.activate([
+//      // scrollView full
+//      scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+//      scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+//      scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//      scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+//      // contentView inside scrollView
+//      contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+//      contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+//      contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+//      contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+//      contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+//      
+//      // referenceImageView
+//      referenceImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+//      referenceImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+//      referenceImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+//      referenceImageView.heightAnchor.constraint(equalTo: referenceImageView.widthAnchor),
+//      // overlay full
+//      referenceOverlay.topAnchor.constraint(equalTo: referenceImageView.topAnchor),
+//      referenceOverlay.leadingAnchor.constraint(equalTo: referenceImageView.leadingAnchor),
+//      referenceOverlay.trailingAnchor.constraint(equalTo: referenceImageView.trailingAnchor),
+//      referenceOverlay.bottomAnchor.constraint(equalTo: referenceImageView.bottomAnchor),
+//      
+//      // userImageView
+//      userImageView.topAnchor.constraint(equalTo: referenceImageView.bottomAnchor, constant: 16),
+//      userImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+//      userImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+//      userImageView.heightAnchor.constraint(equalTo: userImageView.widthAnchor),
+//      // overlay full
+//      userOverlay.topAnchor.constraint(equalTo: userImageView.topAnchor),
+//      userOverlay.leadingAnchor.constraint(equalTo: userImageView.leadingAnchor),
+//      userOverlay.trailingAnchor.constraint(equalTo: userImageView.trailingAnchor),
+//      userOverlay.bottomAnchor.constraint(equalTo: userImageView.bottomAnchor),
+//      
+//      // resultLabel
+//      resultLabel.topAnchor.constraint(equalTo: userImageView.bottomAnchor, constant: 24),
+//      resultLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+//      resultLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+//      resultLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
+//      
+//      // activityIndicator centered
+//      activityIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+//      activityIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+//    ])
+//    
+//    referenceImageView.image = referenceImage
+//    userImageView.image = userDrawingImage
+//  }
   
   // MARK: – Comparison Flow
     private func startComparison() {
-      activityIndicator.startAnimating()
+//      activityIndicator.startAnimating()
       DispatchQueue.global(qos: .userInitiated).async {
         let calc = ContourSimilarityCalculator()
         let similarity = calc.similarity(
@@ -151,20 +172,40 @@ final class ContourDetectionViewController: UIViewController {
           user:      self.userDrawingImage
         )
         DispatchQueue.main.async {
-          self.activityIndicator.stopAnimating()
-          self.resultLabel.text = String(format: "Similarity: %.0f%%", similarity * 100)
-          // (jika mau langsung navigasi atau simpan, bisa di sini)
+//          self.activityIndicator.stopAnimating()
+//          self.resultLabel.text = String(format: "Similarity: %.0f%%", similarity * 100)
+            self.loadingView.removeFromSuperview()
+            //route here
+            self.router?.navigate(
+                to: .finishedDrawingViewController(
+                    self.drawId,
+                    Int(similarity * 100),
+                    self.userDrawingImage
+                    ),
+                animated: true
+            )
         }
       }
     }
+    
+    private func setupLoadingUI() {
+            loadingView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(loadingView)
+            NSLayoutConstraint.activate([
+                loadingView.topAnchor.constraint(equalTo: view.topAnchor),
+                loadingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                loadingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                loadingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            ])
+        }
 
   
-  private func showError(_ msg: String) {
-    DispatchQueue.main.async {
-      self.activityIndicator.stopAnimating()
-      self.resultLabel.text = msg
-    }
-  }
+//  private func showError(_ msg: String) {
+//    DispatchQueue.main.async {
+//      self.activityIndicator.stopAnimating()
+//      self.resultLabel.text = msg
+//    }
+//  }
 }
 
 // MARK: – CGFloat helpers

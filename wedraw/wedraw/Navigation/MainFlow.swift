@@ -14,9 +14,10 @@ enum MainFlow: NavigationDestination, Equatable {
     case arTracingViewController(UIImage, UIImage, drawId: UUID)
     case drawingStepsViewController(UUID)
     case setAngleViewController
-    case photoCaptureSheetViewController(UIImage)
-    case contourDetectionViewController(UIImage, UIImage)
+    case photoCaptureSheetViewController(UIImage, UUID, Bool)
+    case contourDetectionViewController(UIImage, UIImage, UUID)
     case cameraTesterViewController
+    case finishedDrawingViewController(UUID, Int, UIImage)
     
     var title: String {
         switch self {
@@ -38,6 +39,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return "Contour Detection"
         case .cameraTesterViewController:
             return "Camera Tester"
+        case .finishedDrawingViewController:
+            return "Finished Drawing"
         }
     }
     
@@ -57,14 +60,16 @@ enum MainFlow: NavigationDestination, Equatable {
             return DrawingStepsViewController(drawID: id)
         case .setAngleViewController:
             return SetAngleViewController()
-        case .photoCaptureSheetViewController(let uiImage):
-            return PhotoCaptureSheetViewController(tracingImage: uiImage)
+        case .photoCaptureSheetViewController(let uiImage, let drawId, let isFinished):
+            return PhotoCaptureSheetViewController(tracingImage: uiImage, drawId: drawId, isFinished: isFinished)
 //        case .photoCaptureSheetViewController(let uiImage):
 //            return PhotoCaptureSheetViewController(tracingImage: uiImage)
-        case .contourDetectionViewController(let referenceImage, let userPhoto):
-            return ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto)
+        case .contourDetectionViewController(let referenceImage, let userPhoto, let drawId):
+            return ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto, drawId: drawId)
         case .cameraTesterViewController:
             return CameraTesterViewController()
+        case .finishedDrawingViewController(let drawId, let similarity, let userPhoto):
+            return FinishedDrawingViewController(drawID: drawId, similarityScore: similarity, userPhoto: userPhoto)
         }
     }
     func createViewControllerWithRouter<T: NavigationDestination>(_ router: Router<T>) -> UIViewController {
@@ -106,20 +111,26 @@ enum MainFlow: NavigationDestination, Equatable {
                 vc.router = typedRouter
             }
             return vc
-        case .photoCaptureSheetViewController(let uiImage):
-            let vc = PhotoCaptureSheetViewController(tracingImage: uiImage)
+        case .photoCaptureSheetViewController(let uiImage, let drawId, let isFinished):
+            let vc = PhotoCaptureSheetViewController(tracingImage: uiImage, drawId: drawId, isFinished: isFinished)
             if let typedRouter = router as? MainFlowRouter {
                 vc.router = typedRouter
             }
             return vc
-        case .contourDetectionViewController(let referenceImage, let userPhoto):
-            let vc = ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto)
+        case .contourDetectionViewController(let referenceImage, let userPhoto, let drawId):
+            let vc = ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto, drawId: drawId)
             if let typedRouter = router as? MainFlowRouter {
                 vc.router = typedRouter
             }
             return vc
         case .cameraTesterViewController:
             let vc = CameraTesterViewController()
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
+        case .finishedDrawingViewController(let drawId, let similarity, let userPhoto):
+            let vc = FinishedDrawingViewController(drawID: drawId, similarityScore: similarity, userPhoto: userPhoto)
             if let typedRouter = router as? MainFlowRouter {
                 vc.router = typedRouter
             }

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F83C0292E10F9F90024133B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 3F83C0282E10F9F90024133B /* Lottie */; };
+		3F83C1032E1177460024133B /* DotLottie in Frameworks */ = {isa = PBXBuildFile; productRef = 3F83C1022E1177460024133B /* DotLottie */; };
 		3FDAAB982E05683D0034C2CF /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 3FDAAB972E05683D0034C2CF /* CropViewController */; };
 		3FDAAB9A2E05683D0034C2CF /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 3FDAAB992E05683D0034C2CF /* TOCropViewController */; };
 		3FDAAB9D2E0568AB0034C2CF /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FDAAB9C2E0568AB0034C2CF /* ARKit.framework */; };
@@ -52,6 +54,8 @@
 				3FDAABA12E0568CC0034C2CF /* CoreImage.framework in Frameworks */,
 				3FDAAB9A2E05683D0034C2CF /* TOCropViewController in Frameworks */,
 				3FDAAB982E05683D0034C2CF /* CropViewController in Frameworks */,
+				3F83C0292E10F9F90024133B /* Lottie in Frameworks */,
+				3F83C1032E1177460024133B /* DotLottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,6 +111,8 @@
 			packageProductDependencies = (
 				3FDAAB972E05683D0034C2CF /* CropViewController */,
 				3FDAAB992E05683D0034C2CF /* TOCropViewController */,
+				3F83C0282E10F9F90024133B /* Lottie */,
+				3F83C1022E1177460024133B /* DotLottie */,
 			);
 			productName = wedraw;
 			productReference = 3FDAAB762E0565490034C2CF /* wedraw.app */;
@@ -138,6 +144,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				3FDAAB962E05683D0034C2CF /* XCRemoteSwiftPackageReference "TOCropViewController" */,
+				3F83C0272E10F9F90024133B /* XCRemoteSwiftPackageReference "lottie-spm" */,
+				3F83C1012E1177460024133B /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FDAAB772E0565490034C2CF /* Products */;
@@ -181,10 +189,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wedraw;
-				INFOPLIST_KEY_NSCameraUsageDescription = "kasih akses pleaseeee...";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please!!";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -214,10 +223,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wedraw;
-				INFOPLIST_KEY_NSCameraUsageDescription = "kasih akses pleaseeee...";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Please!!";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -381,6 +391,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		3F83C0272E10F9F90024133B /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+		3F83C1012E1177460024133B /* XCRemoteSwiftPackageReference "dotlottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LottieFiles/dotlottie-ios";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		3FDAAB962E05683D0034C2CF /* XCRemoteSwiftPackageReference "TOCropViewController" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/TimOliver/TOCropViewController.git";
@@ -392,6 +418,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3F83C0282E10F9F90024133B /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F83C0272E10F9F90024133B /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
+		};
+		3F83C1022E1177460024133B /* DotLottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F83C1012E1177460024133B /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
+			productName = DotLottie;
+		};
 		3FDAAB972E05683D0034C2CF /* CropViewController */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3FDAAB962E05683D0034C2CF /* XCRemoteSwiftPackageReference "TOCropViewController" */;

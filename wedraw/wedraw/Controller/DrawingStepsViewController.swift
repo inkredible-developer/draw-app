@@ -362,25 +362,50 @@ class DrawingStepsViewController: UIViewController {
     
     @objc private func finishButtonTapped() {
         if currentIndex == steps.count - 1 {
-            // This is the last step - go to CameraTesterViewController
-            let nextVC = CameraTesterViewController()
-            nextVC.drawID = drawID // Pass drawID to CameraTesterViewController
-            if let router = router {
-                router.navigationController?.pushViewController(nextVC, animated: true)
-            } else {
-                navigationController?.pushViewController(nextVC, animated: true)
-            }
-        } else {
-            // Save functionality
-            let homeVC = HomeViewController()
-            let nav = UINavigationController(rootViewController: homeVC)
-            homeVC.router = MainFlowRouter(navigationController: nav)
             
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first {
-                window.rootViewController = nav
-                window.makeKeyAndVisible()
-            }
+            router?.presentDirectly(
+                .photoCaptureSheetViewController( UIImage(named: self.steps[steps.count - 1].imageName) ?? self.tracingImage!, self.drawID, true),
+                animated: true
+            )
+            
+//            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//            let fileURL = documentsURL.appendingPathComponent(self.steps[steps.count - 1].imageName)
+//
+//            if FileManager.default.fileExists(atPath: fileURL.path),
+//               let data = try? Data(contentsOf: fileURL),
+//               let image = UIImage(data: data) {
+//                
+//                router?.presentDirectly(
+//                    .photoCaptureSheetViewController( image, self.drawID, true),
+//                      animated: true
+//                    )
+//            } else {
+//                print("gak ketemu guis")
+//            }
+
+            // This is the last step - go to CameraTesterViewController
+//            let nextVC = CameraTesterViewController()
+//            nextVC.drawID = drawID // Pass drawID to CameraTesterViewController
+//            if let router = router {
+//                router.navigationController?.pushViewController(nextVC, animated: true)
+//            } else {
+//                navigationController?.pushViewController(nextVC, animated: true)
+//            }
+        } else {
+            router?.presentDirectly(
+                .photoCaptureSheetViewController( self.tracingImage  ?? UIImage(named: "traceng")!, self.drawID, false),
+                  animated: true
+                )
+            // Save functionality
+//            let homeVC = HomeViewController()
+//            let nav = UINavigationController(rootViewController: homeVC)
+//            homeVC.router = MainFlowRouter(navigationController: nav)
+//            
+//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//               let window = windowScene.windows.first {
+//                window.rootViewController = nav
+//                window.makeKeyAndVisible()
+//            }
         }
     }
 

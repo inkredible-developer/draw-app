@@ -10,10 +10,32 @@ import UIKit
 class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelegate {
     var router: MainFlowRouter?
     var drawID: UUID?
-    private let finishedDrawingView = FinishedDrawingView()
+    var userPhoto: UIImage
+    private var finishedDrawingView: FinishedDrawingView!
     private let drawService = DrawService()
     
+    var similarityScore: Int?
+    
+    init(drawID: UUID,
+         similarityScore: Int,
+         userPhoto: UIImage
+    ) {
+        self.drawID = drawID
+        self.similarityScore = similarityScore
+        self.userPhoto = userPhoto
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func loadView() {
+        finishedDrawingView = FinishedDrawingView(
+            resultImage: userPhoto,
+            similarityValue: similarityScore ?? 0
+            
+        )
         view = finishedDrawingView
     }
     
@@ -27,7 +49,10 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
         title = "Result"
         let finishButton = UIBarButtonItem(title: "Finish", style: .done, target: self, action: #selector(finishButtonTapped))
         finishButton.tintColor = UIColor(named: "Inkredible-DarkPurple")
+        router?.navigationController?.setNavigationBarHidden(false, animated: true)
         navigationItem.rightBarButtonItem = finishButton
+        navigationItem.hidesBackButton = true
+
     }
 
     @objc private func finishButtonTapped() {
@@ -57,7 +82,7 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
         }
         
         // Calculate similarity score (you can implement your own logic here)
-        let similarityScore = calculateSimilarityScore()
+//        let similarityScore = calculateSimilarityScore()
         
         // Generate finished image path or data
         let finishedImagePath = generateFinishedImagePath()
@@ -68,13 +93,13 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
             draw_id: drawID,
             angle_id: draw.angle_id,
             current_step: Int(draw.current_step),
-            similarity_score: similarityScore,
+            similarity_score: similarityScore ?? 9999,
             finished_image: finishedImagePath,
             is_finished: true,
             draw_mode: draw.draw_mode
         )
         
-        print("✅ Drawing saved as finished with ID: \(drawID), similarity score: \(similarityScore)")
+//        print("✅ Drawing saved as finished with ID: \(drawID), similarity score: \(similarityScore )")
     }
     
     private func calculateSimilarityScore() -> Int {
@@ -108,6 +133,6 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
     }
 }
 
-#Preview {
-    FinishedDrawingViewController()
-}
+//#Preview {
+////    FinishedDrawingViewController()
+//}
