@@ -37,6 +37,7 @@ class DrawingStepsViewController: UIViewController {
     var dataSteps : [Step] = []
     private var currentIndex: Int = 0
     var steps: [DrawingStep] = []
+    var currentImage : UIImage?
     
     private var tracingImage = UIImage(named: "traceng")
     
@@ -385,7 +386,7 @@ class DrawingStepsViewController: UIViewController {
         if currentIndex == steps.count - 1 {
             
             router?.presentDirectly(
-                .photoCaptureSheetViewController( UIImage(named: self.steps[steps.count - 1].imageName) ?? self.tracingImage!, self.drawID, true),
+                .photoCaptureSheetViewController( currentImage!, self.drawID, true),
                 animated: true
             )
             
@@ -473,7 +474,7 @@ class DrawingStepsViewController: UIViewController {
         if FileManager.default.fileExists(atPath: fileURL.path),
            let data = try? Data(contentsOf: fileURL),
            let image = UIImage(data: data) {
-            
+            currentImage = image
             stepImageView.image = image
             scrollView.setZoomScale(1.0, animated: false)
         }

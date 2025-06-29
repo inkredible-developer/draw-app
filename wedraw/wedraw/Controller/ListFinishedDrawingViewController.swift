@@ -78,20 +78,24 @@ class ListFinishedDrawingViewController: UIViewController {
     }
     
     private func updateGalleryWithFinishedDraws() {
-        // Convert finished draws to images for the gallery
+        print(" run updateGalleryWithFinishedDraws")
         let galleryImages = finishedDraws.compactMap { drawWithAngle -> UIImage? in
-            // Try to load image from finished_image path, or use default image
             if let finishedImagePath = drawWithAngle.draw.finished_image {
-                // Load image from path (you'll need to implement this based on how you store images)
-                // return UIImage(contentsOfFile: finishedImagePath)
-                return UIImage(named: "upl_1") // Placeholder for now
+                
+                let fileURL = getDocumentsDirectory().appendingPathComponent(finishedImagePath)
+                print("fileURL",fileURL)
+                let photo = UIImage(contentsOfFile: fileURL.path)
+                return photo
+//                return UIImage(named: "upl_1") // Placeholder for now
             } else {
                 return UIImage(named: "upl_1") // Default image
             }
         }
-        
-        // Update the gallery images in the view
         listFinishedDrawingView.updateGalleryImages(galleryImages)
+    }
+    
+    private func getDocumentsDirectory() -> URL {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
     private func loadDrawData() {
@@ -154,6 +158,6 @@ extension ListFinishedDrawingViewController: ListFinishedDrawingViewDelegate {
     }
 }
 
-#Preview {
-    ListFinishedDrawingView()
-}
+//#Preview {
+//    ListFinishedDrawingView()
+//}

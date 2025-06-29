@@ -21,7 +21,7 @@ final class ContourDetectionViewController: UIViewController {
     init(
         referenceImage: UIImage,
         userDrawingImage: UIImage,
-        drawId: UUID,
+        drawId: UUID
     ) {
         self.referenceImage = referenceImage
         self.userDrawingImage = userDrawingImage

@@ -30,6 +30,10 @@ class DrawService {
         print("draw_step",draw_step)
         return repository.updateDrawStep(draw: draw, draw_step: draw_step)
     }
+    
+    func setFinishedDraw(draw_id: UUID, similarity_score: Int, finished_image: String){
+        return repository.updateFinishedStatus(draw_id: draw_id, similarity_score: similarity_score, finishedImage: finished_image)
+    }
 
 
     func createDraw(draw_id: UUID, angle_id: UUID, draw_mode: String) {
