@@ -182,15 +182,9 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         return card
     }
     
-    
+    // LSAJDlkjd
     @objc func infoButtonTapped() {
-        print("tap")
-        let infoVC = LoomishDetailViewController()
-        infoVC.modalPresentationStyle = .formSheet
-        if let sheet = infoVC.sheetPresentationController {
-            sheet.detents = [.medium()]
-        }
-        present(infoVC, animated: true, completion: nil)
+        router?.presentDirectly(.loomishDetailViewController, animated: true)
     }
     
     @objc private func modelCardTapped(_ sender: UITapGestureRecognizer) {

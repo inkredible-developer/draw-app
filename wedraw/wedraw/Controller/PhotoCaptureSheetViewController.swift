@@ -23,13 +23,13 @@ class PhotoCaptureSheetViewController: UIViewController {
 
     private let container: UIView = {
         let v = UIView()
-        v.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+        v.backgroundColor = UIColor(named: "Inkredible-DarkText")
         v.layer.cornerRadius = 20
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
 
-    private let closeButton = CustomIconButtonView(iconName: "xmark", iconColor: UIColor(named: "Inkredible-Red") ?? .systemRed, backgroundColor: UIColor(named: "Inkredible-DarkText") ?? .green, iconScale: 0.5)
+    private let closeButton = CustomIconButtonView(iconName: "xmark", iconColor: UIColor(named: "Inkredible-Red") ?? .systemRed, backgroundColor: UIColor(named: "Inkredible-Green") ?? .green, iconScale: 0.5)
 
     private let titleLabel: UILabel = {
         let l = UILabel()
@@ -120,7 +120,7 @@ class PhotoCaptureSheetViewController: UIViewController {
     }
 
     private func setupLayout() {
-        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkText")
         closeButton.delegate = self
         view.addSubview(container)
         container.addSubview(closeButton)
