@@ -71,7 +71,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     private func preloadVideoAssets() {
         guard let url = Bundle.main.url(
             forResource: mode == .reference ? "reference_tutorial" : "live_tutorial",
-            withExtension: "MP4"
+            withExtension: "MOV"
         ) else { return }
         
         let loadingIndicator = UIActivityIndicatorView(style: .large)
