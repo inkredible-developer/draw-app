@@ -43,7 +43,7 @@ class SetAngleViewController: UIViewController {
         
         title = "Select Your Angle"
         loadPreset()
-        setupNavigationBar()
+//        setupNavigationBar()
         setupView()
         setupInitialState()
     }
@@ -73,9 +73,9 @@ class SetAngleViewController: UIViewController {
     }
     
     // MARK: - Setup Methods
-    private func setupNavigationBar() {
-        navigationController?.navigationBar.tintColor = .label
-    }
+//    private func setupNavigationBar() {
+//        navigationController?.navigationBar.tintColor = .label
+//    }
     
     private func setupView() {
         setAngleView.delegate = self

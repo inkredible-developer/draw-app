@@ -166,10 +166,12 @@ class SetAngleView: UIView {
             bottomContainerView.heightAnchor.constraint(equalToConstant: 158),
 
             // Choose Button
-            chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
-            chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
-            chooseButton.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 32),
-            chooseButton.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -32),
+//            chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
+//            chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
+            chooseButton.centerYAnchor.constraint(equalTo: bottomContainerView.centerYAnchor),
+            chooseButton.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 16),
+            chooseButton.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -16),
+            chooseButton.heightAnchor.constraint(equalToConstant: 55),
             
             // Preset Angle Button
             presetAngleButton.bottomAnchor.constraint(equalTo: chooseButton.topAnchor, constant: -15),

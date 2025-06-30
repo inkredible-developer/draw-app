@@ -42,7 +42,7 @@ class ListFinishedDrawingViewController: UIViewController {
     private func setupNavigationBar() {
         let backBarButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
         backBarButton.tintColor = UIColor(named: "Inkredible-DarkPurple")
-        navigationItem.leftBarButtonItem = backBarButton
+//        navigationItem.leftBarButtonItem = backBarButton
         
         // Commented out Done button
         // let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonTapped))

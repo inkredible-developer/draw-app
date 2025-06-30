@@ -14,6 +14,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        let darkPurple = UIColor(named: "Inkredible-DarkPurple")
+        UIBarButtonItem.appearance().tintColor = darkPurple
+        
+        let navBarAppearance = UINavigationBar.appearance()
+        navBarAppearance.setBackgroundImage(UIImage(), for: .default)
+        navBarAppearance.shadowImage = UIImage()
+        navBarAppearance.isTranslucent = true
+        
         return true
     }
 

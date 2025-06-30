@@ -102,7 +102,9 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         for (title, image, availability) in models {
             let card = createCardView(with: title, with: image, with: availability)
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(modelCardTapped(_:)))
-            card.addGestureRecognizer(tapGesture)
+            if(title == "Male") {
+                card.addGestureRecognizer(tapGesture)
+            }
             card.isUserInteractionEnabled = true
             homeView.modelsStackView.addArrangedSubview(card)
         }

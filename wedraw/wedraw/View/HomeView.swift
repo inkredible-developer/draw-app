@@ -91,7 +91,7 @@ class HomeView: UIView {
             threeDObjectView.bannerCard.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             threeDObjectView.bannerCard.heightAnchor.constraint(equalToConstant: 120),
 
-            threeDObjectView.sectionLabel.topAnchor.constraint(equalTo: threeDObjectView.bannerCard.bottomAnchor, constant: 16),
+            threeDObjectView.sectionLabel.topAnchor.constraint(equalTo: threeDObjectView.bannerCard.bottomAnchor, constant: 26),
             threeDObjectView.sectionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             
             threeDObjectView.modelsScrollView.topAnchor.constraint(equalTo: threeDObjectView.sectionLabel.bottomAnchor, constant: 16),
@@ -105,7 +105,7 @@ class HomeView: UIView {
             threeDObjectView.modelsStackView.topAnchor.constraint(equalTo: threeDObjectView.modelsScrollView.contentLayoutGuide.topAnchor),
             threeDObjectView.modelsStackView.bottomAnchor.constraint(equalTo: threeDObjectView.modelsScrollView.contentLayoutGuide.bottomAnchor),
             
-            segmentedCardView.topAnchor.constraint(equalTo: threeDObjectView.modelsScrollView.bottomAnchor, constant: 0),
+            segmentedCardView.topAnchor.constraint(equalTo: threeDObjectView.modelsScrollView.bottomAnchor, constant: -6),
             segmentedCardView.leadingAnchor.constraint(equalTo: leadingAnchor),
             segmentedCardView.trailingAnchor.constraint(equalTo: trailingAnchor),
             segmentedCardView.heightAnchor.constraint(equalToConstant: 210)
