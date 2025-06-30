@@ -63,52 +63,52 @@ class DrawingStepsViewController: UIViewController {
         steps = [
             DrawingStep(
                 title: "Draw the Base Circle",
-                description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape",
+                description: "Draw a circle as the base of the head.",
                 imageName: dataSteps[0].image!
             ),
             DrawingStep(
                 title: "Draw Guide for Side",
-                description: "Draw vertical line for direction. Use center as anchor.",
+                description: "Add an oval next to the circle for the temple and ear area.",
                 imageName: dataSteps[1].image!
             ),
             DrawingStep(
                 title: "Split Face Horizontally",
-                description: "Add eye and nose level.",
+                description: "Draw a horizontal line in the middle of the circle and oval for the position of the eyebrow and upper ear.",
                 imageName: dataSteps[2].image!
             ),
             DrawingStep(
                 title: "Add Chin Box",
-                description: "Sketch box to shape the chin.",
+                description: "Draw a vertical line in the circle to divide the face into left and right.",
                 imageName: dataSteps[3].image!
             ),
             DrawingStep(
                 title: "Draw Eye Line",
-                description: "Mark horizontal eye level.",
+                description: "Split the side oval in half with the vertical line to help draw the ear.",
                 imageName: dataSteps[4].image!
             ),
             DrawingStep(
                 title: "Mark Nose Line",
-                description: "Place nose at 1/3 down from eyes to chin.",
+                description: "Add a horizontal line below the circle to mark the position of the nose.",
                 imageName: dataSteps[5].image!
             ),
             DrawingStep(
                 title: "Define Jaw",
-                description: "Sketch jaw shape to connect head and chin.",
+                description: "Draw the ear between the eyebrow line and the nose line, inside the side oval.",
                 imageName: dataSteps[6].image!
             ),
             DrawingStep(
                 title: "Add Ear Level",
-                description: "Align ear from eye to nose level.",
+                description: "Draw a line from under the oval towards the chin to form the jaw.",
                 imageName: dataSteps[7].image!
             ),
             DrawingStep(
                 title: "Draw Neck Guide",
-                description: "Extend lines for neck from jaw.",
+                description: "Continue the jaw line from under the ear to the chin.",
                 imageName: dataSteps[8].image!
             ),
             DrawingStep(
                 title: "Draw A Line to Make A Nose",
-                description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)",
+                description: "draw the eyes, nose, and mouth in the appropriate places with the guide lines.",
                 imageName: dataSteps[9].image!
             )
         ]
