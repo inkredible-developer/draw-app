@@ -182,7 +182,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         return card
     }
     
-    
+    // LSAJDlkjd
     @objc func infoButtonTapped() {
         print("tap")
         let infoVC = LoomishDetailViewController()

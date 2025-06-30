@@ -28,8 +28,8 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
         titleColor: UIColor(named: "Inkredible-DarkText") ?? .black
     )
     
-    private let infoButton = CustomIconButtonView(iconName: "info", iconColor: .white, backgroundColor: UIColor(named: "Inkredible-DarkText") ?? .systemYellow, iconScale: 0.5)
-    private let closeButton = CustomIconButtonView(iconName: "xmark", iconColor: UIColor(named: "Inkredible-Red") ?? .systemRed, backgroundColor: UIColor(named: "Inkredible-DarkText") ?? .green, iconScale: 0.5)
+    private let infoButton = CustomIconButtonView(iconName: "info", iconColor: UIColor(named: "Inkredible-DarkPurple") ?? .systemYellow, backgroundColor: UIColor(named: "Inkredible-Green") ?? .systemYellow, iconScale: 0.5)
+    private let closeButton = CustomIconButtonView(iconName: "xmark", iconColor: UIColor(named: "Inkredible-Red") ?? .systemRed, backgroundColor: UIColor(named: "Inkredible-Green") ?? .green, iconScale: 0.5)
 
   // MARK: – Video
   private var queuePlayer: AVQueuePlayer?
@@ -63,7 +63,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkText")
         setupUI()
         preloadVideoAssets()
     }
@@ -146,7 +146,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
 
   private func setupUI() {
     container.translatesAutoresizingMaskIntoConstraints = false
-    container.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+    container.backgroundColor = UIColor(named: "Inkredible-DarkText")
     container.layer.cornerRadius = 20
     view.addSubview(container)
       
@@ -166,7 +166,7 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
       : "You need to register an anchor for this drawing session."
 
     videoContainer.translatesAutoresizingMaskIntoConstraints = false
-    videoContainer.backgroundColor = UIColor(named: "Inkredible-DarkText")
+    videoContainer.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
     videoContainer.layer.cornerRadius = 12
     videoContainer.clipsToBounds = true
 
