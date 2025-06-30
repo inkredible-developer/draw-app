@@ -36,6 +36,9 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         
         // Hide navigation bar when view appears
         router?.navigationController?.setNavigationBarHidden(true, animated: animated)
+        
+        UINavigationBar.appearance().shadowImage = UIImage()
+            UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
 
         // Always reload data when the view appears
         loadDraw()
@@ -198,13 +201,19 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         // Check if the draw is finished
         if draw.is_finished {
             // Navigate to ListFinishedDrawingViewController for finished draws
-            let listFinishedVC = ListFinishedDrawingViewController()
-            listFinishedVC.router = self.router
-            listFinishedVC.drawData = draw // Pass the draw data
+//            let listFinishedVC = ListFinishedDrawingViewController()
+//            listFinishedVC.router = self.router
+//            listFinishedVC.drawData = draw // Pass the draw data
             
             if let router = router {
-                router.navigationController?.pushViewController(listFinishedVC, animated: true)
+//                router.navigationController?.pushViewController(listFinishedVC, animated: true)
+                router.navigate(
+                    to: .listFinishedDrawingViewController(draw),
+                    animated: true
+                )
             } else {
+                let listFinishedVC = ListFinishedDrawingViewController(drawData: draw)
+                            listFinishedVC.router = self.router
                 navigationController?.pushViewController(listFinishedVC, animated: true)
             }
         } else {

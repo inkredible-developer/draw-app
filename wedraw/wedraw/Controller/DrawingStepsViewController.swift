@@ -334,20 +334,17 @@ class DrawingStepsViewController: UIViewController {
             infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             infoButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
+            // Fix 1: Connect bottom container to safeAreaLayoutGuide.bottomAnchor
             bottomContainer.heightAnchor.constraint(equalToConstant: 158),
             bottomContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bottomContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 34),
             
-//
-//            topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
-//            topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            scrollView.topAnchor.constraint(equalTo:  view.safeAreaLayoutGuide.topAnchor, constant: 0),
-            scrollView.bottomAnchor.constraint(equalTo: bottomContainer.topAnchor, constant: 16),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            // Fix 2: Add proper spacing to the bottomContainer
+            scrollView.bottomAnchor.constraint(equalTo: bottomContainer.topAnchor, constant: -16),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
-            scrollView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-//            scrollView.heightAnchor.constraint(equalTo: scrollView.widthAnchor),
 
             stepImageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stepImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
@@ -355,9 +352,6 @@ class DrawingStepsViewController: UIViewController {
             stepImageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             stepImageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             stepImageView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-
-      
-
 
             buttonCardView.centerXAnchor.constraint(equalTo: bottomContainer.centerXAnchor),
             buttonCardView.centerYAnchor.constraint(equalTo: bottomContainer.centerYAnchor),

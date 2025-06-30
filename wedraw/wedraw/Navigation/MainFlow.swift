@@ -19,6 +19,7 @@ enum MainFlow: NavigationDestination, Equatable {
     case cameraTesterViewController
     case finishedDrawingViewController(UUID, Int, UIImage)
     case loomishDetailViewController
+    case listFinishedDrawingViewController(Draw)
     
     var title: String {
         switch self {
@@ -44,6 +45,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return "Finished Drawing"
         case .loomishDetailViewController:
             return "Loomish Detail"
+        case .listFinishedDrawingViewController:
+            return "List Finished Drawings"
         }
     }
     
@@ -65,8 +68,6 @@ enum MainFlow: NavigationDestination, Equatable {
             return SetAngleViewController()
         case .photoCaptureSheetViewController(let uiImage, let drawId, let isFinished):
             return PhotoCaptureSheetViewController(tracingImage: uiImage, drawId: drawId, isFinished: isFinished)
-//        case .photoCaptureSheetViewController(let uiImage):
-//            return PhotoCaptureSheetViewController(tracingImage: uiImage)
         case .contourDetectionViewController(let referenceImage, let userPhoto, let drawId):
             return ContourDetectionViewController(referenceImage: referenceImage, userDrawingImage: userPhoto, drawId: drawId)
         case .cameraTesterViewController:
@@ -75,6 +76,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return FinishedDrawingViewController(drawID: drawId, similarityScore: similarity, userPhoto: userPhoto)
         case .loomishDetailViewController:
             return LoomishDetailViewController()
+        case .listFinishedDrawingViewController(let drawData):
+            return ListFinishedDrawingViewController(drawData: drawData)
         }
     }
     func createViewControllerWithRouter<T: NavigationDestination>(_ router: Router<T>) -> UIViewController {
@@ -146,8 +149,15 @@ enum MainFlow: NavigationDestination, Equatable {
                 vc.router = typedRouter
             }
             return vc
+        case .listFinishedDrawingViewController(let drawData):
+            let vc = ListFinishedDrawingViewController(drawData: drawData)
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
         }
     }
+    
     static func == (lhs: MainFlow, rhs: MainFlow) -> Bool {
         switch (lhs, rhs) {
         case (.homeViewController, .homeViewController):
