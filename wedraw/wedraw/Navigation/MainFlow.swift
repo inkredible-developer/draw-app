@@ -18,6 +18,7 @@ enum MainFlow: NavigationDestination, Equatable {
     case contourDetectionViewController(UIImage, UIImage, UUID)
     case cameraTesterViewController
     case finishedDrawingViewController(UUID, Int, UIImage)
+    case loomishDetailViewController
     
     var title: String {
         switch self {
@@ -41,6 +42,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return "Camera Tester"
         case .finishedDrawingViewController:
             return "Finished Drawing"
+        case .loomishDetailViewController:
+            return "Loomish Detail"
         }
     }
     
@@ -70,6 +73,8 @@ enum MainFlow: NavigationDestination, Equatable {
             return CameraTesterViewController()
         case .finishedDrawingViewController(let drawId, let similarity, let userPhoto):
             return FinishedDrawingViewController(drawID: drawId, similarityScore: similarity, userPhoto: userPhoto)
+        case .loomishDetailViewController:
+            return LoomishDetailViewController()
         }
     }
     func createViewControllerWithRouter<T: NavigationDestination>(_ router: Router<T>) -> UIViewController {
@@ -135,6 +140,12 @@ enum MainFlow: NavigationDestination, Equatable {
                 vc.router = typedRouter
             }
             return vc
+        case .loomishDetailViewController:
+            let vc = LoomishDetailViewController()
+            if let typedRouter = router as? MainFlowRouter {
+                vc.router = typedRouter
+            }
+            return vc
         }
     }
     static func == (lhs: MainFlow, rhs: MainFlow) -> Bool {
@@ -156,6 +167,8 @@ enum MainFlow: NavigationDestination, Equatable {
         case (.contourDetectionViewController(let lhsMode), .contourDetectionViewController(let rhsMode)):
             return lhsMode == rhsMode
         case (.cameraTesterViewController, .cameraTesterViewController):
+            return true
+        case (.loomishDetailViewController, .loomishDetailViewController):
             return true
         default:
             return false
