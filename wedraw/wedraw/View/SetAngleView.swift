@@ -70,13 +70,13 @@ class SetAngleView: UIView {
         return view
     }()
     
-//    let infoButton: UIButton = {
-//        let button = UIButton(type: .system)
-//        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular)
-//        button.setImage(UIImage(systemName: "info.circle.fill", withConfiguration: symbolConfig), for: .normal)
-//        button.tintColor = UIColor(named: "Inkredible-LightPurple")
-//        return button
-//    }()
+    //    let infoButton: UIButton = {
+    //        let button = UIButton(type: .system)
+    //        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular)
+    //        button.setImage(UIImage(systemName: "info.circle.fill", withConfiguration: symbolConfig), for: .normal)
+    //        button.tintColor = UIColor(named: "Inkredible-LightPurple")
+    //        return button
+    //    }()
     
     var infoButton = CustomIconButtonView(iconName: "info", iconColor: UIColor(named: "Inkredible-DarkPurple") ?? .systemYellow, backgroundColor: UIColor(named: "Inkredible-Green") ?? .systemYellow, iconScale: 0.5)
     
@@ -146,7 +146,7 @@ class SetAngleView: UIView {
             //            cameraCoordinateLabel.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
             
             // Angle Label
-            angleLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 80),
+            angleLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 150),
             angleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             
             // Choose Preset Picker (directly above bottom container)
@@ -158,16 +158,16 @@ class SetAngleView: UIView {
             // Info Button
             infoButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
             infoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-
+            
             // Bottom Container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bottomContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomContainerView.heightAnchor.constraint(equalToConstant: 158),
-
+            
             // Choose Button
-//            chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
-//            chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
+            //            chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
+            //            chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
             chooseButton.centerYAnchor.constraint(equalTo: bottomContainerView.centerYAnchor),
             chooseButton.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 16),
             chooseButton.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -16),
