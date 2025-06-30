@@ -252,7 +252,8 @@ class DrawingStepsViewController: UIViewController {
 
     private let stepProgressLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .bold)
+        label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -332,6 +333,12 @@ class DrawingStepsViewController: UIViewController {
         NSLayoutConstraint.activate([
             infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             infoButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
+            bottomContainer.heightAnchor.constraint(equalToConstant: 158),
+            bottomContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
 //
 //            topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
 //            topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -350,10 +357,7 @@ class DrawingStepsViewController: UIViewController {
             stepImageView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
 
       
-            bottomContainer.heightAnchor.constraint(equalToConstant: 158),
-            bottomContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
 
             buttonCardView.centerXAnchor.constraint(equalTo: bottomContainer.centerXAnchor),
             buttonCardView.centerYAnchor.constraint(equalTo: bottomContainer.centerYAnchor),
