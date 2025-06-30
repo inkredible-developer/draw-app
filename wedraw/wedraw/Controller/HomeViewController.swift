@@ -28,7 +28,8 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         initializeHomeView()
         // Setup content after view is initialized
         setupContent()
-        homeView.learnMoreButton.addTarget(self, action: #selector(infoButtonTapped), for: UIControl.Event.touchUpInside)
+//        homeView.learnMoreButton.addTarget(self, action: #selector(infoButtonTapped), for: UIControl.Event.touchUpInside)
+        homeView.controller = self
     }
     
     override func viewWillAppear(_ animated: Bool) {

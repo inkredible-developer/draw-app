@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol ObjectListViewDelegate: AnyObject {
+    func didTapLearnMoreButton()
+}
+
 class ObjectListView: UIView {
+    
+    weak var delegate: ObjectListViewDelegate?
+    
     let pageTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Every Line Starts a Journey"
@@ -23,10 +30,10 @@ class ObjectListView: UIView {
         button.setTitle("Learn More", for: .normal)
         button.setTitleColor(.black, for: .normal)
 //        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .caption2)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize, weight: .medium)
 //        button.backgroundColor = UIColor.systemGreen
         button.backgroundColor = UIColor(named: "Inkredible-Green")
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -45,70 +52,87 @@ class ObjectListView: UIView {
        return label
     }()
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        learnMoreButton.addTarget(self, action: #selector(learnMoreTapped), for: .touchUpInside)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        learnMoreButton.addTarget(self, action: #selector(learnMoreTapped), for: .touchUpInside)
+    }
+    
+    @objc private func learnMoreTapped() {
+        delegate?.didTapLearnMoreButton()
+    }
+
+    
     lazy var bannerCard: UIView = {
-        let card = UIView()
-        card.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
-        card.layer.cornerRadius = 16
-        card.translatesAutoresizingMaskIntoConstraints = false
-        
-        
-        // Circle view
-        let circleView = UIView()
-        circleView.backgroundColor = .lightGray
-        circleView.layer.cornerRadius = 75
-        circleView.translatesAutoresizingMaskIntoConstraints = false
-        
-        let image = UIImageView()
-        image.image = UIImage(named: "HeadHome") // must match Assets name
-        image.contentMode = .scaleAspectFit
-        image.translatesAutoresizingMaskIntoConstraints = false
-        
-        let title = UILabel()
-        title.text = "The Loomis Method: Building Head Structures"
-        title.font = UIFont.preferredFont(forTextStyle: .callout)
+            let card = UIView()
+            card.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+            card.layer.cornerRadius = 20
+            card.translatesAutoresizingMaskIntoConstraints = false
 
-
-        title.textColor = UIColor.white
-        title.numberOfLines = 0
-        title.translatesAutoresizingMaskIntoConstraints = false
+            // Container for content
+            let containerView = UIView()
+            containerView.translatesAutoresizingMaskIntoConstraints = false
         
-        let description = UILabel()
-        description.text = "Learn how to style the proportions and volume of the human head with simple steps"
-        description.font = UIFont.preferredFont(forTextStyle: .caption2)
-        description.textColor = UIColor.white
-        description.numberOfLines = 0
-        description.translatesAutoresizingMaskIntoConstraints = false
 
-        
+            let image = UIImageView()
+            image.image = UIImage(named: "hed")
+            image.contentMode = .scaleAspectFit
+            image.translatesAutoresizingMaskIntoConstraints = false
+
+            let title = UILabel()
+            title.text = "The Loomis Method: Building Head Structures"
+            title.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .bold)
+            title.textColor = .white
+            title.numberOfLines = 0
+            title.translatesAutoresizingMaskIntoConstraints = false
+
+            let description = UILabel()
+            description.text = "Learn how to style the proportions and volume of the human head with simple steps"
+            description.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize, weight: .regular)
+            description.textColor = .white
+            description.numberOfLines = 0
+            description.translatesAutoresizingMaskIntoConstraints = false
+
+//            containerView.addSubview(image)
+            containerView.addSubview(title)
+            containerView.addSubview(description)
+            containerView.addSubview(learnMoreButton)
+            card.addSubview(containerView)
         card.addSubview(image)
-        card.addSubview(title)
-        card.addSubview(description)
-        card.addSubview(learnMoreButton)
-        
-        
-        NSLayoutConstraint.activate([
-            image.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12),
-            image.centerYAnchor.constraint(equalTo: card.centerYAnchor),
-            image.widthAnchor.constraint(equalToConstant: 80),
-            image.heightAnchor.constraint(equalToConstant: 120),
 
-            title.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
-            title.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 12),
-            title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -12),
+        NSLayoutConstraint.activate([
+            // Vertically center containerView in card
+            containerView.centerYAnchor.constraint(equalTo: card.centerYAnchor),
+            containerView.leadingAnchor.constraint(equalTo: image.trailingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+
+            image.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12),
+            image.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
+            image.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12),
+            image.widthAnchor.constraint(equalToConstant:90),
+            image.heightAnchor.constraint(equalToConstant: 90),
+
+            title.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
+            title.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            title.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
 
             description.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 4),
             description.leadingAnchor.constraint(equalTo: title.leadingAnchor),
             description.trailingAnchor.constraint(equalTo: title.trailingAnchor),
-            
+
             learnMoreButton.topAnchor.constraint(equalTo: description.bottomAnchor, constant: 8),
             learnMoreButton.leadingAnchor.constraint(equalTo: description.leadingAnchor),
-            learnMoreButton.widthAnchor.constraint(equalToConstant: 69),
-            learnMoreButton.heightAnchor.constraint(equalToConstant: 19),
-
+            learnMoreButton.widthAnchor.constraint(equalToConstant: 85),
+            learnMoreButton.heightAnchor.constraint(equalToConstant: 25),
+            learnMoreButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12)
         ])
-        
-        return card
-    }()
+
+            return card
+        }()
     
     // Horizontal scroll view for models
     let modelsScrollView: UIScrollView = {

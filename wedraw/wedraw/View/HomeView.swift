@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeView: UIView {
+class HomeView: UIView, ObjectListViewDelegate {
     
     private var data: DrawData?
     private var finishedDraw: [DrawWithAngle] = []
@@ -34,6 +34,7 @@ class HomeView: UIView {
     init(frame: CGRect, with data: DrawData?) {
         self.data = data
         super.init(frame: frame)
+        threeDObjectView.delegate = self
         setupLayout()
         
         segmentedCardView.configure(with: self.data!)
@@ -41,8 +42,14 @@ class HomeView: UIView {
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        threeDObjectView.delegate = self
         setupLayout()
     }
+    
+    func didTapLearnMoreButton() {
+        controller?.infoButtonTapped()
+    }
+
     var modelsStackView: UIStackView {
         return threeDObjectView.modelsStackView
     }
@@ -73,7 +80,7 @@ class HomeView: UIView {
         backgroundColor = .white
         addSubview(threeDObjectView.pageTitleLabel)
         addSubview(threeDObjectView.bannerCard)
-        threeDObjectView.bannerCard.addSubview(learnMoreButton)
+//        threeDObjectView.bannerCard.addSubview(learnMoreButton)
 
         addSubview(threeDObjectView.sectionLabel)
         addSubview(threeDObjectView.modelsScrollView)
@@ -89,14 +96,14 @@ class HomeView: UIView {
             threeDObjectView.bannerCard.topAnchor.constraint(equalTo: threeDObjectView.pageTitleLabel.bottomAnchor, constant: 16),
             threeDObjectView.bannerCard.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             threeDObjectView.bannerCard.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            threeDObjectView.bannerCard.heightAnchor.constraint(equalToConstant: 120),
+            threeDObjectView.bannerCard.heightAnchor.constraint(equalToConstant: 175),
 
             threeDObjectView.sectionLabel.topAnchor.constraint(equalTo: threeDObjectView.bannerCard.bottomAnchor, constant: 26),
             threeDObjectView.sectionLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             
             threeDObjectView.modelsScrollView.topAnchor.constraint(equalTo: threeDObjectView.sectionLabel.bottomAnchor, constant: 16),
             threeDObjectView.modelsScrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-            threeDObjectView.modelsScrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            threeDObjectView.modelsScrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             threeDObjectView.modelsScrollView.heightAnchor.constraint(equalToConstant: 200),
             
             
