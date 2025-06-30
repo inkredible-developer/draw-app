@@ -25,6 +25,7 @@ class ARTracingViewController: UIViewController {
     var drawDetails : [Draw] = []
     var dataSteps : [Step] = []
     var steps: [DrawingStep] = []
+    var currentImage : UIImage?
     
     var referenceImagePhysicalWidth: CGFloat = 0.1
     private let tracingPlaneWidth: CGFloat = 0.20
@@ -506,9 +507,10 @@ class ARTracingViewController: UIViewController {
 //    }
     
     @objc private func finishButtonTapped() {
+        print("self.steps[steps.count - 1].imageName",self.steps[steps.count - 1].imageName)
         if currentIndex == steps.count - 1 {
             router?.presentDirectly(
-                .photoCaptureSheetViewController( UIImage(named: self.steps[steps.count - 1].imageName) ?? self.tracingImage, self.drawId, true),
+                .photoCaptureSheetViewController( currentImage!, self.drawId, true),
                   animated: true
                 )
             // This is the last step - go to CameraTesterViewController
@@ -941,6 +943,7 @@ class ARTracingViewController: UIViewController {
         if FileManager.default.fileExists(atPath: fileURL.path),
            let data = try? Data(contentsOf: fileURL),
            let image = UIImage(data: data) {
+            currentImage = image
             
             // Replace the tracing image in the existing node
             if let tracingNode = self.tracingNode, let plane = tracingNode.geometry as? SCNPlane {
