@@ -36,14 +36,14 @@ class SetAngleView: UIView {
         return label
     }()
     
-//    let cameraCoordinateLabel: UILabel = {
-//        let label = UILabel()
-////        label.text = "Model: (x: 0, y: 0, z: 0)"
-//        label.textColor = .darkGray
-//        label.font = .systemFont(ofSize: 14, weight: .regular)
-//        label.textAlignment = .center
-//        return label
-//    }()
+    //    let cameraCoordinateLabel: UILabel = {
+    //        let label = UILabel()
+    ////        label.text = "Model: (x: 0, y: 0, z: 0)"
+    //        label.textColor = .darkGray
+    //        label.font = .systemFont(ofSize: 14, weight: .regular)
+    //        label.textAlignment = .center
+    //        return label
+    //    }()
     
     let presetAngleButton: UIButton = {
         let button = UIButton()
@@ -100,13 +100,13 @@ class SetAngleView: UIView {
         setupRotationGesture()
         startCameraCoordinateUpdates()
     }
-        
+    
     private func setupView() {
         backgroundColor = .white
         
         addSubview(sceneView)
         addSubview(angleLabel)
-//        addSubview(cameraCoordinateLabel)
+        //        addSubview(cameraCoordinateLabel)
         addSubview(bottomContainerView)
         addSubview(infoButton)
         
@@ -116,13 +116,13 @@ class SetAngleView: UIView {
         addSubview(choosePresetPickerView)
         
         setupSceneKit()
-//        setupPresetButtons()
+        //        setupPresetButtons()
     }
     
     private func setupConstraints() {
         sceneView.translatesAutoresizingMaskIntoConstraints = false
         angleLabel.translatesAutoresizingMaskIntoConstraints = false
-//        cameraCoordinateLabel.translatesAutoresizingMaskIntoConstraints = false
+        //        cameraCoordinateLabel.translatesAutoresizingMaskIntoConstraints = false
         bottomContainerView.translatesAutoresizingMaskIntoConstraints = false
         presetAngleButton.translatesAutoresizingMaskIntoConstraints = false
         chooseButton.translatesAutoresizingMaskIntoConstraints = false
@@ -135,32 +135,32 @@ class SetAngleView: UIView {
             sceneView.centerXAnchor.constraint(equalTo: centerXAnchor),
             sceneView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
             sceneView.heightAnchor.constraint(equalTo: sceneView.widthAnchor),
-
+            
             // Camera Coordinate Label
-//            cameraCoordinateLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 8),
-//            cameraCoordinateLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-//            cameraCoordinateLabel.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
-
+            //            cameraCoordinateLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 8),
+            //            cameraCoordinateLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            //            cameraCoordinateLabel.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
+            
             // Angle Label
             angleLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 80),
             angleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-
+            
             // Choose Preset Picker (directly above bottom container)
             choosePresetPickerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             choosePresetPickerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             choosePresetPickerView.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor),
             choosePresetPickerView.heightAnchor.constraint(equalToConstant: 50),
-
+            
             // Info Button
             infoButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 5),
             infoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-
+            
             // Bottom Container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bottomContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             bottomContainerView.heightAnchor.constraint(equalToConstant: 157),
-
+            
             // Choose Button
             chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
             chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
@@ -195,10 +195,10 @@ class SetAngleView: UIView {
         light.intensity = 100
         lightNode.light = light
         lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
-
+        
         // Add the light to the scene
         scene?.rootNode.addChildNode(lightNode)
-
+        
         let ambientLightNode = SCNNode()
         let ambientLight = SCNLight()
         ambientLight.type = .ambient
@@ -206,7 +206,7 @@ class SetAngleView: UIView {
         ambientLight.color = UIColor.white
         ambientLightNode.light = ambientLight
         scene?.rootNode.addChildNode(ambientLightNode)
-
+        
         sceneView.scene = scene
     }
     
@@ -241,7 +241,7 @@ class SetAngleView: UIView {
         guard let modelNode = self.modelNode else { return }
         let pos = modelNode.eulerAngles
         let positionText = String(format: "Model: (x: %.2f, y: %.2f, z: %.2f)", pos.x, pos.y, pos.z)
-//        updateCameraCoordinateLabel(positionText)
+        //        updateCameraCoordinateLabel(positionText)
         delegate?.cameraPositionChanged(pos)
     }
     
@@ -269,9 +269,9 @@ class SetAngleView: UIView {
         stopCameraCoordinateUpdates()
     }
     
-//    func updateCameraCoordinateLabel(_ text: String) {
-//        cameraCoordinateLabel.text = text
-//    }
+    //    func updateCameraCoordinateLabel(_ text: String) {
+    //        cameraCoordinateLabel.text = text
+    //    }
     
     func updateAngleLabel(_ text: String) {
         angleLabel.text = text

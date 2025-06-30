@@ -13,12 +13,12 @@ class MyDrawView: UIView {
     let recentLabel: UILabel = {
         let label = UILabel()
         label.text = "Recent Angle/Draw"
-        label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .bold)
         label.textColor = .darkGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     // Horizontal scroll view for recent
     let recentScrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -42,7 +42,7 @@ class MyDrawView: UIView {
         control.backgroundColor = UIColor(white: 0.95, alpha: 1)
         control.selectedSegmentTintColor = .white
         control.setTitleTextAttributes([.foregroundColor: UIColor.black], for: .normal)
-        control.setTitleTextAttributes([.foregroundColor: UIColor.black, .font: UIFont.boldSystemFont(ofSize: 14)], for: .selected)
+        control.setTitleTextAttributes([.foregroundColor: UIColor.black, .font: UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize, weight: .medium)], for: .selected)
         control.translatesAutoresizingMaskIntoConstraints = false
         return control
     }()
@@ -57,7 +57,7 @@ class MyDrawView: UIView {
     let emptyLabel: UILabel = {
         let label = UILabel()
         label.text = "Your Recent Draw Is Empty"
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize, weight: .regular)
         label.textColor = .darkGray
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -70,9 +70,9 @@ class MyDrawView: UIView {
         addSubview(drawSegmentedControl)
         addSubview(emptyImageView)
         addSubview(emptyLabel)
-
+        
         recentScrollView.addSubview(recentStackView)
-
+        
         NSLayoutConstraint.activate([
             recentLabel.topAnchor.constraint(equalTo: topAnchor),
             recentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),

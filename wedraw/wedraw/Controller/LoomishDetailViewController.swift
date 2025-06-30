@@ -5,15 +5,6 @@
 //  Created by M. Evan Cendekia Suryandaru on 22/06/25.
 //
 
-
-//
-//  PhotoCaptureSheetViewController.swift
-//  wedraw
-//
-//  Created by Ali An Nuur on 26/06/25.
-//
-
-
 import UIKit
 
 //class TaggedImagePickerController: UIImagePickerController {
@@ -24,9 +15,7 @@ class LoomishDetailViewController: UIViewController {
     
     
     var router: MainFlowRouter?
-
-    // MARK: - UI Elements
-
+    
     private let container: UIView = {
         let v = UIView()
         v.backgroundColor = UIColor(named: "Inkredible-DarkText")
@@ -34,14 +23,15 @@ class LoomishDetailViewController: UIViewController {
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
-
+    
     private let closeButton = CustomIconButtonView(iconName: "xmark", iconColor: UIColor(named: "Inkredible-Red") ?? .systemRed, backgroundColor: UIColor(named: "Inkredible-Green") ?? .green, iconScale: 0.5)
-
+    
     private let titleLabel: UILabel = {
         let l = UILabel()
         l.text = "Snap of Photo To See How You Are Improving!"
         l.textColor = .white
-        l.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        //        l.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        l.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .semibold)
         l.numberOfLines = 0
         l.textAlignment = .center
         l.translatesAutoresizingMaskIntoConstraints = false
@@ -55,34 +45,34 @@ class LoomishDetailViewController: UIViewController {
         imageView.tintColor = .gray
         return imageView
     }()
-
+    
     private let descriptionLabel: UILabel = {
         let l = UILabel()
         l.text = "Your photo will be saved and you can see your progress on the main screen"
         l.textColor = .white
-        l.font = UIFont.systemFont(ofSize: 15)
+        l.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .subheadline).pointSize, weight: .regular)
         l.numberOfLines = 0
         l.textAlignment = .center
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()
-
-   
-
+    
+    
+    
     // MARK: - Lifecycle
-
-
+    
+    
     
     init() {
-      super.init(nibName: nil, bundle: nil)
-      modalPresentationStyle = .pageSheet
-      if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
-        let customDetent = UISheetPresentationController.Detent.custom { ctx in
-          ctx.maximumDetentValue * 0.75
+        super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .pageSheet
+        if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
+            let customDetent = UISheetPresentationController.Detent.custom { ctx in
+                ctx.maximumDetentValue * 0.75
+            }
+            sheet.detents = [customDetent]
+            sheet.prefersGrabberVisible = true
         }
-        sheet.detents = [customDetent]
-        sheet.prefersGrabberVisible = true
-      }
     }
     
     required init?(coder: NSCoder) { fatalError() }
@@ -98,31 +88,33 @@ class LoomishDetailViewController: UIViewController {
     private func updateUITexts() {
         let text = """
         The Loomis Method, developed by illustrator Andrew Loomis, is a timeless drawing technique that helps artists understand and build the human head from any angle.
-
+        
         It starts with a basic circle and uses simple guiding lines to map out facial proportions like draw a vertical and horizontal line, making it easier to draw faces that look natural and consistent.
-
+        
         We use Loomis method because it breaks down a complex subject (the head) into simple, repeatable steps you can follow and master.
         """
-
+        
         let attributedText = NSMutableAttributedString(string: text,
-            attributes: [
-                .font: UIFont.systemFont(ofSize: 15),
-                .foregroundColor: UIColor.white
-            ]
+                                                       attributes: [
+                                                        //                .font: UIFont.systemFont(ofSize: 15),
+                                                        .font: UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .subheadline).pointSize, weight: .regular),
+                                                        .foregroundColor: UIColor.white
+                                                       ]
         )
-
+        
         // Cari kata "Andrew Loomis"
         if let range = text.range(of: "Andrew Loomis") {
             let nsRange = NSRange(range, in: text)
             attributedText.addAttributes([
-                .font: UIFont.boldSystemFont(ofSize: 15)
+                //                .font: UIFont.boldSystemFont(ofSize: 15)
+                .font: UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .subheadline).pointSize, weight: .bold)
             ], range: nsRange)
         }
         
-            titleLabel.text = "The Loomis Method:\nBuilding Head Structures"
+        titleLabel.text = "The Loomis Method:\nBuilding Head Structures"
         descriptionLabel.attributedText = attributedText
     }
-
+    
     private func setupLayout() {
         view.backgroundColor = UIColor(named: "Inkredible-DarkText")
         closeButton.delegate = self
@@ -133,13 +125,13 @@ class LoomishDetailViewController: UIViewController {
         container.addSubview(imageView)
         
         closeButton.updateSize(width: 30)
-
+        
         NSLayoutConstraint.activate([
             // container
             container.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
             container.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             container.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-//            container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            //            container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             // close button
             closeButton.topAnchor.constraint(equalTo: container.topAnchor),
@@ -155,16 +147,16 @@ class LoomishDetailViewController: UIViewController {
             descriptionLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
             descriptionLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 24),
             descriptionLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -24),
-   
+            
         ])
     }
-
+    
     // MARK: - Actions
-
+    
     @objc private func dismissSheet() {
         dismiss(animated: true)
     }
-
+    
 }
 
 extension LoomishDetailViewController: CustomIconButtonViewDelegate {
@@ -230,7 +222,7 @@ extension LoomishDetailViewController: CustomIconButtonViewDelegate {
 //
 //        view.addSubview(titleLabel)
 //        view.addSubview(closeButton)
-//        
+//
 //        view.addSubview(imageView)
 ////        circleView.addSubview(imageView)
 ////        view.addSubview(imageView)
@@ -245,8 +237,8 @@ extension LoomishDetailViewController: CustomIconButtonViewDelegate {
 //            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 24),
 //            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
 //            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-//            
-//            
+//
+//
 ////            circleView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
 ////            circleView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 ////            circleView.widthAnchor.constraint(equalToConstant: 100),

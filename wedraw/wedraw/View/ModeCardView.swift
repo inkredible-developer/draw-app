@@ -19,14 +19,14 @@ final class ModeCardView: UIView {
     let imageView = UIImageView()
     let titleLabel = UILabel()
     let descriptionLabel = UILabel()
-
+    
     init(mode: DrawingMode) {
         super.init(frame: .zero)
         setupUI(mode: mode)
     }
     
     required init?(coder: NSCoder) { fatalError() }
-
+    
     private func setupUI(mode: DrawingMode) {
         // Add container to self
         addSubview(container)
@@ -35,9 +35,9 @@ final class ModeCardView: UIView {
         backgroundColor = UIColor.clear
         layer.cornerRadius = 20
         layer.borderWidth = 2
-            layer.borderColor = UIColor(named: "Inkredible-DarkPurple")?.cgColor ?? UIColor.systemPurple.cgColor
+        layer.borderColor = UIColor(named: "Inkredible-DarkPurple")?.cgColor ?? UIColor.systemPurple.cgColor
         clipsToBounds = true
-
+        
         // Setup container constraints with padding
         NSLayoutConstraint.activate([
             container.topAnchor.constraint(equalTo: topAnchor, constant: 4),
@@ -45,33 +45,33 @@ final class ModeCardView: UIView {
             container.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
             container.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4)
         ])
-
+        
         // Configure image view
         imageView.image = mode.image
         imageView.contentMode = .scaleAspectFit
         imageView.backgroundColor = .systemGray6
         imageView.layer.cornerRadius = 20
         imageView.clipsToBounds = true
-
+        
         // Configure labels
         titleLabel.text = mode.title
         titleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .semibold)
         titleLabel.textColor = .white
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 2
-
+        
         descriptionLabel.text = mode.description
         descriptionLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize, weight: .medium)
         descriptionLabel.textColor = .white
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .center
-
+        
         // Add subviews to container instead of self
         [titleLabel, imageView, descriptionLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             container.addSubview($0)
         }
-
+        
         // Create a more flexible layout that will adapt to different card sizes
         let contentStack = UIStackView(arrangedSubviews: [titleLabel, imageView, descriptionLabel])
         contentStack.translatesAutoresizingMaskIntoConstraints = false
@@ -97,5 +97,5 @@ final class ModeCardView: UIView {
 }
 #Preview {
     ModeCardView(mode: .reference)
-        
+    
 }

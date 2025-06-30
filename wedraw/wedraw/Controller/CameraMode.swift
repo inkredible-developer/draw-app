@@ -15,7 +15,7 @@ class CarouselFlowLayout: UICollectionViewFlowLayout {
         scrollDirection = .horizontal
         minimumLineSpacing = 0
         sectionInset = UIEdgeInsets(top: 0, left: (collectionView!.bounds.width - itemSize.width)/2,
-                                   bottom: 0, right: (collectionView!.bounds.width - itemSize.width)/2)
+                                    bottom: 0, right: (collectionView!.bounds.width - itemSize.width)/2)
     }
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let attributes = super.layoutAttributesForElements(in: rect)?.map { $0.copy() as! UICollectionViewLayoutAttributes }
@@ -55,7 +55,8 @@ class ModeCarouselCell: UICollectionViewCell {
         contentView.addSubview(titleLabel)
         iconView.contentMode = .scaleAspectFit
         iconView.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        
+        titleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .bold)
         titleLabel.textColor = .white
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -75,8 +76,10 @@ class ModeCarouselCell: UICollectionViewCell {
         iconView.image = mode.icon
         titleLabel.text = mode.title
         titleLabel.font = highlight
-            ? UIFont.systemFont(ofSize: 18, weight: .heavy)
-            : UIFont.systemFont(ofSize: 15, weight: .regular)
+        ? UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .headline).pointSize, weight: .heavy)
+        //        UIFont.systemFont(ofSize: 18, weight: .heavy)
+        : UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .subheadline).pointSize, weight: .regular)
+        //        UIFont.systemFont(ofSize: 15, weight: .regular)
         titleLabel.textColor = highlight ? .yellow : .white.withAlphaComponent(0.75)
     }
 }
@@ -85,7 +88,7 @@ class ModeCarouselCell: UICollectionViewCell {
 class CameraModePickerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate {
     
     var router: MainFlowRouter?
-
+    
     let modes: [CameraMode] = [
         .init(icon: UIImage(systemName: "camera")!, title: "Photo"),
         .init(icon: UIImage(systemName: "person.crop.square")!, title: "Portrait"),
@@ -97,7 +100,7 @@ class CameraModePickerViewController: UIViewController, UICollectionViewDataSour
         .init(icon: UIImage(systemName: "sparkles")!, title: "Pano"),
     ]
     var selectedIndex = 0
-
+    
     // UI
     let lightingButton = UIButton(type: .system)
     let dimView = UIView()
@@ -105,9 +108,9 @@ class CameraModePickerViewController: UIViewController, UICollectionViewDataSour
     let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialDark))
     let carousel: UICollectionView
     let feedback = UISelectionFeedbackGenerator()
-
+    
     var modalBottomConstraint: NSLayoutConstraint!
-
+    
     init() {
         let layout = CarouselFlowLayout()
         layout.itemSize = CGSize(width: 80, height: 90)
@@ -115,20 +118,21 @@ class CameraModePickerViewController: UIViewController, UICollectionViewDataSour
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) { fatalError() }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         setupLightingButton()
         setupModalSheet()
     }
-
+    
     // Tombol utama lightingButton
     func setupLightingButton() {
         lightingButton.setImage(modes[selectedIndex].icon.withRenderingMode(.alwaysTemplate), for: .normal)
         lightingButton.setTitle("  \(modes[selectedIndex].title)", for: .normal)
         lightingButton.tintColor = .white
-        lightingButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        lightingButton.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .headline).pointSize, weight: .semibold)
+        //        lightingButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
         lightingButton.backgroundColor = UIColor(white: 0.25, alpha: 0.65)
         lightingButton.layer.cornerRadius = 22
         lightingButton.clipsToBounds = true
@@ -141,7 +145,7 @@ class CameraModePickerViewController: UIViewController, UICollectionViewDataSour
             lightingButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
-
+    
     // Modal Sheet (blur, rounded, shadow, carousel)
     func setupModalSheet() {
         // Dim background
@@ -203,7 +207,7 @@ class CameraModePickerViewController: UIViewController, UICollectionViewDataSour
             carousel.rightAnchor.constraint(equalTo: modalSheet.rightAnchor)
         ])
     }
-
+    
     // Buka modal (morph anim)
     @objc func openModal() {
         // Snap posisi carousel ke mode terpilih
@@ -246,7 +250,7 @@ class CameraModePickerViewController: UIViewController, UICollectionViewDataSour
             self.modalSheet.transform = .identity
         })
     }
-
+    
     // DataSource & Delegate
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { modes.count }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

@@ -36,7 +36,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         
         // Hide navigation bar when view appears
         router?.navigationController?.setNavigationBarHidden(true, animated: animated)
-
+        
         // Always reload data when the view appears
         loadDraw()
         
@@ -82,7 +82,8 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     let test: UILabel = {
         let label = UILabel()
         label.text = "TEST"
-        label.font = UIFont.boldSystemFont(ofSize: 18)
+        //        label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .bold)
         label.textColor = .darkGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -108,19 +109,19 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
     private func createCardView(with title: String, with image: String, with availability: Bool) -> UIView {
         let card = UIView()
         card.layer.cornerRadius = 20
-
+        
         card.layer.borderColor = UIColor(named: "Inkredible-LightPurple")?.cgColor
         card.layer.borderWidth = 1.5
         card.backgroundColor = .white
         card.translatesAutoresizingMaskIntoConstraints = false
         card.widthAnchor.constraint(equalToConstant: 273).isActive = true
         card.heightAnchor.constraint(equalToConstant: 160).isActive = true
-    
+        
         let label = UILabel()
         label.text = title
         label.font = UIFont.preferredFont(forTextStyle: .caption2)
         label.textColor = .white
-
+        
         label.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         label.textAlignment = .center
         label.layer.cornerRadius = 12
@@ -128,51 +129,51 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.heightAnchor.constraint(equalToConstant: 24).isActive = true
         label.widthAnchor.constraint(greaterThanOrEqualToConstant: 60).isActive = true
-
+        
         
         let imageView = UIImageView()
         imageView.image = UIImage(named: image)
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
-
-
+        
+        
         
         card.addSubview(label)
         card.addSubview(imageView)
         
         if !availability {
-           let overlay = UIView()
+            let overlay = UIView()
             overlay.backgroundColor = UIColor.gray.withAlphaComponent(0.6)
-           overlay.translatesAutoresizingMaskIntoConstraints = false
-           overlay.layer.cornerRadius = 20
-           overlay.clipsToBounds = true
-
-           let comingSoonLabel = UILabel()
-           comingSoonLabel.text = "Coming Soon"
-           comingSoonLabel.textColor = .white
-           comingSoonLabel.font = UIFont.preferredFont(forTextStyle: .headline)
-           comingSoonLabel.textAlignment = .center
-           comingSoonLabel.translatesAutoresizingMaskIntoConstraints = false
-
-           overlay.addSubview(comingSoonLabel)
-           card.addSubview(overlay)
-
-           NSLayoutConstraint.activate([
-               overlay.topAnchor.constraint(equalTo: card.topAnchor),
-               overlay.leadingAnchor.constraint(equalTo: card.leadingAnchor),
-               overlay.trailingAnchor.constraint(equalTo: card.trailingAnchor),
-               overlay.bottomAnchor.constraint(equalTo: card.bottomAnchor),
-
-               comingSoonLabel.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
-               comingSoonLabel.centerYAnchor.constraint(equalTo: overlay.centerYAnchor)
-           ])
-       }
-
+            overlay.translatesAutoresizingMaskIntoConstraints = false
+            overlay.layer.cornerRadius = 20
+            overlay.clipsToBounds = true
+            
+            let comingSoonLabel = UILabel()
+            comingSoonLabel.text = "Coming Soon"
+            comingSoonLabel.textColor = .white
+            comingSoonLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+            comingSoonLabel.textAlignment = .center
+            comingSoonLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            overlay.addSubview(comingSoonLabel)
+            card.addSubview(overlay)
+            
+            NSLayoutConstraint.activate([
+                overlay.topAnchor.constraint(equalTo: card.topAnchor),
+                overlay.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+                overlay.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+                overlay.bottomAnchor.constraint(equalTo: card.bottomAnchor),
+                
+                comingSoonLabel.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+                comingSoonLabel.centerYAnchor.constraint(equalTo: overlay.centerYAnchor)
+            ])
+        }
+        
         
         NSLayoutConstraint.activate([
             label.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
             label.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12),
-
+            
             imageView.topAnchor.constraint(equalTo: label.bottomAnchor, constant: -36),
             imageView.centerXAnchor.constraint(equalTo: card.centerXAnchor),
             imageView.widthAnchor.constraint(equalToConstant: 120),
@@ -209,9 +210,9 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
             }
         } else {
             // Handle unfinished draws with existing logic
-//            var drawVC = UIViewController()
+            //            var drawVC = UIViewController()
             if draw.draw_mode == "reference" {
-//                drawVC = DrawingStepsViewController(drawID: draw.draw_id)
+                //                drawVC = DrawingStepsViewController(drawID: draw.draw_id)
                 self.router?.navigate(
                     to: .drawingStepsViewController(draw.draw_id),
                     animated: true
@@ -247,7 +248,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
                     }
                 }
             }
-//            navigationController?.setViewControllers([drawVC], animated: true)
+            //            navigationController?.setViewControllers([drawVC], animated: true)
         }
     }
 }

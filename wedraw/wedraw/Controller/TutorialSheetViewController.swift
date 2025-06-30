@@ -16,12 +16,12 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     
     var drawService = DrawService()
     var router : MainFlowRouter?
-  // MARK: – UI
-  private let container = UIView()
-  private let titleLabel = UILabel()
-  private let videoContainer = UIView()
-  private let descriptionLabel = UILabel()
-  private var tooltip: TooltipView?
+    // MARK: – UI
+    private let container = UIView()
+    private let titleLabel = UILabel()
+    private let videoContainer = UIView()
+    private let descriptionLabel = UILabel()
+    private var tooltip: TooltipView?
     private lazy var actionButton = CustomButton(
         title: mode == .reference ? "Start Drawing" : "Take an Anchor",
         backgroundColor: UIColor(named: "Inkredible-Green") ?? .systemGreen,
@@ -30,37 +30,37 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     
     private let infoButton = CustomIconButtonView(iconName: "info", iconColor: UIColor(named: "Inkredible-DarkPurple") ?? .systemYellow, backgroundColor: UIColor(named: "Inkredible-Green") ?? .systemYellow, iconScale: 0.5)
     private let closeButton = CustomIconButtonView(iconName: "xmark", iconColor: UIColor(named: "Inkredible-Red") ?? .systemRed, backgroundColor: UIColor(named: "Inkredible-Green") ?? .green, iconScale: 0.5)
-
-  // MARK: – Video
-  private var queuePlayer: AVQueuePlayer?
-  private var playerLooper: AVPlayerLooper?
+    
+    // MARK: – Video
+    private var queuePlayer: AVQueuePlayer?
+    private var playerLooper: AVPlayerLooper?
     private var playerLayer: AVPlayerLayer?
     private var isVideoReadyToPlay = false
     private var playerItem: AVPlayerItem?
     private var playerItemStatusObserver: NSKeyValueObservation?
     private var playerReadyObserver: NSKeyValueObservation?
-
+    
     private let mode: DrawingMode
     private let selectedAngle: Angle?
     
     // MARK: - Image Properties
     private var anchorImage: UIImage?
-
+    
     init(mode: DrawingMode, angle: Angle) {
         self.mode = mode
         self.selectedAngle = angle
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .pageSheet
         if let sheet = sheetPresentationController, #available(iOS 16.0, *) {
-          let customDetent = UISheetPresentationController.Detent.custom { ctx in
-            ctx.maximumDetentValue * 0.85
-          }
-          sheet.detents = [customDetent]
-          sheet.prefersGrabberVisible = true
+            let customDetent = UISheetPresentationController.Detent.custom { ctx in
+                ctx.maximumDetentValue * 0.85
+            }
+            sheet.detents = [customDetent]
+            sheet.prefersGrabberVisible = true
         }
-  }
-  required init?(coder: NSCoder) { fatalError() }
-
+    }
+    required init?(coder: NSCoder) { fatalError() }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "Inkredible-DarkText")
@@ -113,14 +113,14 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
         queuePlayer?.play()
         queuePlayer?.pause()
     }
-
+    
     private func setupVideoLoop() {
         if let playerLayer = playerLayer {
             videoContainer.layer.addSublayer(playerLayer)
             playerLayer.frame = videoContainer.bounds
         }
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         view.layoutIfNeeded()
@@ -129,126 +129,126 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
             queuePlayer?.play()
         }
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if !(queuePlayer?.rate.isEqual(to: 1.0) ?? false) {
             queuePlayer?.play()
         }
     }
-
+    
     deinit {
         playerItemStatusObserver?.invalidate()
         playerReadyObserver?.invalidate()
         queuePlayer?.pause()
         playerLayer?.removeFromSuperlayer()
     }
-
-  private func setupUI() {
-    container.translatesAutoresizingMaskIntoConstraints = false
-    container.backgroundColor = UIColor(named: "Inkredible-DarkText")
-    container.layer.cornerRadius = 20
-    view.addSubview(container)
-      
-      infoButton.delegate = self
-      closeButton.delegate = self
-
-      infoButton.updateSize(width: 30)
-      closeButton.updateSize(width: 30)
-      
-    titleLabel.translatesAutoresizingMaskIntoConstraints = false
-    titleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .medium)
-      titleLabel.textColor = .white
-    titleLabel.textAlignment = .center
-    titleLabel.numberOfLines = 0
-    titleLabel.text = mode == .reference
-      ? "You need to adjust the selected angle into your desired image position"
-      : "You need to register an anchor for this drawing session."
-
-    videoContainer.translatesAutoresizingMaskIntoConstraints = false
-    videoContainer.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
-    videoContainer.layer.cornerRadius = 12
-    videoContainer.clipsToBounds = true
-
-    descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-    descriptionLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .medium)
-      descriptionLabel.textColor = .white
-    descriptionLabel.textAlignment = .center
-    descriptionLabel.numberOfLines = 0
-    descriptionLabel.text = mode == .reference
-      ? "Look for something comfortable so you can draw with more focus"
-      : "Look for something with rich texture or detail like a card, snack, or a patterned item. Avoid reflective surface."
-
-      actionButton.delegate = self
-
-    [infoButton, closeButton, titleLabel, videoContainer, descriptionLabel, actionButton]
-      .forEach { container.addSubview($0) }
-
-    NSLayoutConstraint.activate([
-      container.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-      container.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-      container.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
-      container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-
-      infoButton.topAnchor.constraint(equalTo: container.topAnchor),
-      infoButton.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-
-      closeButton.topAnchor.constraint(equalTo: container.topAnchor),
-      closeButton.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-
-      titleLabel.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 12),
-      titleLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-      titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 20),
-      titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -20),
-
-      videoContainer.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-      videoContainer.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-      videoContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-      videoContainer.heightAnchor.constraint(equalTo: videoContainer.widthAnchor),
-
-      descriptionLabel.topAnchor.constraint(equalTo: videoContainer.bottomAnchor, constant: 12),
-      descriptionLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-      descriptionLabel.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 20),
-      descriptionLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -20),
-
-      actionButton.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-      actionButton.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-      actionButton.heightAnchor.constraint(equalToConstant: 55),
-      actionButton.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-    ])
-  }
+    
+    private func setupUI() {
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.backgroundColor = UIColor(named: "Inkredible-DarkText")
+        container.layer.cornerRadius = 20
+        view.addSubview(container)
+        
+        infoButton.delegate = self
+        closeButton.delegate = self
+        
+        infoButton.updateSize(width: 30)
+        closeButton.updateSize(width: 30)
+        
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .medium)
+        titleLabel.textColor = .white
+        titleLabel.textAlignment = .center
+        titleLabel.numberOfLines = 0
+        titleLabel.text = mode == .reference
+        ? "You need to adjust the selected angle into your desired image position"
+        : "You need to register an anchor for this drawing session."
+        
+        videoContainer.translatesAutoresizingMaskIntoConstraints = false
+        videoContainer.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
+        videoContainer.layer.cornerRadius = 12
+        videoContainer.clipsToBounds = true
+        
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .medium)
+        descriptionLabel.textColor = .white
+        descriptionLabel.textAlignment = .center
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.text = mode == .reference
+        ? "Look for something comfortable so you can draw with more focus"
+        : "Look for something with rich texture or detail like a card, snack, or a patterned item. Avoid reflective surface."
+        
+        actionButton.delegate = self
+        
+        [infoButton, closeButton, titleLabel, videoContainer, descriptionLabel, actionButton]
+            .forEach { container.addSubview($0) }
+        
+        NSLayoutConstraint.activate([
+            container.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            container.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            container.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
+            container.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            
+            infoButton.topAnchor.constraint(equalTo: container.topAnchor),
+            infoButton.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            
+            closeButton.topAnchor.constraint(equalTo: container.topAnchor),
+            closeButton.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            
+            titleLabel.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 12),
+            titleLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -20),
+            
+            videoContainer.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            videoContainer.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            videoContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            videoContainer.heightAnchor.constraint(equalTo: videoContainer.widthAnchor),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: videoContainer.bottomAnchor, constant: 12),
+            descriptionLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            descriptionLabel.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -20),
+            
+            actionButton.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            actionButton.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            actionButton.heightAnchor.constraint(equalToConstant: 55),
+            actionButton.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+    }
     
     @objc private func toggleTooltip() {
-      tooltip?.removeFromSuperview()
-      
-      let text = mode == .reference
+        tooltip?.removeFromSuperview()
+        
+        let text = mode == .reference
         ? "This shows how to align your reference under camera."
         : "Anchor is needed to display step-by-step images of the selected angle."
-      
-      let tip = TooltipView(text: text) { [weak self] in
-        self?.tooltip = nil
-      }
-      
-      tip.translatesAutoresizingMaskIntoConstraints = false
-      container.addSubview(tip)
-      tooltip = tip
-      
-      NSLayoutConstraint.activate([
-        tip.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 8),
-        tip.leadingAnchor.constraint(equalTo: infoButton.leadingAnchor),
-        tip.widthAnchor.constraint(equalToConstant: 250),
-        tip.heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
-      ])
+        
+        let tip = TooltipView(text: text) { [weak self] in
+            self?.tooltip = nil
+        }
+        
+        tip.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(tip)
+        tooltip = tip
+        
+        NSLayoutConstraint.activate([
+            tip.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 8),
+            tip.leadingAnchor.constraint(equalTo: infoButton.leadingAnchor),
+            tip.widthAnchor.constraint(equalToConstant: 250),
+            tip.heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
+        ])
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         playerLayer?.frame = videoContainer.bounds
     }
-
-  @objc private func dismissSheet() {
-    dismiss(animated: true)
-  }
+    
+    @objc private func dismissSheet() {
+        dismiss(animated: true)
+    }
     
     private func captureAnchorPhoto() {
         let picker = UIImagePickerController()
@@ -259,21 +259,21 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            picker.dismiss(animated: true)
-
-            if let image = info[.originalImage] as? UIImage {
-                let fixedImage = image.normalizedImage()
-                self.anchorImage = fixedImage
-                
-                // Move to cropping step automatically
-                cropAnchorPhoto()
-            }
+        picker.dismiss(animated: true)
+        
+        if let image = info[.originalImage] as? UIImage {
+            let fixedImage = image.normalizedImage()
+            self.anchorImage = fixedImage
+            
+            // Move to cropping step automatically
+            cropAnchorPhoto()
         }
+    }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
-
+    
     private func cropAnchorPhoto() {
         guard let image = anchorImage else { return }
         let cropVC = CropViewController(image: image)
@@ -298,12 +298,12 @@ final class TutorialSheetViewController: UIViewController, UIImagePickerControll
     }
     
     private func startARTracing() {
-//            guard let anchorImage = anchorImage else { return }
-//            let arVC = ARTracingViewController()
-//            arVC.anchorImage = anchorImage
-//            arVC.tracingImage = tracingImage
-//            arVC.modalPresentationStyle = .fullScreen
-//            present(arVC, animated: true)
+        //            guard let anchorImage = anchorImage else { return }
+        //            let arVC = ARTracingViewController()
+        //            arVC.anchorImage = anchorImage
+        //            arVC.tracingImage = tracingImage
+        //            arVC.modalPresentationStyle = .fullScreen
+        //            present(arVC, animated: true)
     }
     
 }
@@ -369,21 +369,21 @@ extension TutorialSheetViewController: CustomButtonDelegate {
                     )
                 }
                 
-//                    let drawVC = DrawingStepsViewController(drawID: draw_id)
-//                    navigationController?.setViewControllers([drawVC], animated: true)
-//                    dismiss(animated: true) {
-//                        print("get here")
-//                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//                             let window = windowScene.windows.first else {
-//                           return
-//                        }
-//                        
-//                        let navController = UINavigationController(rootViewController: drawVC)
-//                        navController.interactivePopGestureRecognizer?.isEnabled = false
-//
-//                            window.rootViewController = navController
-//                            window.makeKeyAndVisible()
-//                    }
+                //                    let drawVC = DrawingStepsViewController(drawID: draw_id)
+                //                    navigationController?.setViewControllers([drawVC], animated: true)
+                //                    dismiss(animated: true) {
+                //                        print("get here")
+                //                        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                //                             let window = windowScene.windows.first else {
+                //                           return
+                //                        }
+                //                        
+                //                        let navController = UINavigationController(rootViewController: drawVC)
+                //                        navController.interactivePopGestureRecognizer?.isEnabled = false
+                //
+                //                            window.rootViewController = navController
+                //                            window.makeKeyAndVisible()
+                //                    }
             }
         }
     }
@@ -403,12 +403,12 @@ extension UIImage {
         if self.imageOrientation == .up {
             return self
         }
-
+        
         UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
         self.draw(in: CGRect(origin: .zero, size: self.size))
         let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
-
+        
         return normalizedImage
     }
 }

@@ -8,7 +8,7 @@ import UIKit
 import DotLottie
 
 class LoadingPageView: UIView {
-
+    
     private let comparingLabel: UILabel = {
         let label = UILabel()
         label.text = "Comparing Your Result\nWith Reference Angle"
@@ -19,7 +19,7 @@ class LoadingPageView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private let animationContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -32,26 +32,26 @@ class LoadingPageView: UIView {
     //        view.translatesAutoresizingMaskIntoConstraints = false
     //        return view
     //    }()
-
+    
     private var dotLottieView: UIView?
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
         playDotLottie()
     }
-
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupView()
         playDotLottie()
     }
-
+    
     private func setupView() {
         backgroundColor = UIColor(named: "Inkredible-DarkPurple") ?? .black
         addSubview(animationContainer)
         animationContainer.addSubview(comparingLabel)
-
+        
         NSLayoutConstraint.activate([
             
             animationContainer.centerXAnchor.constraint(equalTo: centerXAnchor),
@@ -64,24 +64,24 @@ class LoadingPageView: UIView {
             comparingLabel.bottomAnchor.constraint(equalTo: animationContainer.topAnchor, constant: -20),
         ])
     }
-
+    
     private func playDotLottie() {
-            dotLottieView?.removeFromSuperview()
-            let anim = DotLottieAnimation(
-                fileName: "scanner-new",
-                config: AnimationConfig(autoplay: true, loop: true)
-            )
+        dotLottieView?.removeFromSuperview()
+        let anim = DotLottieAnimation(
+            fileName: "scanner-new",
+            config: AnimationConfig(autoplay: true, loop: true)
+        )
         let view: UIView = anim.view()
-            view.translatesAutoresizingMaskIntoConstraints = false
-            animationContainer.addSubview(view)
-            NSLayoutConstraint.activate([
-                view.leadingAnchor.constraint(equalTo: animationContainer.leadingAnchor),
-                view.trailingAnchor.constraint(equalTo: animationContainer.trailingAnchor),
-                view.topAnchor.constraint(equalTo: animationContainer.topAnchor),
-                view.bottomAnchor.constraint(equalTo: animationContainer.bottomAnchor)
-            ])
-            dotLottieView = view
-        }
+        view.translatesAutoresizingMaskIntoConstraints = false
+        animationContainer.addSubview(view)
+        NSLayoutConstraint.activate([
+            view.leadingAnchor.constraint(equalTo: animationContainer.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: animationContainer.trailingAnchor),
+            view.topAnchor.constraint(equalTo: animationContainer.topAnchor),
+            view.bottomAnchor.constraint(equalTo: animationContainer.bottomAnchor)
+        ])
+        dotLottieView = view
+    }
 }
 
 #Preview {

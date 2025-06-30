@@ -5,19 +5,19 @@ import UIKit
 extension UIColor {
     convenience init(hex: String) {
         var cString = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-
+        
         if cString.hasPrefix("#") {
             cString.removeFirst()
         }
-
+        
         if cString.count != 6 {
             self.init(white: 1.0, alpha: 1.0)
             return
         }
-
+        
         var rgbValue: UInt64 = 0
         Scanner(string: cString).scanHexInt64(&rgbValue)
-
+        
         self.init(
             red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
             green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
@@ -114,25 +114,25 @@ class DrawingStepsViewController: UIViewController {
         ]
         print("steps",steps)
     }
-//    func loadDraw() {
-//        drawDetails = drawService.getDrawById(draw_id: drawID)
-//        currentIndex = Int(drawDetails[0].current_step - 1)
-//        print("currentIndex",currentIndex)
-//    }
+    //    func loadDraw() {
+    //        drawDetails = drawService.getDrawById(draw_id: drawID)
+    //        currentIndex = Int(drawDetails[0].current_step - 1)
+    //        print("currentIndex",currentIndex)
+    //    }
     
-//    private var steps: [DrawingStep] = [
-//        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
-//        DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),
-//        DrawingStep(title: "Split Face Horizontally", description: "Add eye and nose level.", imageName: "step3"),
-//        DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
-//        DrawingStep(title: "Draw Eye Line", description: "Mark horizontal eye level.", imageName: "step5"),
-//        DrawingStep(title: "Mark Nose Line", description: "Place nose at 1/3 down from eyes to chin.", imageName: "step6"),
-//        DrawingStep(title: "Define Jaw", description: "Sketch jaw shape to connect head and chin.", imageName: "step7"),
-//        DrawingStep(title: "Add Ear Level", description: "Align ear from eye to nose level.", imageName: "step8"),
-//        DrawingStep(title: "Draw Neck Guide", description: "Extend lines for neck from jaw.", imageName: "step9"),
-//        DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
-//    ]
-
+    //    private var steps: [DrawingStep] = [
+    //        DrawingStep(title: "Draw the Base Circle", description: "Start with a simple circle, this will be the skull base. Don't worry about perfection; just aim for a clean round shape", imageName: "step1"),
+    //        DrawingStep(title: "Draw Guide for Side", description: "Draw vertical line for direction. Use center as anchor.", imageName: "step2"),
+    //        DrawingStep(title: "Split Face Horizontally", description: "Add eye and nose level.", imageName: "step3"),
+    //        DrawingStep(title: "Add Chin Box", description: "Sketch box to shape the chin.", imageName: "step4"),
+    //        DrawingStep(title: "Draw Eye Line", description: "Mark horizontal eye level.", imageName: "step5"),
+    //        DrawingStep(title: "Mark Nose Line", description: "Place nose at 1/3 down from eyes to chin.", imageName: "step6"),
+    //        DrawingStep(title: "Define Jaw", description: "Sketch jaw shape to connect head and chin.", imageName: "step7"),
+    //        DrawingStep(title: "Add Ear Level", description: "Align ear from eye to nose level.", imageName: "step8"),
+    //        DrawingStep(title: "Draw Neck Guide", description: "Extend lines for neck from jaw.", imageName: "step9"),
+    //        DrawingStep(title: "Draw A Line to Make A Nose", description: "Add guide lines for a nose\nTip: Nose (1/3 down from eye line to chin)", imageName: "step10")
+    //    ]
+    
     // UI Components
     private let infoButton = CustomIconButtonView(
         iconName: "info",
@@ -141,16 +141,16 @@ class DrawingStepsViewController: UIViewController {
         iconScale: 0.5
     )
     
-//    private let topButton: UIButton = {
-//        let button = UIButton(type: .system)
-//        button.setTitle("Stop Drawing", for: .normal)
-//        button.setTitleColor(UIColor(hex: "7D7BB3"), for: .normal)
-//        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
-//        button.isEnabled = true
-//        button.alpha = 1.0
-//        button.translatesAutoresizingMaskIntoConstraints = false
-//        return button
-//    }()
+    //    private let topButton: UIButton = {
+    //        let button = UIButton(type: .system)
+    //        button.setTitle("Stop Drawing", for: .normal)
+    //        button.setTitleColor(UIColor(hex: "7D7BB3"), for: .normal)
+    //        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+    //        button.isEnabled = true
+    //        button.alpha = 1.0
+    //        button.translatesAutoresizingMaskIntoConstraints = false
+    //        return button
+    //    }()
     
     private lazy var finishButton: UIButton = {
         let button = UIButton(type: .system)
@@ -161,19 +161,21 @@ class DrawingStepsViewController: UIViewController {
         button.addTarget(self, action: #selector(finishButtonTapped), for: .touchUpInside)
         return button
     }()
-
+    
     private let stepTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 20)
+        //        label.font = UIFont.boldSystemFont(ofSize: 20)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .bold)
         label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private let stepDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
+        //        label.font = UIFont.systemFont(ofSize: 16)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
         label.textColor = .white
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -187,21 +189,21 @@ class DrawingStepsViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
-
+    
     private let stepImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-
+    
     private let bottomContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-
+    
     private let buttonCardView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
@@ -209,47 +211,47 @@ class DrawingStepsViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-
+    
     private let prevButton: UIButton = {
         let button = UIButton(type: .system)
-
+        
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         let image = UIImage(systemName: "chevron.left", withConfiguration: config)
         button.setImage(image, for: .normal)
         button.tintColor = UIColor(named: "Inkredible-DarkText")
-
+        
         button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             button.widthAnchor.constraint(equalToConstant: 55),
             button.heightAnchor.constraint(equalToConstant: 55)
         ])
-
+        
         return button
     }()
-
+    
     private let nextButton: UIButton = {
         let button = UIButton(type: .system)
-
+        
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         let image = UIImage(systemName: "chevron.right", withConfiguration: config)
         button.setImage(image, for: .normal)
         button.tintColor = UIColor(named: "Inkredible-DarkText")
-
+        
         button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 24
         button.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             button.widthAnchor.constraint(equalToConstant: 55),
             button.heightAnchor.constraint(equalToConstant: 55)
         ])
-
+        
         return button
     }()
-
+    
     private let stepProgressLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .bold)
@@ -258,7 +260,7 @@ class DrawingStepsViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -315,8 +317,8 @@ class DrawingStepsViewController: UIViewController {
         infoButton.delegate = self
         
         view.addSubview(infoButton)
-//        view.addSubview(topButton)
-//        view.addSubview(stepImageView)
+        //        view.addSubview(topButton)
+        //        view.addSubview(stepImageView)
         view.addSubview(scrollView)
         scrollView.addSubview(stepImageView)
         view.addSubview(bottomContainer)
@@ -325,10 +327,10 @@ class DrawingStepsViewController: UIViewController {
         buttonCardView.addSubview(prevButton)
         buttonCardView.addSubview(nextButton)
         buttonCardView.addSubview(stepProgressLabel)
-
+        
         setupConstraints()
     }
-
+    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
@@ -339,51 +341,51 @@ class DrawingStepsViewController: UIViewController {
             bottomContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-//
-//            topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
-//            topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            //
+            //            topButton.centerYAnchor.constraint(equalTo: infoButton.centerYAnchor),
+            //            topButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             scrollView.topAnchor.constraint(equalTo:  view.safeAreaLayoutGuide.topAnchor, constant: 0),
             scrollView.bottomAnchor.constraint(equalTo: bottomContainer.topAnchor, constant: 16),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
             scrollView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-//            scrollView.heightAnchor.constraint(equalTo: scrollView.widthAnchor),
-
+            //            scrollView.heightAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
             stepImageView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stepImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stepImageView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stepImageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             stepImageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             stepImageView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-
-      
-
-
+            
+            
+            
+            
             buttonCardView.centerXAnchor.constraint(equalTo: bottomContainer.centerXAnchor),
             buttonCardView.centerYAnchor.constraint(equalTo: bottomContainer.centerYAnchor),
             buttonCardView.heightAnchor.constraint(equalToConstant: 55),
             buttonCardView.leadingAnchor.constraint(equalTo: bottomContainer.leadingAnchor, constant: 24),
             buttonCardView.trailingAnchor.constraint(equalTo: bottomContainer.trailingAnchor, constant: -24),
-
+            
             prevButton.centerYAnchor.constraint(equalTo: buttonCardView.centerYAnchor),
             prevButton.leadingAnchor.constraint(equalTo: buttonCardView.leadingAnchor, constant: 16),
             prevButton.widthAnchor.constraint(equalToConstant: 48),
             prevButton.heightAnchor.constraint(equalToConstant: 48),
-
+            
             nextButton.centerYAnchor.constraint(equalTo: buttonCardView.centerYAnchor),
             nextButton.trailingAnchor.constraint(equalTo: buttonCardView.trailingAnchor, constant: -16),
             nextButton.widthAnchor.constraint(equalToConstant: 48),
             nextButton.heightAnchor.constraint(equalToConstant: 48),
-
+            
             stepProgressLabel.centerXAnchor.constraint(equalTo: buttonCardView.centerXAnchor),
             stepProgressLabel.centerYAnchor.constraint(equalTo: buttonCardView.centerYAnchor)
         ])
     }
-
+    
     private func setupActions() {
         prevButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
-//        topButton.addTarget(self, action: #selector(topButtonTapped), for: .touchUpInside)
+        //        topButton.addTarget(self, action: #selector(topButtonTapped), for: .touchUpInside)
     }
     
     @objc private func finishButtonTapped() {
@@ -394,51 +396,51 @@ class DrawingStepsViewController: UIViewController {
                 animated: true
             )
             
-//            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//            let fileURL = documentsURL.appendingPathComponent(self.steps[steps.count - 1].imageName)
-//
-//            if FileManager.default.fileExists(atPath: fileURL.path),
-//               let data = try? Data(contentsOf: fileURL),
-//               let image = UIImage(data: data) {
-//                
-//                router?.presentDirectly(
-//                    .photoCaptureSheetViewController( image, self.drawID, true),
-//                      animated: true
-//                    )
-//            } else {
-//                print("gak ketemu guis")
-//            }
-
+            //            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            //            let fileURL = documentsURL.appendingPathComponent(self.steps[steps.count - 1].imageName)
+            //
+            //            if FileManager.default.fileExists(atPath: fileURL.path),
+            //               let data = try? Data(contentsOf: fileURL),
+            //               let image = UIImage(data: data) {
+            //                
+            //                router?.presentDirectly(
+            //                    .photoCaptureSheetViewController( image, self.drawID, true),
+            //                      animated: true
+            //                    )
+            //            } else {
+            //                print("gak ketemu guis")
+            //            }
+            
             // This is the last step - go to CameraTesterViewController
-//            let nextVC = CameraTesterViewController()
-//            nextVC.drawID = drawID // Pass drawID to CameraTesterViewController
-//            if let router = router {
-//                router.navigationController?.pushViewController(nextVC, animated: true)
-//            } else {
-//                navigationController?.pushViewController(nextVC, animated: true)
-//            }
+            //            let nextVC = CameraTesterViewController()
+            //            nextVC.drawID = drawID // Pass drawID to CameraTesterViewController
+            //            if let router = router {
+            //                router.navigationController?.pushViewController(nextVC, animated: true)
+            //            } else {
+            //                navigationController?.pushViewController(nextVC, animated: true)
+            //            }
         } else {
             router?.presentDirectly(
                 .photoCaptureSheetViewController( self.tracingImage  ?? UIImage(named: "traceng")!, self.drawID, false),
-                  animated: true
-                )
+                animated: true
+            )
             // Save functionality
-//            let homeVC = HomeViewController()
-//            let nav = UINavigationController(rootViewController: homeVC)
-//            homeVC.router = MainFlowRouter(navigationController: nav)
-//            
-//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//               let window = windowScene.windows.first {
-//                window.rootViewController = nav
-//                window.makeKeyAndVisible()
-//            }
+            //            let homeVC = HomeViewController()
+            //            let nav = UINavigationController(rootViewController: homeVC)
+            //            homeVC.router = MainFlowRouter(navigationController: nav)
+            //            
+            //            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            //               let window = windowScene.windows.first {
+            //                window.rootViewController = nav
+            //                window.makeKeyAndVisible()
+            //            }
         }
     }
-
+    
     @objc private func toggleInfo() {
         toggleTooltip()
     }
-
+    
     @objc private func prevTapped() {
         if currentIndex > 0 {
             currentIndex -= 1
@@ -449,7 +451,7 @@ class DrawingStepsViewController: UIViewController {
             }
         }
     }
-
+    
     @objc private func nextTapped() {
         if currentIndex < steps.count - 1 {
             currentIndex += 1
@@ -462,19 +464,19 @@ class DrawingStepsViewController: UIViewController {
             showCompletionTooltip()
         }
     }
-
+    
     private func updateStep() {
         let step = steps[currentIndex]
         stepTitleLabel.text = step.title
         stepDescriptionLabel.text = step.description
-//        if let data = try? Data(contentsOf: ),
-//           let image = UIImage(data: data) {
-//            let imageView = UIImageView(image: image)
-            
-//        let fileName = "SceneSnapshot_1751126135.901451.png"
+        //        if let data = try? Data(contentsOf: ),
+        //           let image = UIImage(data: data) {
+        //            let imageView = UIImageView(image: image)
+        
+        //        let fileName = "SceneSnapshot_1751126135.901451.png"
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(step.imageName)
-
+        
         if FileManager.default.fileExists(atPath: fileURL.path),
            let data = try? Data(contentsOf: fileURL),
            let image = UIImage(data: data) {
@@ -482,14 +484,14 @@ class DrawingStepsViewController: UIViewController {
             stepImageView.image = image
             scrollView.setZoomScale(1.0, animated: false)
         }
-            
-//        stepImageView.image = UIImage(named: step.imageName)
+        
+        //        stepImageView.image = UIImage(named: step.imageName)
         stepProgressLabel.text = "Step \(currentIndex + 1) of \(steps.count)"
         
         // Update navigation
         let isLast = (currentIndex == steps.count - 1)
         finishButton.setTitle(isLast ? "Finish" : "Save", for: .normal)
-//        topButton.setTitle(isLast ? "Finish" : "Stop Drawing", for: .normal)
+        //        topButton.setTitle(isLast ? "Finish" : "Stop Drawing", for: .normal)
         
         prevButton.isHidden = currentIndex == 0
         nextButton.isHidden = currentIndex == steps.count - 1
@@ -499,10 +501,10 @@ class DrawingStepsViewController: UIViewController {
         let tooltipView = TooltipView(text: "Great job! You've completed all the steps!") { [weak self] in
             self?.dismiss(animated: true)
         }
-
+        
         view.addSubview(tooltipView)
         tooltipView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             tooltipView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             tooltipView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -527,13 +529,13 @@ class DrawingStepsViewController: UIViewController {
             tip.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(tip)
             self.tooltip = tip
-
+            
             NSLayoutConstraint.activate([
                 tip.topAnchor.constraint(equalTo: infoButton.bottomAnchor, constant: 12),
                 tip.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
                 tip.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
             ])
-
+            
             UIView.animate(withDuration: 0.2) {
                 tip.alpha = 1
             }
@@ -559,7 +561,7 @@ class DrawingStepsViewController: UIViewController {
         ])
         
         view.layoutIfNeeded()
-    
+        
         if autoDismiss {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self, weak tip] in
                 guard let tip = tip, tip == self?.tooltip else { return }
@@ -576,22 +578,22 @@ class DrawingStepsViewController: UIViewController {
         }
     }
     
-//    @objc private func topButtonTapped() {
-//        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//              let window = windowScene.windows.first else {
-//            return
-//        }
-//
-//        // Create your destination view controller
-//        let homeVC = HomeViewController()
-//        let nav = UINavigationController(rootViewController: homeVC)
-//        nav.interactivePopGestureRecognizer?.isEnabled = false
-//        homeVC.router = MainFlowRouter(navigationController: nav)
-//
-//        // Set as new root
-//        window.rootViewController = nav
-//        window.makeKeyAndVisible()
-//    }
+    //    @objc private func topButtonTapped() {
+    //        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+    //              let window = windowScene.windows.first else {
+    //            return
+    //        }
+    //
+    //        // Create your destination view controller
+    //        let homeVC = HomeViewController()
+    //        let nav = UINavigationController(rootViewController: homeVC)
+    //        nav.interactivePopGestureRecognizer?.isEnabled = false
+    //        homeVC.router = MainFlowRouter(navigationController: nav)
+    //
+    //        // Set as new root
+    //        window.rootViewController = nav
+    //        window.makeKeyAndVisible()
+    //    }
 }
 
 // MARK: - CustomIconButtonViewDelegate

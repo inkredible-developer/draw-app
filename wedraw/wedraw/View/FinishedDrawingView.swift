@@ -66,25 +66,25 @@ class FinishedDrawingView: UIView {
     }
     
     private func configureWithValues() {
-            // Set image
-            imageView.image = resultImage
-            
-            // Set similarity value
-            similarityValueLabel.text = "\(similarityValue)%"
-            if similarityValue <= 30 {
-                similarityValueLabel.textColor = UIColor(named: "Inkredible-LightRed") ?? .systemRed
-            } else {
-                similarityValueLabel.textColor = UIColor(named: "Inkredible-Green") ?? .systemGreen
-            }
-            
-            // Format and set date
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEEE, dd MMMM yyyy"
-            createdOnValueLabel.text = dateFormatter.string(from: createdDate)
-            
-            // Set uploaded time
-            uploadedTimeValueLabel.text = uploadedTime
+        // Set image
+        imageView.image = resultImage
+        
+        // Set similarity value
+        similarityValueLabel.text = "\(similarityValue)%"
+        if similarityValue <= 30 {
+            similarityValueLabel.textColor = UIColor(named: "Inkredible-LightRed") ?? .systemRed
+        } else {
+            similarityValueLabel.textColor = UIColor(named: "Inkredible-Green") ?? .systemGreen
         }
+        
+        // Format and set date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE, dd MMMM yyyy"
+        createdOnValueLabel.text = dateFormatter.string(from: createdDate)
+        
+        // Set uploaded time
+        uploadedTimeValueLabel.text = uploadedTime
+    }
     
     private func setupView() {
         backgroundColor = .white
@@ -101,13 +101,13 @@ class FinishedDrawingView: UIView {
         
         similarityTitleLabel.text = "Similarity towards reference image"
         similarityTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .semibold)
-
+        
         similarityTitleLabel.adjustsFontForContentSizeCategory = true
         similarityTitleLabel.textColor = .white
         similarityTitleLabel.textAlignment = .center
         
         similarityValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .largeTitle).pointSize, weight: .bold)
-
+        
         similarityValueLabel.textColor = UIColor(named: "Inkredible-Green") ?? .systemGreen
         similarityValueLabel.textAlignment = .center
         
@@ -117,7 +117,7 @@ class FinishedDrawingView: UIView {
         
         divider.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         divider2.backgroundColor = UIColor.white.withAlphaComponent(0.3)
-
+        
         createdOnTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
         createdOnTitleLabel.textColor = .white
         createdOnValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
@@ -155,7 +155,7 @@ class FinishedDrawingView: UIView {
             imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor),
             
-
+            
             // Bottom container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -176,7 +176,7 @@ class FinishedDrawingView: UIView {
             similarityBackgroundView.trailingAnchor.constraint(equalTo: similarityValueLabel.trailingAnchor, constant: 12),
             similarityBackgroundView.topAnchor.constraint(equalTo: similarityValueLabel.topAnchor, constant: -6),
             similarityBackgroundView.bottomAnchor.constraint(equalTo: similarityValueLabel.bottomAnchor, constant: 6),
-
+            
             
             // Divider
             divider.topAnchor.constraint(equalTo: similarityValueLabel.bottomAnchor, constant: 16),

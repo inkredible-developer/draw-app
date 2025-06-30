@@ -11,38 +11,35 @@ class ObjectListView: UIView {
     let pageTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Every Line Starts a Journey"
-        label.font = UIFont.boldSystemFont(ofSize: 24)
+        label.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title1).pointSize, weight: .regular)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-        
+    
     var learnMoreButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Learn More", for: .normal)
         button.setTitleColor(.black, for: .normal)
-//        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .caption2)
-//        button.backgroundColor = UIColor.systemGreen
+        button.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize, weight: .semibold)
         button.backgroundColor = UIColor(named: "Inkredible-Green")
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
-    // MARK: - Banner Title
+    
     let bannerLabel: UILabel = {
-       let label = UILabel()
-       label.text = "Loomis Method"
-       label.font = UIFont.preferredFont(forTextStyle: .title1)
-       label.textColor = .white
-       label.translatesAutoresizingMaskIntoConstraints = false
-       label.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-       label.textAlignment = .center
-       label.layer.cornerRadius = 8
-       label.clipsToBounds = true
-       return label
+        let label = UILabel()
+        label.text = "Loomis Method"
+        label.font = UIFont.preferredFont(forTextStyle: .title1)
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        label.textAlignment = .center
+        label.layer.cornerRadius = 8
+        label.clipsToBounds = true
+        return label
     }()
     
     lazy var bannerCard: UIView = {
@@ -66,8 +63,8 @@ class ObjectListView: UIView {
         let title = UILabel()
         title.text = "The Loomis Method: Building Head Structures"
         title.font = UIFont.preferredFont(forTextStyle: .callout)
-
-
+        
+        
         title.textColor = UIColor.white
         title.numberOfLines = 0
         title.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +75,7 @@ class ObjectListView: UIView {
         description.textColor = UIColor.white
         description.numberOfLines = 0
         description.translatesAutoresizingMaskIntoConstraints = false
-
+        
         
         card.addSubview(image)
         card.addSubview(title)
@@ -91,20 +88,20 @@ class ObjectListView: UIView {
             image.centerYAnchor.constraint(equalTo: card.centerYAnchor),
             image.widthAnchor.constraint(equalToConstant: 80),
             image.heightAnchor.constraint(equalToConstant: 120),
-
+            
             title.topAnchor.constraint(equalTo: card.topAnchor, constant: 12),
             title.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 12),
             title.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -12),
-
+            
             description.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 4),
             description.leadingAnchor.constraint(equalTo: title.leadingAnchor),
             description.trailingAnchor.constraint(equalTo: title.trailingAnchor),
             
             learnMoreButton.topAnchor.constraint(equalTo: description.bottomAnchor, constant: 8),
             learnMoreButton.leadingAnchor.constraint(equalTo: description.leadingAnchor),
-            learnMoreButton.widthAnchor.constraint(equalToConstant: 69),
-            learnMoreButton.heightAnchor.constraint(equalToConstant: 19),
-
+            learnMoreButton.widthAnchor.constraint(equalToConstant: 86),
+            learnMoreButton.heightAnchor.constraint(equalToConstant: 24),
+            
         ])
         
         return card
@@ -117,7 +114,7 @@ class ObjectListView: UIView {
         scrollView.showsHorizontalScrollIndicator = false
         return scrollView
     }()
-
+    
     let modelsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -126,13 +123,13 @@ class ObjectListView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-
+    
     let sectionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textAlignment = .left
-
+        
         let boldText = "Start Draw"
         let regularText = ", Select Your Heads Model !"
         
@@ -145,13 +142,12 @@ class ObjectListView: UIView {
             .font: UIFont.preferredFont(forTextStyle: .title3),
             .foregroundColor: UIColor.label
         ]
-
+        
         let attributedText = NSMutableAttributedString(string: boldText, attributes: boldAttributes)
         attributedText.append(NSAttributedString(string: regularText, attributes: regularAttributes))
-
+        
         label.attributedText = attributedText
         return label
         
     }()
 }
-

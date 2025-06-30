@@ -96,26 +96,26 @@ class ListFinishedDrawingView: UIView {
         
         detailContainerLabel.text = "Detail"
         detailContainerLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .bold)
-
+        
         detailContainerLabel.adjustsFontForContentSizeCategory = true
         detailContainerLabel.textColor = .white
         detailContainerLabel.textAlignment = .left
         
         similarityTitleLabel.text = "Similarity towards reference image"
         similarityTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
-
+        
         similarityTitleLabel.adjustsFontForContentSizeCategory = true
         similarityTitleLabel.textColor = .white
         similarityTitleLabel.textAlignment = .left
         
         similarityValueLabel.text = "78%"
         similarityValueLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .title3).pointSize, weight: .semibold)
-
+        
         similarityValueLabel.textColor = UIColor(named: "Inkredible-Green")
         
         
         divider.backgroundColor = UIColor.white.withAlphaComponent(0.3)
-
+        
         
         createdOnTitleLabel.text = "Created on"
         createdOnTitleLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
@@ -165,8 +165,8 @@ class ListFinishedDrawingView: UIView {
             imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: bottomContainerView.topAnchor),
             imageView.heightAnchor.constraint(equalToConstant: 510),
-
-
+            
+            
             // Bottom container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -175,7 +175,7 @@ class ListFinishedDrawingView: UIView {
             
             detailContainerLabel.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 24),
             detailContainerLabel.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 24),
-
+            
             
             // Divider
             divider.topAnchor.constraint(equalTo: detailContainerLabel.bottomAnchor, constant: 16),
@@ -188,7 +188,7 @@ class ListFinishedDrawingView: UIView {
             similarityTitleLabel.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 24),
             similarityValueLabel.centerYAnchor.constraint(equalTo: similarityTitleLabel.centerYAnchor),
             similarityValueLabel.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -24),
-                        
+            
             // Created On
             createdOnTitleLabel.topAnchor.constraint(equalTo: similarityTitleLabel.bottomAnchor, constant: 16),
             createdOnTitleLabel.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 24),
@@ -210,7 +210,7 @@ class ListFinishedDrawingView: UIView {
         panGesture.minimumNumberOfTouches = 1
         imageView.addGestureRecognizer(panGesture)
         imageView.isUserInteractionEnabled = true
-//        print("Pan gesture setup complete")
+        //        print("Pan gesture setup complete")
     }
     
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
@@ -220,7 +220,7 @@ class ListFinishedDrawingView: UIView {
         case .began:
             initialTouchPoint = gesture.location(in: imageView)
             hasTriggeredGesture = false
-//            print("Pan gesture began at: \(initialTouchPoint)")
+            //            print("Pan gesture began at: \(initialTouchPoint)")
             
         case .changed:
             // Only trigger once per gesture
@@ -228,16 +228,16 @@ class ListFinishedDrawingView: UIView {
                 // Check if horizontal movement is significant
                 if abs(translation.x) > abs(translation.y) && abs(translation.x) > 100 {
                     hasTriggeredGesture = true
-//                    print("Horizontal swipe detected: \(translation.x)")
+                    //                    print("Horizontal swipe detected: \(translation.x)")
                     
                     if translation.x > 0 {
                         // Swipe right - go to previous drawing
                         if selectedIndex > 0 {
                             selectedIndex -= 1
-//                            print("Going to previous drawing: \(selectedIndex)")
+                            //                            print("Going to previous drawing: \(selectedIndex)")
                             performSlideTransition(direction: .right)
                         } else {
-//                            print("Already at first drawing")
+                            //                            print("Already at first drawing")
                             // Add bounce animation
                             performBounceAnimation()
                         }
@@ -245,10 +245,10 @@ class ListFinishedDrawingView: UIView {
                         // Swipe left - go to next drawing
                         if selectedIndex < finishedDrawings.count - 1 {
                             selectedIndex += 1
-//                            print("Going to next drawing: \(selectedIndex)")
+                            //                            print("Going to next drawing: \(selectedIndex)")
                             performSlideTransition(direction: .left)
                         } else {
-//                            print("Already at last drawing")
+                            //                            print("Already at last drawing")
                             // Add bounce animation
                             performBounceAnimation()
                         }
@@ -258,7 +258,7 @@ class ListFinishedDrawingView: UIView {
             
         case .ended, .cancelled:
             hasTriggeredGesture = false
-//            print("Pan gesture ended")
+            //            print("Pan gesture ended")
             
         default:
             break
@@ -354,10 +354,10 @@ class ListFinishedDrawingView: UIView {
     }
     
     func updateFinishedDrawings(_ drawings: [DrawWithAngle]) {
-//        print("updateFinishedDrawings: Received \(drawings.count) drawings")
+        //        print("updateFinishedDrawings: Received \(drawings.count) drawings")
         finishedDrawings = drawings
         if !drawings.isEmpty {
-//            print("updateFinishedDrawings: Loading initial drawing at index \(selectedIndex)")
+            //            print("updateFinishedDrawings: Loading initial drawing at index \(selectedIndex)")
             loadDrawing(at: selectedIndex)
             updateGallerySelection()
         } else {
@@ -371,14 +371,14 @@ class ListFinishedDrawingView: UIView {
             return 
         }
         
-//        print("loadDrawing: Loading drawing at index \(index)")
+        //        print("loadDrawing: Loading drawing at index \(index)")
         let drawing = finishedDrawings[index]
         
         // Update the imageView later
         let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(drawing.draw.finished_image!)
         let photo = UIImage(contentsOfFile: fileURL.path)
         imageView.image = photo
-//        imageView.image = UIImage(named: "upl_1") // Placeholder image
+        //        imageView.image = UIImage(named: "upl_1") // Placeholder image
         similarityValue = Int(drawing.draw.similarity_score)
         
         //created_at cek lagi
@@ -392,7 +392,7 @@ class ListFinishedDrawingView: UIView {
         uploadedTimeValueLabel.text = timeFormatter.string(from: Date())
         
         delegate?.listFinishedDrawingView(self, didSelectImageAt: index)
-//        print("loadDrawing: Drawing loaded successfully")
+        //        print("loadDrawing: Drawing loaded successfully")
     }
     
     // MARK: - Gallery Centering Methods
