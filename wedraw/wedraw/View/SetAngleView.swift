@@ -60,23 +60,25 @@ class SetAngleView: UIView {
         button.setTitleColor(.black, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .semibold)
         button.backgroundColor = UIColor(named: "Inkredible-Green")
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = 20
         return button
     }()
     
     let bottomContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(named: "Inkredible-LightPurple")
+        view.backgroundColor = UIColor(named: "Inkredible-DarkPurple")
         return view
     }()
     
-    let infoButton: UIButton = {
-        let button = UIButton(type: .system)
-        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular)
-        button.setImage(UIImage(systemName: "info.circle.fill", withConfiguration: symbolConfig), for: .normal)
-        button.tintColor = UIColor(named: "Inkredible-LightPurple")
-        return button
-    }()
+//    let infoButton: UIButton = {
+//        let button = UIButton(type: .system)
+//        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 28, weight: .regular)
+//        button.setImage(UIImage(systemName: "info.circle.fill", withConfiguration: symbolConfig), for: .normal)
+//        button.tintColor = UIColor(named: "Inkredible-LightPurple")
+//        return button
+//    }()
+    
+    var infoButton = CustomIconButtonView(iconName: "info", iconColor: UIColor(named: "Inkredible-DarkPurple") ?? .systemYellow, backgroundColor: UIColor(named: "Inkredible-Green") ?? .systemYellow, iconScale: 0.5)
     
     private var cameraDisplayLink: CADisplayLink?
     private var presetButtons: [UIButton] = []
@@ -115,6 +117,8 @@ class SetAngleView: UIView {
         
         addSubview(choosePresetPickerView)
         
+        infoButton.updateSize(width: 30)
+        
         setupSceneKit()
         //        setupPresetButtons()
     }
@@ -152,20 +156,22 @@ class SetAngleView: UIView {
             choosePresetPickerView.heightAnchor.constraint(equalToConstant: 50),
             
             // Info Button
-            infoButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 5),
-            infoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            
+            infoButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
+            infoButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+
             // Bottom Container
             bottomContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bottomContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             bottomContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            bottomContainerView.heightAnchor.constraint(equalToConstant: 157),
-            
+            bottomContainerView.heightAnchor.constraint(equalToConstant: 158),
+
             // Choose Button
-            chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
-            chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
-            chooseButton.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 32),
-            chooseButton.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -32),
+//            chooseButton.topAnchor.constraint(equalTo: bottomContainerView.topAnchor, constant: 44),
+//            chooseButton.bottomAnchor.constraint(equalTo: bottomContainerView.bottomAnchor, constant: -55),
+            chooseButton.centerYAnchor.constraint(equalTo: bottomContainerView.centerYAnchor),
+            chooseButton.leadingAnchor.constraint(equalTo: bottomContainerView.leadingAnchor, constant: 16),
+            chooseButton.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -16),
+            chooseButton.heightAnchor.constraint(equalToConstant: 55),
             
             // Preset Angle Button
             presetAngleButton.bottomAnchor.constraint(equalTo: chooseButton.topAnchor, constant: -15),

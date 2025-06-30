@@ -856,8 +856,9 @@ class ARTracingViewController: UIViewController {
             sliderContainer.heightAnchor.constraint(equalToConstant: 50),
             sliderContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             sliderContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            sliderContainer.topAnchor.constraint(equalTo: bottomContainer.topAnchor, constant: -50),
-            
+            sliderContainer.bottomAnchor.constraint(equalTo: bottomContainer.topAnchor),
+//            sliderContainer.topAnchor.constraint(equalTo: bottomContainer.topAnchor, constant: -50),
+
             buttonCardView.centerXAnchor.constraint(equalTo: bottomContainer.centerXAnchor),
             buttonCardView.centerYAnchor.constraint(equalTo: bottomContainer.centerYAnchor),
             buttonCardView.heightAnchor.constraint(equalToConstant: 55),

@@ -9,11 +9,22 @@ import UIKit
 
 class ListFinishedDrawingViewController: UIViewController {
     var router: MainFlowRouter?
-    var drawData: Draw?
+    var drawData: Draw
     private let drawService = DrawService()
     private var finishedDraws: [DrawWithAngle] = []
+    
+    
 
     private let listFinishedDrawingView = ListFinishedDrawingView()
+    
+    init(drawData: Draw) {
+        self.drawData = drawData
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +42,7 @@ class ListFinishedDrawingViewController: UIViewController {
     private func setupNavigationBar() {
         let backBarButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
         backBarButton.tintColor = UIColor(named: "Inkredible-DarkPurple")
-        navigationItem.leftBarButtonItem = backBarButton
+//        navigationItem.leftBarButtonItem = backBarButton
         
         // Commented out Done button
         // let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonTapped))
@@ -99,22 +110,18 @@ class ListFinishedDrawingViewController: UIViewController {
     }
     
     private func loadDrawData() {
-        guard let draw = drawData else {
-            print("❌ No draw data available")
-            return
-        }
         
         // Find the index of the current draw in the finished draws array
-        if let index = finishedDraws.firstIndex(where: { $0.draw.draw_id == draw.draw_id }) {
+        if let index = finishedDraws.firstIndex(where: { $0.draw.draw_id == drawData.draw_id }) {
             listFinishedDrawingView.selectedIndex = index
             listFinishedDrawingView.galleryCollectionView.reloadData()
         }
         
         // Update the view with actual draw data
-        listFinishedDrawingView.similarityValue = Int(draw.similarity_score)
+        listFinishedDrawingView.similarityValue = Int(drawData.similarity_score)
         
         // Update other labels with actual data
-        updateLabels(with: draw)
+        updateLabels(with: drawData)
     }
     
     private func updateLabels(with draw: Draw) {

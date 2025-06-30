@@ -28,7 +28,8 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         initializeHomeView()
         // Setup content after view is initialized
         setupContent()
-        homeView.learnMoreButton.addTarget(self, action: #selector(infoButtonTapped), for: UIControl.Event.touchUpInside)
+//        homeView.learnMoreButton.addTarget(self, action: #selector(infoButtonTapped), for: UIControl.Event.touchUpInside)
+        homeView.controller = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -37,6 +38,9 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         // Hide navigation bar when view appears
         router?.navigationController?.setNavigationBarHidden(true, animated: animated)
         
+        UINavigationBar.appearance().shadowImage = UIImage()
+            UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+
         // Always reload data when the view appears
         loadDraw()
         
@@ -100,7 +104,9 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         for (title, image, availability) in models {
             let card = createCardView(with: title, with: image, with: availability)
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(modelCardTapped(_:)))
-            card.addGestureRecognizer(tapGesture)
+            if(title == "Male") {
+                card.addGestureRecognizer(tapGesture)
+            }
             card.isUserInteractionEnabled = true
             homeView.modelsStackView.addArrangedSubview(card)
         }
@@ -199,13 +205,19 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
         // Check if the draw is finished
         if draw.is_finished {
             // Navigate to ListFinishedDrawingViewController for finished draws
-            let listFinishedVC = ListFinishedDrawingViewController()
-            listFinishedVC.router = self.router
-            listFinishedVC.drawData = draw // Pass the draw data
+//            let listFinishedVC = ListFinishedDrawingViewController()
+//            listFinishedVC.router = self.router
+//            listFinishedVC.drawData = draw // Pass the draw data
             
             if let router = router {
-                router.navigationController?.pushViewController(listFinishedVC, animated: true)
+//                router.navigationController?.pushViewController(listFinishedVC, animated: true)
+                router.navigate(
+                    to: .listFinishedDrawingViewController(draw),
+                    animated: true
+                )
             } else {
+                let listFinishedVC = ListFinishedDrawingViewController(drawData: draw)
+                            listFinishedVC.router = self.router
                 navigationController?.pushViewController(listFinishedVC, animated: true)
             }
         } else {

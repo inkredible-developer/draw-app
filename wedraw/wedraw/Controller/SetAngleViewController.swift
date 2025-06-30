@@ -43,7 +43,7 @@ class SetAngleViewController: UIViewController {
         
         title = "Select Your Angle"
         loadPreset()
-        setupNavigationBar()
+//        setupNavigationBar()
         setupView()
         setupInitialState()
     }
@@ -73,9 +73,9 @@ class SetAngleViewController: UIViewController {
     }
     
     // MARK: - Setup Methods
-    private func setupNavigationBar() {
-        navigationController?.navigationBar.tintColor = .label
-    }
+//    private func setupNavigationBar() {
+//        navigationController?.navigationBar.tintColor = .label
+//    }
     
     private func setupView() {
         setAngleView.delegate = self
@@ -221,8 +221,10 @@ extension SetAngleViewController: SetAngleViewDelegate {
         // Position the tooltip below the info button
         NSLayoutConstraint.activate([
             tip.topAnchor.constraint(equalTo: setAngleView.infoButton.bottomAnchor, constant: 8),
-            tip.trailingAnchor.constraint(equalTo: setAngleView.infoButton.trailingAnchor),
-            tip.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9)
+            tip.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+//            tip.widthAnchor.constraint(equalToConstant: 250),
+            tip.trailingAnchor.constraint(lessThanOrEqualTo: setAngleView.infoButton.trailingAnchor),
+            tip.heightAnchor.constraint(greaterThanOrEqualToConstant: 60)
         ])
     }
     
