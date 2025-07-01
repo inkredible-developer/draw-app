@@ -23,6 +23,11 @@ class SetAngleViewController: UIViewController {
     let angleService = AngleService()
     let stepService = StepService()
     
+    // Swift
+    private var loadingView: UIActivityIndicatorView?
+    
+    private var loadingOverlay: UIView?
+    
     var allPresetAngle: [Angle] = []
     var selectedPresetIndex: Int = 2 // Default to quarter view
     var currentRotationAngles: SCNVector3 = SCNVector3(x: 0.3, y: -Float.pi/4, z: 0)
@@ -228,8 +233,9 @@ extension SetAngleViewController: SetAngleViewDelegate {
         ])
     }
     
+    // Swift
     func chooseButtonTapped() {
-        
+        showLoading()
         let current: SCNVector3 = getCurrentModelRotation()!
         let (isPreset, matched) = checkIfUsingPreset()
         var dataAngle: Angle!
@@ -239,12 +245,15 @@ extension SetAngleViewController: SetAngleViewDelegate {
             if getSteps.isEmpty {
                 Task {
                     for i in 1...10 {
-                        print(i)
-                        await exportModelNamed(modelNames[i-1],rotation: current, angle_id: dataAngle.angle_id!, step_number: i)
+                        await exportModelNamed(modelNames[i-1], rotation: current, angle_id: dataAngle.angle_id!, step_number: i)
+                    }
+                    DispatchQueue.main.async { [weak self] in
+                        self?.hideLoading()
+                        self?.router?.navigate(to: .selectDrawingViewController(selectedAngle: dataAngle), animated: true)
                     }
                 }
+                return
             }
-            
         } else {
             let customAngle : [Angle] = angleService.getNonPresetAngle()
             let newAngleId = UUID()
@@ -260,17 +269,18 @@ extension SetAngleViewController: SetAngleViewDelegate {
             )
             Task {
                 for i in 1...10 {
-                    print(i)
-                    await exportModelNamed(modelNames[i-1],rotation: current, angle_id: newAngleId, step_number: i)
+                    await exportModelNamed(modelNames[i-1], rotation: current, angle_id: newAngleId, step_number: i)
+                }
+                dataAngle = angleService.getAngleByName(angle_name: angleName)!
+                DispatchQueue.main.async { [weak self] in
+                    self?.hideLoading()
+                    self?.router?.navigate(to: .selectDrawingViewController(selectedAngle: dataAngle), animated: true)
                 }
             }
-            dataAngle = angleService.getAngleByName(angle_name: angleName)!
-            
+            return
         }
-        
-        router?.navigate(to: .selectDrawingViewController(selectedAngle: dataAngle), animated: true)
-    
     }
+    
     func getCurrentModelRotation() -> SCNVector3? {
         return setAngleView.modelNode?.eulerAngles
     }
@@ -280,6 +290,88 @@ extension SetAngleViewController: SetAngleViewDelegate {
         print("Preset angle button tapped")
     }
     
+    // Swift
+    private func showLoading() {
+        // Create a completely new window at a higher level instead of using existing window
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
+        
+        // Create a new window at a higher level
+        let overlayWindow = UIWindow(windowScene: windowScene)
+        overlayWindow.windowLevel = .alert + 1 // Higher than alerts
+        overlayWindow.backgroundColor = .clear
+        overlayWindow.isUserInteractionEnabled = true
+        overlayWindow.makeKeyAndVisible()
+        
+        // Create full screen overlay
+        let overlay = UIView(frame: overlayWindow.bounds)
+        overlay.backgroundColor = UIColor(white: 0, alpha: 0.5)
+        overlay.isUserInteractionEnabled = true
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        // Add tap gesture recognizer
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(overlayTapped))
+        overlay.addGestureRecognizer(tapGesture)
+        
+        overlayWindow.addSubview(overlay)
+        self.loadingOverlay = overlay
+        
+        // Store window reference to prevent it from being deallocated
+        objc_setAssociatedObject(self, &AssociatedKeys.loadingWindow, overlayWindow, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        
+        // Create and position the activity indicator
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .white
+        indicator.center = overlay.center
+        indicator.startAnimating()
+        overlay.addSubview(indicator)
+        loadingView = indicator
+        
+        // Loading label
+        let loadingLabel = UILabel()
+        loadingLabel.text = "Processing your journey..."
+        loadingLabel.textColor = .white
+        loadingLabel.textAlignment = .center
+        loadingLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        loadingLabel.translatesAutoresizingMaskIntoConstraints = false
+        overlay.addSubview(loadingLabel)
+        
+        NSLayoutConstraint.activate([
+            loadingLabel.centerXAnchor.constraint(equalTo: indicator.centerXAnchor),
+            loadingLabel.topAnchor.constraint(equalTo: indicator.bottomAnchor, constant: 12)
+        ])
+    }
+
+    
+    // Add this method to handle taps on the overlay
+    @objc private func overlayTapped(_ gestureRecognizer: UITapGestureRecognizer) {
+        // This method just captures the tap and does nothing
+        // Ensure we're consuming the touch event
+        print("Overlay tapped - touch intercepted")
+    }
+    
+    private struct AssociatedKeys {
+        static var loadingWindow: UInt8 = 0
+    }
+    
+    private func hideLoading() {
+        // Remove the loading indicator
+        loadingView?.stopAnimating()
+        loadingView?.removeFromSuperview()
+        loadingView = nil
+        
+        // Remove the overlay
+        loadingOverlay?.removeFromSuperview()
+        loadingOverlay = nil
+        
+        // Get and hide the window
+        if let window = objc_getAssociatedObject(self, &AssociatedKeys.loadingWindow) as? UIWindow {
+            window.isHidden = true
+            // Remove the association
+            objc_setAssociatedObject(self, &AssociatedKeys.loadingWindow, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+
     func presetButtonTapped(at index: Int) {
         // Update the model with the selected preset
         updateSelectedPreset(index)

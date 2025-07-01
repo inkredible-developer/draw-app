@@ -189,7 +189,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wedraw;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please!!";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is needed to track your environment and enable Augmented Reality features.\n";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -223,7 +223,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = wedraw/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wedraw;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Please!!";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is needed to track your environment and enable Augmented Reality features.\n";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

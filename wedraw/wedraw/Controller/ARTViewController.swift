@@ -1065,18 +1065,17 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
             }
         } else if tracingNode == nil {
             let newTracingNode = createTracingNode()
-            
             let anchorWidth = imageAnchor.referenceImage.physicalSize.width
             let anchorHeight = imageAnchor.referenceImage.physicalSize.height
-            
+
             if let plane = newTracingNode.geometry as? SCNPlane {
-                let posX = (anchorWidth / 2) + (Double(plane.width) / 2)
-                let posZ = (anchorHeight / 2) + (Double(plane.height) / 2)
-                newTracingNode.position = SCNVector3(x: Float(posX), y: 0.001, z: Float(posZ))
+                // Offset so top-left of tracing image is at anchor center, node at bottom-right
+                let offsetX = plane.width / 2
+                let offsetZ = plane.height / 2
+                newTracingNode.position = SCNVector3(x: Float(offsetX), y: 0.001, z: Float(offsetZ))
             }
-            
             newTracingNode.eulerAngles.x = -.pi / 2
-            
+
             node.addChildNode(newTracingNode)
             tracingNode = newTracingNode
             
