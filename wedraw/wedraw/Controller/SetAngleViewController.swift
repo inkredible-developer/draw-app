@@ -17,13 +17,11 @@ struct AnglePreset {
 
 class SetAngleViewController: UIViewController {
 
-    // Router for navigation
     var router: MainFlowRouter?
     
     let angleService = AngleService()
     let stepService = StepService()
     
-    // Swift
     private var loadingView: UIActivityIndicatorView?
     
     private var loadingOverlay: UIView?
@@ -38,7 +36,6 @@ class SetAngleViewController: UIViewController {
 
     // MARK: - Properties
     private let setAngleView = SetAngleView()
-//    private let angleModel = AngleModel.shared
     private var isToastVisible = false
     private var dismissWorkItem: DispatchWorkItem?
     var cameraPresets: [AnglePreset] = []
@@ -48,7 +45,6 @@ class SetAngleViewController: UIViewController {
         
         title = "Select Your Angle"
         loadPreset()
-//        setupNavigationBar()
         setupView()
         setupInitialState()
     }
@@ -56,14 +52,13 @@ class SetAngleViewController: UIViewController {
         allPresetAngle = angleService.getPresetAngle()
         print("=== Loaded \(allPresetAngle.count) total preset angle ===")
         
-        // Create a mapping from iconName to Angle
         var angleByIcon: [String: Angle] = [:]
         for angle in allPresetAngle {
             if let iconName = angle.icon_name {
                 angleByIcon[iconName] = angle
             }
         }
-        // Desired icon order to match ChoosePresetPickerView
+
         let presetIconOrder = ["preset_front", "preset_side_right", "preset_quarter", "preset_side_left", "preset_top"]
         cameraPresets = []
         for iconName in presetIconOrder {
@@ -77,10 +72,6 @@ class SetAngleViewController: UIViewController {
         view = setAngleView
     }
     
-    // MARK: - Setup Methods
-//    private func setupNavigationBar() {
-//        navigationController?.navigationBar.tintColor = .label
-//    }
     
     private func setupView() {
         setAngleView.delegate = self
@@ -251,6 +242,12 @@ extension SetAngleViewController: SetAngleViewDelegate {
                         self?.hideLoading()
                         self?.router?.navigate(to: .selectDrawingViewController(selectedAngle: dataAngle), animated: true)
                     }
+                }
+                return
+            }else{
+                DispatchQueue.main.async { [weak self] in
+                    self?.hideLoading()
+                    self?.router?.navigate(to: .selectDrawingViewController(selectedAngle: dataAngle), animated: true)
                 }
                 return
             }

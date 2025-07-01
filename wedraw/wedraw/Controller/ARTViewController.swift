@@ -444,35 +444,38 @@ class ARTracingViewController: UIViewController {
     //    }
     
     
+//    swift
     private func createTracingNode() -> SCNNode {
-        // Get current step image
         let step = steps[currentIndex]
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(step.imageName)
-        
-        // Default to tracingImage if file doesn't exist
         var currentStepImage = tracingImage
-        
-        if FileManager.default.fileExists(atPath: fileURL.path),
-           let data = try? Data(contentsOf: fileURL),
-           let image = UIImage(data: data) {
-            currentStepImage = image
-        }
-        //        let currentStepImage = UIImage(named: steps[currentIndex].imageName) ?? tracingImage
-        
+
         let width: CGFloat = 0.25
         let aspectRatio = currentStepImage.size.height / currentStepImage.size.width
         let height = width * aspectRatio
-        
+
         let plane = SCNPlane(width: width, height: height)
         plane.firstMaterial?.diffuse.contents = currentStepImage
         plane.firstMaterial?.isDoubleSided = true
         plane.firstMaterial?.lightingModel = .constant
-        
+
         let node = SCNNode(geometry: plane)
         node.eulerAngles.x = -.pi / 2
         node.position = SCNVector3(0, 0, 0)
         node.opacity = 0.8
+
+        // Load image step di background, lalu update node di main thread
+        DispatchQueue.global(qos: .userInitiated).async {
+            if FileManager.default.fileExists(atPath: fileURL.path),
+               let data = try? Data(contentsOf: fileURL),
+               let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    plane.firstMaterial?.diffuse.contents = image
+                }
+            }
+        }
+
         return node
     }
     
