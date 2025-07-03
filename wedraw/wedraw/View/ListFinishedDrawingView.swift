@@ -395,7 +395,6 @@ class ListFinishedDrawingView: UIView {
         //        print("loadDrawing: Drawing loaded successfully")
     }
     
-    // MARK: - Gallery Centering Methods
     
     private func centerSelectedItem() {
         guard selectedIndex >= 0 && selectedIndex < finishedDrawings.count else { return }
@@ -468,7 +467,3 @@ class GalleryCell: UICollectionViewCell {
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
-//
-//#Preview {
-//    ListFinishedDrawingView()
-//}

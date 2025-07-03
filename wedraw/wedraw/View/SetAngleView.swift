@@ -146,7 +146,7 @@ class SetAngleView: UIView {
             //            cameraCoordinateLabel.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.8),
             
             // Angle Label
-            angleLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 150),
+            angleLabel.topAnchor.constraint(equalTo: sceneView.bottomAnchor, constant: 30),
             angleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             
             // Choose Preset Picker (directly above bottom container)

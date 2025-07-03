@@ -11,19 +11,10 @@ class ChoosePresetPickerView: UIView {
     private var presetViews: [UIImageView] = []
     private let presetCount = 5
     private var currentIndex: Int?
-    private var selectedPresetIndex: Int = 0 // Track the selected preset (default to front view)
+    private var selectedPresetIndex: Int = 0
     private var isCircularMode = false
     private var hasUserInteracted = false
     
-//    private var backgroundView: UIView = {
-//        let view = UIView()
-//        view.backgroundColor = UIColor.black.withAlphaComponent(0.05) // 20% opacity
-//        view.layer.cornerRadius = 25
-//        view.isHidden = true
-//        return view
-//    }()
-
-    private var player: AVAudioPlayer?
     private let hapticFeedback = UIImpactFeedbackGenerator(style: .light)
 
     override init(frame: CGRect) {
@@ -31,7 +22,6 @@ class ChoosePresetPickerView: UIView {
         backgroundColor = .clear
         setupPresets()
         setupGesture()
-        prepareSound()
     }
     
     required init?(coder: NSCoder) {
@@ -39,14 +29,9 @@ class ChoosePresetPickerView: UIView {
         backgroundColor = .clear
         setupPresets()
         setupGesture()
-        prepareSound()
     }
 
     private func setupPresets() {
-        // Add background view first (so it's behind the icons)
-//        addSubview(backgroundView)
-//        backgroundView.translatesAutoresizingMaskIntoConstraints = false
-        
         let presetIcons = ["preset_front", "preset_side_right", "preset_quarter", "preset_side_left", "preset_top"]
         for i in 0..<presetCount {
             let presetView = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
@@ -76,11 +61,7 @@ class ChoosePresetPickerView: UIView {
         let centerX = bounds.midX
         let y = bounds.midY
         
-        // Hide background in horizontal mode
-//        backgroundView.isHidden = true
-        
         for (index, preset) in presetViews.enumerated() {
-            // Start from center (index 0) and extend to the right
             let x = centerX + CGFloat(index) * spacing
             UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
                 preset.center = CGPoint(x: x, y: y)
@@ -92,8 +73,7 @@ class ChoosePresetPickerView: UIView {
     
     private func layoutPresetsCircular() {
         guard let superview = superview else { return }
-        // Find the top anchor of the bottom container in superview coordinates
-        let bottomContainerTopY = frame.maxY // Default fallback
+//        let bottomContainerTopY = frame.maxY
         if let setAngleView = superview as? UIView, let bottomContainer = setAngleView.subviews.first(where: { $0.accessibilityIdentifier == "bottomContainerView" }) {
             // If bottomContainerView is accessible, use its frame
             let converted = bottomContainer.convert(bottomContainer.bounds, to: self)
@@ -102,18 +82,7 @@ class ChoosePresetPickerView: UIView {
             // Calculate radius so the arc's bottom is at y
             let center = CGPoint(x: bounds.midX, y: y)
             let radius = y
-            // Show half circle background
-//            backgroundView.isHidden = false
-//            backgroundView.layer.cornerRadius = radius
-            // Position background as large half circle
             let backgroundSize: CGFloat = radius * 2
-//            backgroundView.frame = CGRect(
-//                x: center.x - radius,
-//                y: y - backgroundSize,
-//                width: backgroundSize,
-//                height: backgroundSize
-//            )
-            // Create large soft half circle mask
             let maskLayer = CAShapeLayer()
             let path = UIBezierPath()
             path.addArc(withCenter: CGPoint(x: radius, y: backgroundSize),
@@ -124,8 +93,6 @@ class ChoosePresetPickerView: UIView {
             path.addLine(to: CGPoint(x: radius, y: backgroundSize))
             path.close()
             maskLayer.path = path.cgPath
-//            backgroundView.layer.mask = maskLayer
-            // Place icons along the arc
             for (index, preset) in presetViews.enumerated() {
                 let angle = CGFloat.pi + (CGFloat(index) / CGFloat(presetCount - 1) * CGFloat.pi)
                 let x = center.x + cos(angle) * radius * 0.8 // Slightly inside the arc
@@ -138,18 +105,9 @@ class ChoosePresetPickerView: UIView {
             }
             return
         }
-        // Fallback: use previous centered arc
         let radius: CGFloat = 180
         let center = CGPoint(x: bounds.midX, y: bounds.midY)
-//        backgroundView.isHidden = false
-//        backgroundView.layer.cornerRadius = radius
-        let backgroundSize: CGFloat = radius * 2
-//        backgroundView.frame = CGRect(
-//            x: center.x - radius,
-//            y: center.y - radius,
-//            width: backgroundSize,
-//            height: backgroundSize
-//        )
+//        let backgroundSize: CGFloat = radius * 2
         let maskLayer = CAShapeLayer()
         let path = UIBezierPath()
         path.addArc(withCenter: CGPoint(x: radius, y: radius),
@@ -160,7 +118,6 @@ class ChoosePresetPickerView: UIView {
         path.addLine(to: CGPoint(x: radius, y: radius))
         path.close()
         maskLayer.path = path.cgPath
-//        backgroundView.layer.mask = maskLayer
         for (index, preset) in presetViews.enumerated() {
             let angle = CGFloat.pi + (CGFloat(index) / CGFloat(presetCount - 1) * CGFloat.pi)
             let x = center.x + cos(angle) * radius * 0.8
@@ -176,6 +133,31 @@ class ChoosePresetPickerView: UIView {
     private func setupGesture() {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         addGestureRecognizer(panGesture)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
+        if !isCircularMode {
+            showDragHintAnimation()
+        }
+    }
+    
+    private func showDragHintAnimation() {
+        for (index, preset) in presetViews.enumerated() {
+            UIView.animate(withDuration: 0.1, delay: Double(index) * 0.05, options: [.curveEaseInOut], animations: {
+                preset.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+            }) { _ in
+                UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+                    preset.transform = CGAffineTransform.identity
+                }) { _ in
+                    if index == self.presetViews.count - 1 {
+                        self.hapticFeedback.impactOccurred()
+                    }
+                }
+            }
+        }
     }
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
@@ -239,26 +221,12 @@ class ChoosePresetPickerView: UIView {
             }
         }
         hapticFeedback.impactOccurred()
-        player?.play()
-    }
-
-    private func prepareSound() {
-        guard let url = Bundle.main.url(forResource: "tick", withExtension: "mp3") else { return }
-        do {
-            player = try AVAudioPlayer(contentsOf: url)
-            player?.prepareToPlay()
-        } catch {
-            print("Failed to load sound: \(error)")
-        }
     }
 
     private func resetToHorizontalMode() {
         hasUserInteracted = false
         isCircularMode = false
         currentIndex = nil
-        
-        // Remove mask from background view
-//        backgroundView.layer.mask = nil
         
         layoutPresetsHorizontally()
         for (index, preset) in presetViews.enumerated() {
