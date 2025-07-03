@@ -130,12 +130,36 @@ class SegmentedCardView: UIView {
     private func loadCards(forSegment index: Int) {
         cardStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        let items = index == 0 ? allDraws?.finishedDraws : allDraws?.unfinishedDraws
+        let presetNames = ["Front", "Side Left", "Quarter", "Side Right", "Top"]
+        var items: [DrawWithAngle] = []
+        if index == 0, let finishedDraws = allDraws?.finishedDraws {
+            // For each preset, keep only the latest (by draw_id)
+            for preset in presetNames {
+                if let drawWithAngle = finishedDraws
+                    .filter({ $0.angle.angle_name == preset })
+                    .sorted(by: { $0.draw.draw_id.uuidString > $1.draw.draw_id.uuidString })
+                    .first {
+                    items.append(drawWithAngle)
+                }
+            }
+            // For custom, keep only the latest custom (by draw_id)
+            let customDraws = finishedDraws.filter { draw in
+                guard let name = draw.angle.angle_name else { return false }
+                return !presetNames.contains(name)
+            }
+            if let latestCustom = customDraws
+                .sorted(by: { $0.draw.draw_id.uuidString > $1.draw.draw_id.uuidString })
+                .first {
+                items.append(latestCustom)
+            }
+        } else {
+            items = allDraws?.unfinishedDraws ?? []
+        }
         let segmentTitle = segmentedControl.titleForSegment(at: index) ?? "Draw"
         let capitalized = segmentTitle.prefix(1).capitalized + segmentTitle.dropFirst()
         emptyStateLabel.text = "Your \(capitalized) is Empty"
         
-        guard let items = items, !items.isEmpty else {
+        guard !items.isEmpty else {
             scrollView.isHidden = true
             emptyStateView.isHidden = false
             return
@@ -144,27 +168,25 @@ class SegmentedCardView: UIView {
         scrollView.isHidden = false
         emptyStateView.isHidden = true
         
-        for draw in items {
-            let icon = UIImage(named: "icon_head")
+        for drawWithAngle in items {
+            let draw = drawWithAngle.draw
+            let angleName = drawWithAngle.angle.angle_name ?? "Unknown"
             var sketch = UIImage(named: "Sketch")
             
             let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let fileURL = documentsURL.appendingPathComponent(draw.lastStep.image!)
+            let fileURL = documentsURL.appendingPathComponent(drawWithAngle.lastStep.image!)
             if FileManager.default.fileExists(atPath: fileURL.path),
                 let data = try? Data(contentsOf: fileURL),
                 let image = UIImage(data: data) {
                 sketch = zoomImage(image, scale: 0.25)
             }
             
-            
-            let card = makeCard(sketch: sketch, angle_name: draw.angle.angle_name!, mode: draw.draw.draw_mode!)
-            let tag = draw.draw.draw_id.hashValue
+            let card = makeCard(sketch: sketch, angle_name: angleName, mode: draw.draw_mode!)
+            let tag = draw.draw_id.hashValue
             
             card.tag = tag
-            drawMap[tag] = draw.draw
+            drawMap[tag] = draw
             
-            //            card.draw = draw
-            //            card.data = draw.draw_id
             card.isUserInteractionEnabled = true
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(drawCardTapped(_:)))
             card.addGestureRecognizer(tapGesture)

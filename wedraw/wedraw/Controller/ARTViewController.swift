@@ -449,7 +449,7 @@ class ARTracingViewController: UIViewController {
         let step = steps[currentIndex]
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(step.imageName)
-        var currentStepImage = tracingImage
+        let currentStepImage = tracingImage
 
         let width: CGFloat = 0.25
         let aspectRatio = currentStepImage.size.height / currentStepImage.size.width
@@ -670,7 +670,7 @@ class ARTracingViewController: UIViewController {
             }
         }
         
-        if let imageAnchorNode = imageAnchorNode {
+        if imageAnchorNode != nil {
             lastRelativePosition = tracingNode.position
             lastRelativeRotation = tracingNode.eulerAngles
         }
@@ -1068,8 +1068,8 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
             }
         } else if tracingNode == nil {
             let newTracingNode = createTracingNode()
-            let anchorWidth = imageAnchor.referenceImage.physicalSize.width
-            let anchorHeight = imageAnchor.referenceImage.physicalSize.height
+            _ = imageAnchor.referenceImage.physicalSize.width
+            _ = imageAnchor.referenceImage.physicalSize.height
 
             if let plane = newTracingNode.geometry as? SCNPlane {
                 // Offset so top-left of tracing image is at anchor center, node at bottom-right

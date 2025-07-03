@@ -90,7 +90,7 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
         
         // Get the current draw details
         let drawDetails = drawService.getDrawById(draw_id: drawID)
-        guard let draw = drawDetails.first else {
+        guard drawDetails.first != nil else {
             print("❌ No draw found with ID: \(drawID)")
             return
         }

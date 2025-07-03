@@ -34,12 +34,11 @@ class SetAngleViewController: UIViewController {
     private var currentModelIndex = 0
     
 
-    // MARK: - Properties
     private let setAngleView = SetAngleView()
     private var isToastVisible = false
     private var dismissWorkItem: DispatchWorkItem?
     var cameraPresets: [AnglePreset] = []
-    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -200,7 +199,6 @@ class SetAngleViewController: UIViewController {
     
 }
 
-// MARK: - SetAngleViewDelegate
 extension SetAngleViewController: SetAngleViewDelegate {
     
     func infoButtonTapped() {
@@ -224,7 +222,6 @@ extension SetAngleViewController: SetAngleViewDelegate {
         ])
     }
     
-    // Swift
     func chooseButtonTapped() {
         showLoading()
         let current: SCNVector3 = getCurrentModelRotation()!
@@ -283,40 +280,32 @@ extension SetAngleViewController: SetAngleViewDelegate {
     }
     
     func presetAngleButtonTapped() {
-        // Handle preset angle button action
         print("Preset angle button tapped")
     }
     
-    // Swift
     private func showLoading() {
-        // Create a completely new window at a higher level instead of using existing window
         guard let windowScene = UIApplication.shared.connectedScenes
             .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene else { return }
         
-        // Create a new window at a higher level
         let overlayWindow = UIWindow(windowScene: windowScene)
         overlayWindow.windowLevel = .alert + 1 // Higher than alerts
         overlayWindow.backgroundColor = .clear
         overlayWindow.isUserInteractionEnabled = true
         overlayWindow.makeKeyAndVisible()
         
-        // Create full screen overlay
         let overlay = UIView(frame: overlayWindow.bounds)
         overlay.backgroundColor = UIColor(white: 0, alpha: 0.5)
         overlay.isUserInteractionEnabled = true
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-        // Add tap gesture recognizer
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(overlayTapped))
         overlay.addGestureRecognizer(tapGesture)
         
         overlayWindow.addSubview(overlay)
         self.loadingOverlay = overlay
         
-        // Store window reference to prevent it from being deallocated
         objc_setAssociatedObject(self, &AssociatedKeys.loadingWindow, overlayWindow, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         
-        // Create and position the activity indicator
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.color = .white
         indicator.center = overlay.center
@@ -324,7 +313,6 @@ extension SetAngleViewController: SetAngleViewDelegate {
         overlay.addSubview(indicator)
         loadingView = indicator
         
-        // Loading label
         let loadingLabel = UILabel()
         loadingLabel.text = "Processing your journey..."
         loadingLabel.textColor = .white
@@ -352,55 +340,43 @@ extension SetAngleViewController: SetAngleViewDelegate {
     }
     
     private func hideLoading() {
-        // Remove the loading indicator
         loadingView?.stopAnimating()
         loadingView?.removeFromSuperview()
         loadingView = nil
         
-        // Remove the overlay
         loadingOverlay?.removeFromSuperview()
         loadingOverlay = nil
         
-        // Get and hide the window
         if let window = objc_getAssociatedObject(self, &AssociatedKeys.loadingWindow) as? UIWindow {
             window.isHidden = true
-            // Remove the association
             objc_setAssociatedObject(self, &AssociatedKeys.loadingWindow, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 
     func presetButtonTapped(at index: Int) {
-        // Update the model with the selected preset
         updateSelectedPreset(index)
         
-        // Update the view to reflect the selection
         let selectedPreset = getSelectedPreset()
         setAngleView.updateAngleLabel(selectedPreset.name)
         setAngleView.updatePresetButtonSelection(selectedIndex: index)
         
-        // Rotate the 3D model to the new angle
         rotateModel(to: selectedPreset.rotationAngles)
         
         print("Preset button tapped: \(selectedPreset.name)")
     }
     
     func cameraPositionChanged(_ position: SCNVector3) {
-        // Update the model with the new rotation angles
         updateRotationAngles(position)
         
-        // Determine the angle name based on the new rotation
         let angleName = getAngleName(for: position)
         setAngleView.updateAngleLabel(angleName)
         
-        // Check if the rotation matches any preset and update selection if needed
         updatePresetSelectionIfNeeded(for: position)
     }
     
-    // MARK: - Private Methods
     private func rotateModel(to angles: SCNVector3) {
         guard let modelNode = setAngleView.modelNode else { return }
         
-        // Create a smooth rotation animation
         let rotateAction = SCNAction.rotateTo(x: CGFloat(angles.x),
                                             y: CGFloat(angles.y),
                                             z: CGFloat(angles.z),
@@ -430,11 +406,9 @@ extension SetAngleViewController: SetAngleViewDelegate {
                 pow(angles.z - preset.rotationAngles.z, 2)
             )
             
-            // If we're close enough to a preset, update the selection
             if distance < 0.3 {
                 if index != selectedPresetIndex {
                     updateSelectedPreset(index)
-//                    setAngleView.updatePresetButtonSelection(selectedIndex: index)
                 }
                 break
             }
@@ -488,13 +462,11 @@ extension SetAngleViewController: SetAngleViewDelegate {
             rotation: SCNVector3(rotation.x + Float.pi/6 - Float.pi/2, rotation.z, -rotation.y )
         )
 
-        // Setup camera
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
         cameraNode.position = SCNVector3(0, 0, config.zoomDistance - 3.0)
         scene.rootNode.addChildNode(cameraNode)
 
-        // Load and configure model
         if let modelNode = scene.rootNode.childNodes.first {
             modelNode.position = config.position
             modelNode.eulerAngles = config.rotation
@@ -504,7 +476,6 @@ extension SetAngleViewController: SetAngleViewDelegate {
             }
         }
 
-        // Add ambient and omni light
         let ambientLight = SCNLight()
         ambientLight.type = .ambient
         ambientLight.intensity = 500

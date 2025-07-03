@@ -246,7 +246,7 @@ class SetAngleView: UIView {
     @objc private func updateCameraCoordinateDisplay() {
         guard let modelNode = self.modelNode else { return }
         let pos = modelNode.eulerAngles
-        let positionText = String(format: "Model: (x: %.2f, y: %.2f, z: %.2f)", pos.x, pos.y, pos.z)
+        _ = String(format: "Model: (x: %.2f, y: %.2f, z: %.2f)", pos.x, pos.y, pos.z)
         //        updateCameraCoordinateLabel(positionText)
         delegate?.cameraPositionChanged(pos)
     }
