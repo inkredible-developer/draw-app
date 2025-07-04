@@ -74,7 +74,9 @@ class ChoosePresetPickerView: UIView {
     private func layoutPresetsCircular() {
         guard let superview = superview else { return }
 //        let bottomContainerTopY = frame.maxY
-        if let setAngleView = superview as? UIView, let bottomContainer = setAngleView.subviews.first(where: { $0.accessibilityIdentifier == "bottomContainerView" }) {
+//        if let setAngleView = superview as? UIView, let bottomContainer = setAngleView.subviews.first(where: { $0.accessibilityIdentifier == "bottomContainerView" }) {
+        if let bottomContainer = superview.subviews.first(where: { $0.accessibilityIdentifier == "bottomContainerView" }) {
+
             // If bottomContainerView is accessible, use its frame
             let converted = bottomContainer.convert(bottomContainer.bounds, to: self)
             // Use the y of the top edge

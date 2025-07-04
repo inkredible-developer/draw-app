@@ -136,7 +136,7 @@ class CameraModePickerViewController: UIViewController, UICollectionViewDataSour
         lightingButton.backgroundColor = UIColor(white: 0.25, alpha: 0.65)
         lightingButton.layer.cornerRadius = 22
         lightingButton.clipsToBounds = true
-        lightingButton.contentEdgeInsets = UIEdgeInsets(top: 12, left: 28, bottom: 12, right: 28)
+//        lightingButton.contentEdgeInsets = UIEdgeInsets(top: 12, left: 28, bottom: 12, right: 28)
         lightingButton.translatesAutoresizingMaskIntoConstraints = false
         lightingButton.addTarget(self, action: #selector(openModal), for: .touchUpInside)
         view.addSubview(lightingButton)

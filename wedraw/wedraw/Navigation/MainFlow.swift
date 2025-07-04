@@ -164,18 +164,29 @@ enum MainFlow: NavigationDestination, Equatable {
             return true
         case (.selectDrawingViewController, .selectDrawingViewController):
             return true
-        case (.tutorialSheetViewController(let lhsMode), .tutorialSheetViewController(let rhsMode)):
-            return lhsMode == rhsMode
+//        case (.tutorialSheetViewController(let lhsMode), .tutorialSheetViewController(let rhsMode)):
+//            return lhsMode == rhsMode
+        case let (.tutorialSheetViewController(lhsMode, lhsAngle),
+                  .tutorialSheetViewController(rhsMode, rhsAngle)):
+            return lhsMode == rhsMode && lhsAngle == rhsAngle
         case (.setAngleViewController, .setAngleViewController):
             return true
         case (.drawingStepsViewController(let lhsMode), .drawingStepsViewController(let rhsMode)):
             return lhsMode == rhsMode
         case (.arTracingViewController, .arTracingViewController):
             return true
-        case (.photoCaptureSheetViewController(let lhsMode), .photoCaptureSheetViewController(let rhsMode)):
-            return lhsMode == rhsMode
-        case (.contourDetectionViewController(let lhsMode), .contourDetectionViewController(let rhsMode)):
-            return lhsMode == rhsMode
+//        case (.photoCaptureSheetViewController(let lhsMode), .photoCaptureSheetViewController(let rhsMode)):
+//            return lhsMode == rhsMode
+        case let (.photoCaptureSheetViewController(lhsImage, lhsId, lhsFinished),
+                  .photoCaptureSheetViewController(rhsImage, rhsId, rhsFinished)):
+            return lhsImage == rhsImage && lhsId == rhsId && lhsFinished == rhsFinished
+//        case (.contourDetectionViewController(let lhsMode), .contourDetectionViewController(let rhsMode)):
+//            return lhsMode == rhsMode
+        case let (.contourDetectionViewController(lhsRefImage, lhsUserPhoto, lhsDrawId),
+                  .contourDetectionViewController(rhsRefImage, rhsUserPhoto, rhsDrawId)):
+            return lhsRefImage == rhsRefImage &&
+                   lhsUserPhoto == rhsUserPhoto &&
+                   lhsDrawId == rhsDrawId
         case (.cameraTesterViewController, .cameraTesterViewController):
             return true
         case (.loomishDetailViewController, .loomishDetailViewController):

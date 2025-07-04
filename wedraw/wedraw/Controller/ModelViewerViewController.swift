@@ -639,9 +639,9 @@ class ModelViewerViewController: UIViewController {
         //            let width = Int(sceneView.bounds.width * scale)
         //            let height = Int(sceneView.bounds.height * scale)
         
-        let viewSize = sceneView.bounds.size
+//        let viewSize = sceneView.bounds.size
         let scale = UIScreen.main.scale
-        let minLength = min(viewSize.width, viewSize.height)
+//        let minLength = min(viewSize.width, viewSize.height)
 //        let dimension = Int(minLength * scale)
         //
         //            let width = dimension
