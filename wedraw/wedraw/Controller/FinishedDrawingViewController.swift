@@ -108,7 +108,8 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
             return
         }
         
-//        let save = drawService.setFinishedDraw(draw_id: drawID, similarity_score: similarityScore!, finished_image: finishedImagePath!)
+//        let save =
+        drawService.setFinishedDraw(draw_id: drawID, similarity_score: similarityScore!, finished_image: finishedImagePath!)
     }
     private func getDocumentsDirectory() -> URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
