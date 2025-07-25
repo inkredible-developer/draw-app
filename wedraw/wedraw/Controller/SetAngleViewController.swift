@@ -317,7 +317,7 @@ extension SetAngleViewController: SetAngleViewDelegate {
         loadingLabel.text = "Processing your journey..."
         loadingLabel.textColor = .white
         loadingLabel.textAlignment = .center
-        loadingLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        loadingLabel.font = UIFont.systemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize, weight: .medium)
         loadingLabel.translatesAutoresizingMaskIntoConstraints = false
         overlay.addSubview(loadingLabel)
         
