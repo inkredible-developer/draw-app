@@ -14,7 +14,7 @@ class ARTracingViewController: UIViewController {
     var arView: ARSCNView!
     
     var router: MainFlowRouter?
-    private var anchorImage: UIImage?
+    private var anchorImage: UIImage
     private var tracingImage: UIImage
     var drawId: UUID
     
@@ -131,6 +131,10 @@ class ARTracingViewController: UIViewController {
                 imageName: dataSteps[9].image!
             )
         ]
+        
+        DispatchQueue.main.async { [weak self] in
+               self?.updateStep()
+           }
     }
     // UI Components
     private let infoButton = CustomIconButtonView(
@@ -245,7 +249,7 @@ class ARTracingViewController: UIViewController {
     }()
     
     
-    init(anchorImage: UIImage?, tracingImage: UIImage, drawId: UUID) {
+    init(anchorImage: UIImage, tracingImage: UIImage, drawId: UUID) {
         self.anchorImage = anchorImage
         self.tracingImage = tracingImage
         self.drawId = drawId
@@ -259,18 +263,30 @@ class ARTracingViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadDraw()
-        setupARView()
-        setupAnchorPopupView()
-        setupGestures()
+        
+
         setupNavBarColor()
+        setupARView()
         configureNavigationBar()
-        setupDrawingStepsUI()
-        updateStep()
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            self?.loadDraw()
+            
+            DispatchQueue.main.async {
+                // Panggil updateStep pertama kali setelah data dimuat
+                self?.updateStep()
+                self?.setupAnchorPopupView()
+                self?.setupGestures()
+                self?.setupDrawingStepsUI()
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        if arView == nil {
+            setupARView()           // fungsi yang bikin ARSCNView baru, set delegate, addSubview, constraints
+        }
         resetTracking()
     }
     
@@ -288,7 +304,13 @@ class ARTracingViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         arView.session.pause()
-        UIApplication.shared.isIdleTimerDisabled = false
+        arView.delegate = nil
+        arView.session.delegate = nil
+        arView.scene.rootNode.enumerateChildNodes { node, _ in
+            node.removeFromParentNode()
+        }
+        arView.removeFromSuperview()
+           arView = nil
     }
     
     private func setupNavBarColor() {
@@ -399,21 +421,21 @@ class ARTracingViewController: UIViewController {
         
         self.referenceImage = referenceImage
         
-        let configuration = ARWorldTrackingConfiguration()
-        configuration.detectionImages = [referenceImage]
+        let configuration = ARImageTrackingConfiguration()
+        configuration.trackingImages = [referenceImage]
         configuration.maximumNumberOfTrackedImages = 1
-        configuration.planeDetection = [.horizontal, .vertical]
+//        configuration.planeDetection = [.horizontal, .vertical]
         
-        if #available(iOS 13.0, *) {
-            configuration.isAutoFocusEnabled = true
-            configuration.environmentTexturing = .automatic
-        }
+//        if #available(iOS 13.0, *) {
+//            configuration.isAutoFocusEnabled = true
+//            configuration.environmentTexturing = .automatic
+//        }
         
         arView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
     }
     
     private func createReferenceImage() -> ARReferenceImage? {
-        guard let cgImage = anchorImage?.cgImage else { return nil }
+        guard let cgImage = anchorImage.cgImage else { return nil }
         let referenceImage = ARReferenceImage(
             cgImage,
             orientation: .up,
@@ -449,7 +471,7 @@ class ARTracingViewController: UIViewController {
         let step = steps[currentIndex]
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(step.imageName)
-        var currentStepImage = tracingImage
+        let currentStepImage = tracingImage
 
         let width: CGFloat = 0.25
         let aspectRatio = currentStepImage.size.height / currentStepImage.size.width
@@ -1067,26 +1089,32 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
                 self.moveTracingNodeToImageAnchor()
             }
         } else if tracingNode == nil {
-            let newTracingNode = createTracingNode()
-            let anchorWidth = imageAnchor.referenceImage.physicalSize.width
-            let anchorHeight = imageAnchor.referenceImage.physicalSize.height
-
-            if let plane = newTracingNode.geometry as? SCNPlane {
-                // Offset so top-left of tracing image is at anchor center, node at bottom-right
-                let offsetX = plane.width / 2
-                let offsetZ = plane.height / 2
-                newTracingNode.position = SCNVector3(x: Float(offsetX), y: 0.001, z: Float(offsetZ))
+            updateQueue.async { [weak self] in
+                guard let self = self else { return }
+                
+                let newTracingNode = createTracingNode()
+                let anchorWidth = imageAnchor.referenceImage.physicalSize.width
+                let anchorHeight = imageAnchor.referenceImage.physicalSize.height
+                
+                if let plane = newTracingNode.geometry as? SCNPlane {
+                    // Offset so top-left of tracing image is at anchor center, node at bottom-right
+                    let offsetX = plane.width / 2
+                    let offsetZ = plane.height / 2
+                    newTracingNode.position = SCNVector3(x: Float(offsetX), y: 0.001, z: Float(offsetZ))
+                    newTracingNode.position = SCNVector3(x: Float(offsetX), y: 0.001, z: Float(offsetZ))
+                }
+                newTracingNode.eulerAngles.x = -.pi / 2
+                DispatchQueue.main.async {
+                    node.addChildNode(newTracingNode)
+                    self.tracingNode = newTracingNode
+                }
+                
+                if let plane = newTracingNode.geometry as? SCNPlane {
+                    originalPlaneSize = CGSize(width: plane.width, height: plane.height)
+                }
+                
+                updateRelativeTransform()
             }
-            newTracingNode.eulerAngles.x = -.pi / 2
-
-            node.addChildNode(newTracingNode)
-            tracingNode = newTracingNode
-            
-            if let plane = newTracingNode.geometry as? SCNPlane {
-                originalPlaneSize = CGSize(width: plane.width, height: plane.height)
-            }
-            
-            updateRelativeTransform()
         }
     }
     
@@ -1186,6 +1214,10 @@ extension ARTracingViewController: ARSCNViewDelegate, ARSessionDelegate {
         guard error is ARError else { return }
         
         DispatchQueue.main.async {
+            print("[ARSession error]", error)
+            if let are = error as? ARError {
+              print("ARError code:", are.errorCode)
+            }
             self.anchorPopupView?.isHidden = false
             
             if self.tracingNode == nil && !self.hasPlacedInitialTracingNode {

@@ -239,6 +239,7 @@ class HomeViewController: UIViewController, SegmentedCardViewDelegate {
                     sceneDelegate.cameraCoordinator = CameraCoordinator(
                         presentingViewController: rootVC,
                         router: self.router,
+//                        drawId: draw.draw_id,
                         onImageCropped: { [weak sceneDelegate] image in
                             guard let tracingImage = UIImage(named: "traceng") else { return }
                             

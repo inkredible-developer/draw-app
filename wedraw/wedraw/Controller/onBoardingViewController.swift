@@ -5,6 +5,7 @@
 //  Created by Ali An Nuur on 23/06/25.
 //
 import UIKit
+import AVFoundation
 
 // MARK: – Model
 struct OnboardingPage {
@@ -200,11 +201,41 @@ extension OnboardingViewController : CustomButtonDelegate {
         
         if currentPage == pages.count - 1 {
             //        print("GAS")
+            requestCameraPermission()
             onboardingCompleted?()
             return
         }
         
         let offset = CGPoint(x: view.bounds.width * CGFloat(next), y: 0)
         scrollView.setContentOffset(offset, animated: true)
+    }
+}
+
+extension OnboardingViewController {
+    private func requestCameraPermission() {
+        AVCaptureDevice.requestAccess(for: .video) { granted in
+            DispatchQueue.main.async {
+                if !granted {
+                    self.showCameraPermissionAlert()
+                }
+            }
+        }
+    }
+    
+    private func showCameraPermissionAlert() {
+        let alert = UIAlertController(
+            title: "Camera Access Required",
+            message: "WeDraw needs camera access for AR drawing features. Please enable camera access in Settings.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsURL)
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
     }
 }

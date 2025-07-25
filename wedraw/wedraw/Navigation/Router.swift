@@ -5,7 +5,6 @@
 //  Created by Ali An Nuur on 23/06/25.
 //
 
-// Router.swift for UIKit
 import UIKit
 
 protocol NavigationDestination {
@@ -15,7 +14,6 @@ protocol NavigationDestination {
 }
 
 extension NavigationDestination {
-    // Default implementation that doesn't use router
     func createViewControllerWithRouter<T: NavigationDestination>(_ router: Router<T>) -> UIViewController {
         return createViewController()
     }
@@ -30,7 +28,6 @@ final class Router<Destination: NavigationDestination>: NSObject {
     }
     
     func navigate(to destination: Destination, animated: Bool = true) {
-           // Use the new method that injects the router
            let viewController = destination.createViewControllerWithRouter(self)
            viewController.title = destination.title
            navigationController?.pushViewController(viewController, animated: animated)
@@ -74,3 +71,4 @@ final class Router<Destination: NavigationDestination>: NSObject {
     }
     
 }
+ 
