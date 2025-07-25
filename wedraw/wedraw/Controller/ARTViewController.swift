@@ -692,7 +692,7 @@ class ARTracingViewController: UIViewController {
             }
         }
         
-        if let imageAnchorNode = imageAnchorNode {
+        if imageAnchorNode != nil {
             lastRelativePosition = tracingNode.position
             lastRelativeRotation = tracingNode.eulerAngles
         }

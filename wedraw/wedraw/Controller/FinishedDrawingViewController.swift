@@ -70,14 +70,11 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
     }
 
     @objc private func finishButtonTapped() {
-        // Save progress logic can be added here
         saveProgress()
         navigateToHome()
     }
     
     func finishedDrawingViewDidTapDone(_ view: FinishedDrawingView) {
-        // This method is called if the view itself has a done button
-        // For now, we're using the navigation bar button instead
         finishButtonTapped()
     }
     
@@ -90,7 +87,7 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
         
         // Get the current draw details
         let drawDetails = drawService.getDrawById(draw_id: drawID)
-        guard let draw = drawDetails.first else {
+        guard drawDetails.first != nil else {
             print("❌ No draw found with ID: \(drawID)")
             return
         }
@@ -111,17 +108,18 @@ class FinishedDrawingViewController: UIViewController, FinishedDrawingViewDelega
             return
         }
         
-        let save = drawService.setFinishedDraw(draw_id: drawID, similarity_score: similarityScore!, finished_image: finishedImagePath!)
+//        let save =
+        drawService.setFinishedDraw(draw_id: drawID, similarity_score: similarityScore!, finished_image: finishedImagePath!)
     }
     private func getDocumentsDirectory() -> URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
-    private func calculateSimilarityScore() -> Int {
-        // TODO: Implement your similarity calculation logic here
-        // For now, return a random score between 60-95
-        return Int.random(in: 60...95)
-    }
+//    private func calculateSimilarityScore() -> Int {
+//        // TODO: Implement your similarity calculation logic here
+//        // For now, return a random score between 60-95
+//        return Int.random(in: 60...95)
+//    }
     
     private func generateFinishedImagePath() -> String? {
         // TODO: Implement logic to save the finished drawing image

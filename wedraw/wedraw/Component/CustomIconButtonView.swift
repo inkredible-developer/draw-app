@@ -5,7 +5,6 @@
 //  Created by Ali An Nuur on 23/06/25.
 //
 
-// CustomIconButtonView.swift
 import UIKit
 
 protocol CustomIconButtonViewDelegate: AnyObject {
@@ -52,7 +51,6 @@ class CustomIconButtonView: UIButton {
        
     }
     
-    // MARK: - Configuration
     func configure(iconName: String, iconColor: UIColor, backgroundColor: UIColor) {
         self.iconName = iconName
         let image = UIImage(systemName: iconName)
@@ -60,11 +58,9 @@ class CustomIconButtonView: UIButton {
         tintColor = iconColor
         self.backgroundColor = backgroundColor
         
-        // Set proper image size after layout
         setNeedsLayout()
     }
     
-    // MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
         updateIconSize()
@@ -75,8 +71,8 @@ class CustomIconButtonView: UIButton {
         
         if #available(iOS 13.0, *) {
             // Calculate desired icon size based on button dimensions
-            let buttonSize = min(bounds.width, bounds.height)
-            let desiredIconSize = buttonSize * iconScale
+//            let buttonSize = min(bounds.width, bounds.height)
+//            let desiredIconSize = buttonSize * iconScale
             
             // Create configuration with the desired size
             let config = UIImage.SymbolConfiguration(scale: getSymbolScale(for: iconScale))
@@ -86,16 +82,15 @@ class CustomIconButtonView: UIButton {
             setImage(resizedImage, for: .normal)
             
             // Center the image
-            contentEdgeInsets = UIEdgeInsets(
-                top: (bounds.height - desiredIconSize) / 2,
-                left: (bounds.width - desiredIconSize) / 2,
-                bottom: (bounds.height - desiredIconSize) / 2,
-                right: (bounds.width - desiredIconSize) / 2
-            )
+//            contentEdgeInsets = UIEdgeInsets(
+//                top: (bounds.height - desiredIconSize) / 2,
+//                left: (bounds.width - desiredIconSize) / 2,
+//                bottom: (bounds.height - desiredIconSize) / 2,
+//                right: (bounds.width - desiredIconSize) / 2
+//            )
         }
     }
     
-    // Convert scale factor to symbol scale enum
     private func getSymbolScale(for scale: CGFloat) -> UIImage.SymbolScale {
         if scale <= 0.4 {
             return .small
@@ -106,14 +101,12 @@ class CustomIconButtonView: UIButton {
         }
     }
     
-    // MARK: - Actions
     @objc private func buttonTapped() {
         // Add debug to verify this gets called
         print("CustomIconButtonView tapped: \(self.iconName ?? "unknown")")
         delegate?.didTapCustomViewButton(self)
     }
     
-    // Method to update button size
     func updateSize(width: CGFloat) {
         constraints.forEach { constraint in
             if (constraint.firstAttribute == .width || constraint.firstAttribute == .height) &&
@@ -128,7 +121,6 @@ class CustomIconButtonView: UIButton {
         setNeedsLayout()
     }
     
-    // Method to update icon scale
     func updateIconScale(_ scale: CGFloat) {
         self.iconScale = scale
         setNeedsLayout()

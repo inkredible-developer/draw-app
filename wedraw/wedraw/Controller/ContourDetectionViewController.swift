@@ -405,7 +405,7 @@ public struct ContourSimilarityCalculator {
         user usr: UIImage
     ) -> Double {
         let c = similarityContourBased(reference: ref, user: usr)
-        let f = similarityFeaturePrint(reference: ref, user: usr)
+        _ = similarityFeaturePrint(reference: ref, user: usr)
         
         let sim = enhancedFeaturePrintSimilarity(
             reference: ref,

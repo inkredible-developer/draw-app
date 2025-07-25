@@ -204,9 +204,3 @@ class FinishedDrawingView: UIView {
         ])
     }
 }
-
-
-
-//#Preview {
-//    FinishedDrawingView()
-//}
